@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- 背景 -->
+  <rect width="512" height="512" rx="100" fill="#4F46E5"/>
+  <!-- クリップボード本体 -->
+  <rect x="120" y="130" width="272" height="310" rx="20" fill="white"/>
+  <!-- クリップ部分 -->
+  <rect x="196" y="100" width="120" height="60" rx="16" fill="#3730A3"/>
+  <!-- チェックライン1 -->
+  <circle cx="168" cy="224" r="16" fill="#4F46E5"/>
+  <polyline points="160,224 166,232 178,218" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <rect x="200" y="216" width="120" height="16" rx="8" fill="#E2E8F0"/>
+  <!-- チェックライン2 -->
+  <circle cx="168" cy="284" r="16" fill="#4F46E5"/>
+  <polyline points="160,284 166,292 178,278" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <rect x="200" y="276" width="96" height="16" rx="8" fill="#E2E8F0"/>
+  <!-- チェックライン3（未完了） -->
+  <circle cx="168" cy="344" r="16" fill="#E2E8F0"/>
+  <rect x="200" y="336" width="136" height="16" rx="8" fill="#E2E8F0"/>
+</svg>
