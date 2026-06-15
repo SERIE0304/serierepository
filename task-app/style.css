@@ -1,0 +1,354 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Meiryo', sans-serif;
+  background: #F8FAFC;
+  color: #1E293B;
+  min-height: 100vh;
+}
+
+/* ヘッダー */
+header {
+  background: #4F46E5;
+  color: white;
+  padding: 0 20px;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+
+header h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.header-actions select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.header-actions select option {
+  color: #1E293B;
+  background: white;
+}
+
+/* ボタン */
+.btn-primary {
+  background: white;
+  color: #4F46E5;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:hover { opacity: 0.85; }
+
+.btn-secondary {
+  background: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover { background: #E2E8F0; }
+
+/* ボード */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.column {
+  background: #EEF2FF;
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 500px;
+}
+
+.column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.column-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #3730A3;
+}
+
+.column-count {
+  background: #4F46E5;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 99px;
+  padding: 2px 8px;
+  min-width: 24px;
+  text-align: center;
+}
+
+#col-進行中 {
+  background: #FFF7ED;
+}
+#col-進行中 .column-title { color: #C2410C; }
+#col-進行中 .column-count { background: #EA580C; }
+
+#col-完了 {
+  background: #F0FDF4;
+}
+#col-完了 .column-title { color: #166534; }
+#col-完了 .column-count { background: #16A34A; }
+
+/* タスクカード */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-card {
+  background: white;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border-left: 4px solid #CBD5E1;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.task-card.priority-高 { border-left-color: #EF4444; }
+.task-card.priority-中 { border-left-color: #F59E0B; }
+.task-card.priority-低 { border-left-color: #94A3B8; }
+.task-card.overdue { background: #FFF5F5; }
+
+.task-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.tag {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 500;
+}
+
+.tag-assignee {
+  background: #EEF2FF;
+  color: #4338CA;
+}
+
+.tag-priority-高 { background: #FEE2E2; color: #B91C1C; }
+.tag-priority-中 { background: #FEF3C7; color: #92400E; }
+.tag-priority-低 { background: #F1F5F9; color: #64748B; }
+
+.tag-due {
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.tag-due.overdue {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+.task-memo {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* モーダル */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  font-size: 1.1rem;
+  color: #1E293B;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #94A3B8;
+  padding: 4px;
+}
+
+.modal-close:hover { color: #1E293B; }
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 5px;
+}
+
+.required { color: #EF4444; }
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #1E293B;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+
+.form-group textarea { resize: vertical; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.form-actions > div {
+  display: flex;
+  gap: 8px;
+}
+
+#deleteTaskBtn {
+  color: #EF4444;
+  border-color: #FEE2E2;
+  background: #FFF5F5;
+}
+
+#deleteTaskBtn:hover { background: #FEE2E2; }
+
+/* レスポンシブ */
+@media (max-width: 700px) {
+  .board {
+    grid-template-columns: 1fr;
+  }
+
+  .column {
+    min-height: 200px;
+  }
+
+  .header-inner {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px 0;
+    gap: 8px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

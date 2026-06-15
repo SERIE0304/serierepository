@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>社内タスク管理</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>📋 社内タスク管理</h1>
+      <div class="header-actions">
+        <select id="filterAssignee">
+          <option value="">全員</option>
+          <option value="代表取締役">代表取締役</option>
+          <option value="取締役">取締役</option>
+          <option value="社員">社員</option>
+          <option value="スタッフA">スタッフA</option>
+          <option value="スタッフB">スタッフB</option>
+        </select>
+        <button class="btn-primary" id="openModalBtn">+ タスク追加</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="board">
+      <div class="column" id="col-未着手">
+        <div class="column-header">
+          <span class="column-title">未着手</span>
+          <span class="column-count" id="count-未着手">0</span>
+        </div>
+        <div class="task-list" id="list-未着手" data-status="未着手"></div>
+      </div>
+      <div class="column" id="col-進行中">
+        <div class="column-header">
+          <span class="column-title">進行中</span>
+          <span class="column-count" id="count-進行中">0</span>
+        </div>
+        <div class="task-list" id="list-進行中" data-status="進行中"></div>
+      </div>
+      <div class="column" id="col-完了">
+        <div class="column-header">
+          <span class="column-title">完了</span>
+          <span class="column-count" id="count-完了">0</span>
+        </div>
+        <div class="task-list" id="list-完了" data-status="完了"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- モーダル -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">タスク追加</h2>
+        <button class="modal-close" id="closeModalBtn">✕</button>
+      </div>
+      <form id="taskForm">
+        <input type="hidden" id="taskId">
+        <div class="form-group">
+          <label>タイトル <span class="required">*</span></label>
+          <input type="text" id="taskTitle" placeholder="タスクのタイトル" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>担当者</label>
+            <select id="taskAssignee">
+              <option value="">未設定</option>
+              <option value="代表取締役">代表取締役</option>
+              <option value="取締役">取締役</option>
+              <option value="社員">社員</option>
+              <option value="スタッフA">スタッフA</option>
+              <option value="スタッフB">スタッフB</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>優先度</label>
+            <select id="taskPriority">
+              <option value="中">中</option>
+              <option value="高">高</option>
+              <option value="低">低</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>期日</label>
+            <input type="date" id="taskDueDate">
+          </div>
+          <div class="form-group">
+            <label>ステータス</label>
+            <select id="taskStatus">
+              <option value="未着手">未着手</option>
+              <option value="進行中">進行中</option>
+              <option value="完了">完了</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>メモ</label>
+          <textarea id="taskMemo" rows="3" placeholder="補足情報など"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" id="deleteTaskBtn" style="display:none">削除</button>
+          <div>
+            <button type="button" class="btn-secondary" id="cancelBtn">キャンセル</button>
+            <button type="submit" class="btn-primary">保存</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
