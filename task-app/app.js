@@ -1,4 +1,3 @@
-const STORAGE_KEY = 'shaanai-tasks';
 const STATUSES = ['未着手', '進行中', '完了'];
 const HOURLY_RATE = 1100;
 const WEEKDAY = ['日','月','火','水','木','金','土'];
@@ -145,9 +144,18 @@ function formatDate(d) {
   return `${dt.getMonth()+1}/${dt.getDate()}`;
 }
 
-// ── タスク（ローカル保存） ───────────────────
-function loadTasks() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } }
-function saveTasks(t) { localStorage.setItem(STORAGE_KEY, JSON.stringify(t)); }
+// ── タスク（Firebase・全員共通） ─────────────
+let taskCache = [];
+
+function loadTasks() { return taskCache; }
+
+function listenTasks() {
+  db.ref('tasks').on('value', snap => {
+    const val = snap.val() || {};
+    taskCache = Object.keys(val).map(id => ({ id, ...val[id] }));
+    renderBoard();
+  });
+}
 
 function renderBoard() {
   const tasks = loadTasks();
@@ -209,16 +217,16 @@ overlay.addEventListener('click', e => { if (e.target === overlay) closeModal();
 document.getElementById('deleteTaskBtn').addEventListener('click', () => {
   const id = document.getElementById('taskId').value;
   if (!id || !confirm('このタスクを削除しますか？')) return;
-  saveTasks(loadTasks().filter(t => t.id !== id));
-  closeModal(); renderBoard();
+  db.ref('tasks/' + id).remove();
+  closeModal();
 });
 
 form.addEventListener('submit', e => {
   e.preventDefault();
   const id = document.getElementById('taskId').value;
   const tasks = loadTasks();
+  const taskId = id || generateId();
   const data = {
-    id: id || generateId(),
     title: document.getElementById('taskTitle').value.trim(),
     assignee: document.getElementById('taskAssignee').value,
     business: document.getElementById('taskBusiness').value,
@@ -228,9 +236,8 @@ form.addEventListener('submit', e => {
     memo: document.getElementById('taskMemo').value.trim(),
     createdAt: id ? (tasks.find(t => t.id === id)?.createdAt || new Date().toISOString()) : new Date().toISOString(),
   };
-  if (id) { const i = tasks.findIndex(t => t.id === id); if (i !== -1) tasks[i] = data; }
-  else tasks.push(data);
-  saveTasks(tasks); closeModal(); renderBoard();
+  db.ref('tasks/' + taskId).set(data);
+  closeModal();
 });
 
 document.getElementById('filterAssignee').addEventListener('change', renderBoard);
@@ -438,10 +445,9 @@ timeForm.addEventListener('submit', e => {
 
 // ── 初期化 ───────────────────────────────────
 populateBusinessSelects();
-renderBoard();
 
 window.onAuthReady = function() {
-  const staffRef = currentProfile.isAdmin ? db.ref('staff') : null;
+  listenTasks();
   db.ref('staffPublic').on('value', snap => {
     const val = snap.val() || {};
     staffCache = Object.keys(val).map(uid => ({ uid, ...val[uid] }));
