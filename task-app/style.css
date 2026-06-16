@@ -341,28 +341,98 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px 16px; }
 
 .no-records { color: #2a5a7a; padding: 16px; letter-spacing: 1px; }
 
-.time-list { display: flex; flex-direction: column; gap: 4px; }
-
-.time-row {
-  display: grid;
-  grid-template-columns: 55px 1fr 55px 85px 50px 1fr 50px;
+/* 月合計バー */
+.time-total-bar {
+  margin-bottom: 16px;
+}
+.total-bar-inner {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, rgba(0,20,55,0.7) 0%, rgba(0,10,40,0.8) 100%);
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(0,40,90,0.8) 0%, rgba(0,20,60,0.9) 100%);
+  border: 1px solid #3a7aaa;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 0 12px rgba(0,80,200,0.2);
+  flex-wrap: wrap;
+}
+.total-label { color: #7fd4ff; font-size: 0.85rem; letter-spacing: 1px; flex: 1; }
+.total-hours { color: #c8e8ff; font-size: 1.1rem; }
+.total-pay { color: #60e090; font-size: 1.1rem; }
+
+/* カレンダー */
+.staff-filter {
+  padding: 5px 10px;
+  border: 1px solid #3a7aaa;
+  border-radius: 4px;
+  background: rgba(0,20,60,0.8);
+  color: #7fd4ff;
+  font-family: 'DotGothic16', monospace;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.staff-filter option { background: #061230; color: #c8e8ff; }
+
+.time-calendar { display: flex; flex-direction: column; gap: 3px; }
+
+.cal-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 36px;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,15,50,0.6);
   border: 1px solid #1a3a5a;
   border-radius: 5px;
-  padding: 7px 10px;
+  padding: 6px 8px;
+  min-height: 40px;
   transition: border-color 0.15s;
 }
-.time-row:hover { border-color: #3a6a9a; }
+.cal-row:hover { border-color: #2a5a8a; }
+.cal-row.today { border-color: #4a8abf; background: rgba(0,40,100,0.5); }
+.cal-row.has-record { background: rgba(0,25,70,0.7); }
 
-.time-row-date { color: #4a7a9a; font-size: 0.8rem; }
-.time-row-hours { color: #c8e8ff; font-size: 0.85rem; text-align: right; }
-.time-row-pay { color: #60e090; font-size: 0.82rem; text-align: right; }
-.time-row-memo { color: #3a6a8a; font-size: 0.75rem; }
-.time-row-lock { font-size: 0.75rem; text-align: center; }
-.lock-yes { color: #60e090; }
-.lock-no { color: #ff8080; }
+.cal-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+.cal-day { font-size: 0.95rem; color: #c8e8ff; }
+.cal-week { font-size: 0.65rem; color: #4a7a9a; }
+.cal-date.sun .cal-day, .cal-date.sun .cal-week { color: #ff8080; }
+.cal-date.sat .cal-day, .cal-date.sat .cal-week { color: #7fd4ff; }
+
+.cal-content { display: flex; flex-direction: column; gap: 3px; }
+
+.cal-rec {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cal-hours { color: #c8e8ff; font-size: 0.82rem; }
+.cal-pay { color: #60e090; font-size: 0.8rem; }
+.cal-memo { color: #3a6a8a; font-size: 0.72rem; }
+
+.lock-yes { color: #60e090; font-size: 0.72rem; }
+.lock-no { color: #ff8080; font-size: 0.72rem; }
+
+.cal-add {
+  background: transparent;
+  border: 1px solid #1a4a6a;
+  border-radius: 3px;
+  color: #2a6a9a;
+  font-size: 0.9rem;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DotGothic16', monospace;
+}
+.cal-add:hover { border-color: #7fd4ff; color: #7fd4ff; }
 
 .btn-edit {
   background: rgba(0,30,70,0.6);

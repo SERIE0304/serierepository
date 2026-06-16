@@ -139,63 +139,83 @@ function changeMonth(dir) {
   renderTimeCard();
 }
 
+const WEEKDAY = ['日','月','火','水','木','金','土'];
+
 function renderTimeCard() {
   const y = currentMonth.getFullYear();
   const m = currentMonth.getMonth();
-  document.getElementById('monthLabel').textContent =
-    `${y}年${m + 1}月`;
+  const staff = document.getElementById('timeStaffFilter').value;
+
+  document.getElementById('monthLabel').textContent = `${y}年${m + 1}月`;
 
   const all = loadTimecards().filter(tc => {
     const d = new Date(tc.date);
-    return d.getFullYear() === y && d.getMonth() === m;
+    return d.getFullYear() === y && d.getMonth() === m && (!staff || tc.staff === staff);
   });
 
-  // スタッフ別集計
-  const summaryEl = document.getElementById('timeSummary');
-  summaryEl.innerHTML = '';
-  STAFF_LIST.forEach(staff => {
-    const records = all.filter(tc => tc.staff === staff);
-    if (records.length === 0) return;
-    const totalHours = records.reduce((s, tc) => s + tc.hours, 0);
-    const totalPay = totalHours * HOURLY_RATE;
-    const card = document.createElement('div');
-    card.className = 'summary-card';
-    card.innerHTML = `
-      <div class="summary-name">${escapeHtml(staff)}</div>
-      <div class="summary-hours">${totalHours}時間</div>
-      <div class="summary-pay">¥${totalPay.toLocaleString()}</div>
-    `;
-    summaryEl.appendChild(card);
-  });
-
-  if (all.length === 0) {
-    summaryEl.innerHTML = '<div class="no-records">▶ この月の記録はありません</div>';
+  // 月合計バー
+  const totalBar = document.getElementById('timeTotalBar');
+  if (all.length > 0) {
+    const totalH = all.reduce((s, tc) => s + tc.hours, 0);
+    const totalPay = totalH * HOURLY_RATE;
+    totalBar.innerHTML = `
+      <div class="total-bar-inner">
+        <span class="total-label">${staff || '全スタッフ'} 合計</span>
+        <span class="total-hours">${totalH} 時間</span>
+        <span class="total-pay">¥${totalPay.toLocaleString()}</span>
+      </div>`;
+  } else {
+    totalBar.innerHTML = `<div class="total-bar-inner"><span class="total-label">記録なし</span></div>`;
   }
 
-  // 履歴一覧（日付降順）
-  const listEl = document.getElementById('timeList');
-  listEl.innerHTML = '';
-  const sorted = [...all].sort((a, b) => b.date.localeCompare(a.date));
-  sorted.forEach(tc => {
+  // 日付カレンダー（その月の日数分）
+  const cal = document.getElementById('timeCalendar');
+  cal.innerHTML = '';
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const today = new Date().toISOString().slice(0, 10);
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayOfWeek = new Date(dateStr).getDay();
+    const recs = all.filter(tc => tc.date === dateStr);
+    const totalH = recs.reduce((s, tc) => s + tc.hours, 0);
+    const isToday = dateStr === today;
+    const isSun = dayOfWeek === 0;
+    const isSat = dayOfWeek === 6;
+
     const row = document.createElement('div');
-    row.className = 'time-row';
-    const lockMark = tc.lock === 'yes'
-      ? '<span class="time-row-lock lock-yes">🔑✓</span>'
-      : '<span class="time-row-lock lock-no">🔑✗</span>';
+    row.className = 'cal-row' + (isToday ? ' today' : '') + (recs.length > 0 ? ' has-record' : '');
+
+    let recHtml = '';
+    if (recs.length > 0) {
+      recs.forEach(tc => {
+        const lockIcon = tc.lock === 'yes' ? '🔑✓' : '🔑✗';
+        const lockClass = tc.lock === 'yes' ? 'lock-yes' : 'lock-no';
+        recHtml += `
+          <div class="cal-rec">
+            ${staff ? '' : `<span class="tag tag-assignee">${escapeHtml(tc.staff)}</span>`}
+            <span class="cal-hours">${tc.hours}h</span>
+            <span class="cal-pay">¥${(tc.hours * HOURLY_RATE).toLocaleString()}</span>
+            <span class="${lockClass}">${lockIcon}</span>
+            ${tc.memo ? `<span class="cal-memo">${escapeHtml(tc.memo)}</span>` : ''}
+            <button class="btn-edit" onclick="openTimeModal('${tc.id}')">編集</button>
+          </div>`;
+      });
+    }
+
     row.innerHTML = `
-      <span class="time-row-date">${formatDate(tc.date)}</span>
-      <span class="time-row-staff tag tag-assignee">${escapeHtml(tc.staff)}</span>
-      <span class="time-row-hours">${tc.hours}h</span>
-      <span class="time-row-pay">¥${(tc.hours * HOURLY_RATE).toLocaleString()}</span>
-      ${lockMark}
-      ${tc.memo ? `<span class="time-row-memo">${escapeHtml(tc.memo)}</span>` : '<span></span>'}
-      <button class="btn-edit" onclick="editTimeRecord('${tc.id}')">編集</button>
+      <div class="cal-date ${isSun ? 'sun' : isSat ? 'sat' : ''}">
+        <span class="cal-day">${d}</span>
+        <span class="cal-week">${WEEKDAY[dayOfWeek]}</span>
+      </div>
+      <div class="cal-content">${recHtml}</div>
+      <button class="cal-add" onclick="openTimeModal(null,'${dateStr}')">＋</button>
     `;
-    listEl.appendChild(row);
-  });
+    cal.appendChild(row);
+  }
 }
 
-// 時間ボタン生成（0.5刻み、0.5〜12）
+// 時間ボタン生成
 function buildHourButtons(selected = null) {
   const container = document.getElementById('hourButtons');
   container.innerHTML = '';
@@ -203,7 +223,7 @@ function buildHourButtons(selected = null) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'hour-btn' + (h === selected ? ' selected' : '');
-    btn.textContent = h % 1 === 0 ? `${h}h` : `${h}h`;
+    btn.textContent = `${h}h`;
     btn.onclick = () => selectHours(h);
     container.appendChild(btn);
   }
@@ -218,7 +238,6 @@ function selectHours(h) {
   });
 }
 
-// 鍵選択
 function selectLock(val) {
   document.getElementById('timeLock').value = val ? 'yes' : 'no';
   document.getElementById('lockYes').className = 'lock-btn' + (val ? ' selected-yes' : '');
@@ -229,16 +248,29 @@ function selectLock(val) {
 const timeOverlay = document.getElementById('timeModalOverlay');
 const timeForm = document.getElementById('timeForm');
 
-function openTimeModal(record = null) {
+function openTimeModal(idOrNull, dateStr) {
+  const tcs = loadTimecards();
+  const record = idOrNull ? tcs.find(tc => tc.id === idOrNull) : null;
+  const staff = document.getElementById('timeStaffFilter').value;
+
   document.getElementById('timeModalTitle').textContent = record ? '勤務記録 編集' : '勤務記録 追加';
   document.getElementById('timeId').value = record ? record.id : '';
-  document.getElementById('timeDate').value = record ? record.date : new Date().toISOString().slice(0, 10);
-  document.getElementById('timeStaff').value = record ? record.staff : '';
+
+  const date = record ? record.date : (dateStr || new Date().toISOString().slice(0, 10));
+  document.getElementById('timeDate').value = date;
+
+  const d = new Date(date);
+  const staffName = record ? record.staff : staff;
+  document.getElementById('timeStaff').value = staffName;
+  document.getElementById('timeInfo').textContent =
+    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${WEEKDAY[d.getDay()]}）　${staffName || ''}`;
+
   document.getElementById('timeMemo').value = record ? record.memo : '';
   document.getElementById('timeLock').value = record ? (record.lock || '') : '';
   document.getElementById('lockYes').className = 'lock-btn' + (record?.lock === 'yes' ? ' selected-yes' : '');
   document.getElementById('lockNo').className = 'lock-btn' + (record?.lock === 'no' ? ' selected-no' : '');
   document.getElementById('deleteTimeBtn').style.display = record ? 'inline-block' : 'none';
+
   buildHourButtons(record ? record.hours : null);
   if (record) {
     document.getElementById('timeHours').value = record.hours;
@@ -253,11 +285,6 @@ function openTimeModal(record = null) {
 
 function closeTimeModal() { timeOverlay.classList.remove('active'); timeForm.reset(); }
 
-function editTimeRecord(id) {
-  const record = loadTimecards().find(tc => tc.id === id);
-  if (record) openTimeModal(record);
-}
-
 timeOverlay.addEventListener('click', e => { if (e.target === timeOverlay) closeTimeModal(); });
 
 document.getElementById('deleteTimeBtn').addEventListener('click', () => {
@@ -271,14 +298,16 @@ timeForm.addEventListener('submit', e => {
   e.preventDefault();
   const hours = parseFloat(document.getElementById('timeHours').value);
   if (!hours) { alert('勤務時間を選択してください'); return; }
-  const id = document.getElementById('timeId').value;
-  const tcs = loadTimecards();
   const lock = document.getElementById('timeLock').value;
   if (!lock) { alert('鍵の確認を選択してください'); return; }
+  const staff = document.getElementById('timeStaff').value;
+  if (!staff) { alert('スタッフを選択してください'); return; }
+  const id = document.getElementById('timeId').value;
+  const tcs = loadTimecards();
   const data = {
     id: id || generateId(),
     date: document.getElementById('timeDate').value,
-    staff: document.getElementById('timeStaff').value,
+    staff,
     hours,
     lock,
     memo: document.getElementById('timeMemo').value.trim(),
