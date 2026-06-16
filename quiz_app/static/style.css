@@ -2,8 +2,21 @@
 body {
   font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   margin: 0;
-  background: #f4f6f8;
+  min-height: 100vh;
   color: #222;
+  background-color: #f4f6f8;
+  background-image:
+    radial-gradient(circle at 8% 12%, rgba(125, 196, 124, 0.18) 0, rgba(125, 196, 124, 0.18) 38px, transparent 39px),
+    radial-gradient(circle at 92% 8%, rgba(231, 111, 130, 0.18) 0, rgba(231, 111, 130, 0.18) 30px, transparent 31px),
+    radial-gradient(circle at 85% 28%, rgba(247, 198, 92, 0.20) 0, rgba(247, 198, 92, 0.20) 26px, transparent 27px),
+    radial-gradient(circle at 6% 45%, rgba(247, 198, 92, 0.18) 0, rgba(247, 198, 92, 0.18) 24px, transparent 25px),
+    radial-gradient(circle at 95% 55%, rgba(91, 155, 213, 0.18) 0, rgba(91, 155, 213, 0.18) 34px, transparent 35px),
+    radial-gradient(circle at 10% 75%, rgba(120, 144, 196, 0.18) 0, rgba(120, 144, 196, 0.18) 28px, transparent 29px),
+    radial-gradient(circle at 90% 82%, rgba(231, 111, 130, 0.20) 0, rgba(231, 111, 130, 0.20) 32px, transparent 33px),
+    radial-gradient(circle at 12% 95%, rgba(125, 196, 124, 0.16) 0, rgba(125, 196, 124, 0.16) 22px, transparent 23px);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
 }
 .topbar {
   background: #2c3e50;
