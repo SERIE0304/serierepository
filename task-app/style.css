@@ -25,6 +25,7 @@ body {
 body::before {
   content: '';
   position: fixed;
+  z-index: -1;
   top: 8%;
   left: 5%;
   width: 60px;
@@ -43,6 +44,7 @@ body::before {
 body::after {
   content: '';
   position: fixed;
+  z-index: -1;
   bottom: 18%;
   left: 3%;
   width: 8px;
@@ -164,7 +166,7 @@ header h1 {
 .btn-secondary:hover { border-color: #fff; color: #fff; }
 
 /* ボード */
-main { max-width: 1000px; margin: 0 auto; padding: 16px; }
+main { max-width: 1000px; margin: 0 auto; padding: 16px; position: relative; z-index: 1; }
 
 .board {
   display: grid;
