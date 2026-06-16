@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>業務クイズに挑戦</h1>
-<form method="post" action="{{ url_for('quiz_start') }}" class="card">
+<form method="post" action="{{ url_for('quiz_categories') }}" class="card">
   <label>お名前
     <input type="text" name="staff_name" required placeholder="例: 山田太郎">
   </label>
-  <label>カテゴリ
-    <select name="category">
-      <option value="">全カテゴリ</option>
-      {% for c in categories %}
-        <option value="{{ c }}">{{ c }}</option>
+  <label>編を選択
+    <select name="track" required>
+      <option value="" disabled selected>選択してください</option>
+      {% for t in tracks %}
+        <option value="{{ t }}">{{ t }}</option>
       {% endfor %}
     </select>
   </label>
-  <button type="submit">クイズを始める</button>
+  <button type="submit">次へ</button>
 </form>
 {% endblock %}

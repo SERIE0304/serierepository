@@ -5,6 +5,14 @@
 
 <h2>新しい問題を追加</h2>
 <form method="post" class="card">
+  <label>編
+    <select name="track" required>
+      <option value="" disabled selected>選択してください</option>
+      {% for t in tracks %}
+        <option value="{{ t }}">{{ t }}</option>
+      {% endfor %}
+    </select>
+  </label>
   <label>カテゴリ
     <input type="text" name="category" required placeholder="例: 接客マナー">
   </label>
@@ -31,11 +39,12 @@
 
 <h2>登録済みの問題一覧</h2>
 <table class="data-table">
-  <thead><tr><th>ID</th><th>カテゴリ</th><th>問題文</th><th>正解</th><th></th></tr></thead>
+  <thead><tr><th>ID</th><th>編</th><th>カテゴリ</th><th>問題文</th><th>正解</th><th></th></tr></thead>
   <tbody>
     {% for q in questions %}
       <tr>
         <td>{{ q.id }}</td>
+        <td>{{ q.track }}</td>
         <td>{{ q.category }}</td>
         <td>{{ q.question_text }}</td>
         <td>{{ [q.choice1, q.choice2, q.choice3, q.choice4][q.correct_index|int] }}</td>
@@ -46,7 +55,7 @@
         </td>
       </tr>
     {% else %}
-      <tr><td colspan="5">問題がまだありません</td></tr>
+      <tr><td colspan="6">問題がまだありません</td></tr>
     {% endfor %}
   </tbody>
 </table>

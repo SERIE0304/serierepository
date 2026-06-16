@@ -13,19 +13,33 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 
 @app.route("/")
 def index():
-    categories = sheets.list_categories()
-    return render_template("index.html", categories=categories)
+    return render_template("index.html", tracks=sheets.TRACKS)
+
+
+@app.route("/quiz/categories", methods=["POST"])
+def quiz_categories():
+    staff_name = request.form.get("staff_name", "").strip()
+    track = request.form.get("track", "").strip()
+    if not staff_name or track not in sheets.TRACKS:
+        flash("名前と編を選択してください")
+        return redirect(url_for("index"))
+
+    categories = sheets.list_categories(track)
+    return render_template(
+        "categories.html", staff_name=staff_name, track=track, categories=categories,
+    )
 
 
 @app.route("/quiz/start", methods=["POST"])
 def quiz_start():
     staff_name = request.form.get("staff_name", "").strip()
+    track = request.form.get("track", "").strip()
     category = request.form.get("category") or None
-    if not staff_name:
+    if not staff_name or track not in sheets.TRACKS:
         flash("名前を入力してください")
         return redirect(url_for("index"))
 
-    questions = sheets.list_questions(category)
+    questions = sheets.list_questions(track, category)
     if not questions:
         flash("対象の問題がありません")
         return redirect(url_for("index"))
@@ -33,6 +47,7 @@ def quiz_start():
     random.shuffle(questions)
     session["quiz"] = {
         "staff_name": staff_name,
+        "track": track,
         "category": category or "全体",
         "question_ids": [q["id"] for q in questions],
         "current": 0,
@@ -90,7 +105,7 @@ def quiz_answer():
     })
 
     sheets.record_response(
-        quiz["staff_name"], qid, quiz["category"], selected_index, correct,
+        quiz["staff_name"], quiz["track"], qid, quiz["category"], selected_index, correct,
     )
 
     quiz["current"] += 1
@@ -110,7 +125,7 @@ def quiz_result():
     session.pop("quiz", None)
     return render_template(
         "result.html", score=score, total=total, percentage=percentage,
-        results=results, staff_name=quiz["staff_name"],
+        results=results, staff_name=quiz["staff_name"], track=quiz["track"],
     )
 
 
@@ -141,42 +156,43 @@ def admin_dashboard():
 
     responses = sheets.all_responses()
 
-    by_staff = defaultdict(lambda: {"correct": 0, "total": 0})
-    by_category = defaultdict(lambda: {"correct": 0, "total": 0})
+    by_staff = defaultdict(lambda: defaultdict(lambda: {"correct": 0, "total": 0}))
+    by_category = defaultdict(lambda: defaultdict(lambda: {"correct": 0, "total": 0}))
     for r in responses:
+        track = r.get("track", "未分類")
         staff = r.get("staff_name", "")
         category = r.get("category", "")
         is_correct = str(r.get("correct")).strip().lower() in ("true", "1")
-        by_staff[staff]["total"] += 1
-        by_staff[staff]["correct"] += 1 if is_correct else 0
-        by_category[category]["total"] += 1
-        by_category[category]["correct"] += 1 if is_correct else 0
+        by_staff[track][staff]["total"] += 1
+        by_staff[track][staff]["correct"] += 1 if is_correct else 0
+        by_category[track][category]["total"] += 1
+        by_category[track][category]["correct"] += 1 if is_correct else 0
 
-    ranking = sorted(
-        (
-            {
-                "staff_name": name,
-                "correct": stats["correct"],
-                "total": stats["total"],
-                "rate": round(100 * stats["correct"] / stats["total"]) if stats["total"] else 0,
-            }
-            for name, stats in by_staff.items()
-        ),
-        key=lambda x: x["rate"],
-        reverse=True,
+    def _rate(stats):
+        return round(100 * stats["correct"] / stats["total"]) if stats["total"] else 0
+
+    ranking_by_track = {}
+    for track in sheets.TRACKS:
+        ranking_by_track[track] = sorted(
+            (
+                {"staff_name": name, "correct": s["correct"], "total": s["total"], "rate": _rate(s)}
+                for name, s in by_staff.get(track, {}).items()
+            ),
+            key=lambda x: x["rate"],
+            reverse=True,
+        )
+
+    category_stats_by_track = {}
+    for track in sheets.TRACKS:
+        category_stats_by_track[track] = [
+            {"category": name, "correct": s["correct"], "total": s["total"], "rate": _rate(s)}
+            for name, s in by_category.get(track, {}).items()
+        ]
+
+    return render_template(
+        "admin_dashboard.html", tracks=sheets.TRACKS,
+        ranking_by_track=ranking_by_track, category_stats_by_track=category_stats_by_track,
     )
-
-    category_stats = [
-        {
-            "category": name,
-            "correct": stats["correct"],
-            "total": stats["total"],
-            "rate": round(100 * stats["correct"] / stats["total"]) if stats["total"] else 0,
-        }
-        for name, stats in by_category.items()
-    ]
-
-    return render_template("admin_dashboard.html", ranking=ranking, category_stats=category_stats)
 
 
 @app.route("/admin/questions", methods=["GET", "POST"])
@@ -185,20 +201,21 @@ def admin_questions():
         return redirect(url_for("admin_login"))
 
     if request.method == "POST":
+        track = request.form.get("track", "").strip()
         category = request.form.get("category", "").strip()
         question_text = request.form.get("question_text", "").strip()
         choices = [request.form.get(f"choice{i}", "").strip() for i in range(1, 5)]
         correct_index = int(request.form.get("correct_index", 0))
         explanation = request.form.get("explanation", "").strip()
-        if category and question_text and choices[0] and choices[1]:
-            sheets.add_question(category, question_text, choices, correct_index, explanation)
+        if track in sheets.TRACKS and category and question_text and choices[0] and choices[1]:
+            sheets.add_question(track, category, question_text, choices, correct_index, explanation)
             flash("問題を追加しました")
         else:
-            flash("カテゴリ・問題文・選択肢1・選択肢2は必須です")
+            flash("編・カテゴリ・問題文・選択肢1・選択肢2は必須です")
         return redirect(url_for("admin_questions"))
 
     questions = sheets.list_questions()
-    return render_template("admin_questions.html", questions=questions)
+    return render_template("admin_questions.html", questions=questions, tracks=sheets.TRACKS)
 
 
 @app.route("/admin/questions/<question_id>/delete", methods=["POST"])
