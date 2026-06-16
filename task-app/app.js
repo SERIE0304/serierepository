@@ -47,8 +47,8 @@ function getStaffNames() { return loadStaff().map(s => s.name); }
 
 function populateStaffSelects() {
   const staff = loadStaff();
-  const selects = ['filterAssignee', 'timeStaffFilter', 'taskAssignee', 'timeStaffSelect'];
-  selects.forEach(id => {
+  const withPlaceholder = ['filterAssignee', 'taskAssignee', 'timeStaffSelect'];
+  withPlaceholder.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     const first = el.options[0];
@@ -61,6 +61,19 @@ function populateStaffSelects() {
       el.appendChild(opt);
     });
   });
+
+  const filterEl = document.getElementById('timeStaffFilter');
+  if (filterEl) {
+    const prev = filterEl.value;
+    filterEl.innerHTML = '';
+    staff.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.name;
+      opt.textContent = `${s.name}（${s.role}）`;
+      filterEl.appendChild(opt);
+    });
+    filterEl.value = staff.find(s => s.name === prev) ? prev : (staff[0]?.name || '');
+  }
 }
 
 function renderStaffPage() {
