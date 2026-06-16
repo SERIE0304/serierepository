@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>問題の管理</h1>
+<p><a href="{{ url_for('admin_dashboard') }}">ダッシュボードに戻る</a></p>
+
+<h2>新しい問題を追加</h2>
+<form method="post" class="card">
+  <label>カテゴリ
+    <input type="text" name="category" required placeholder="例: 接客マナー">
+  </label>
+  <label>問題文
+    <textarea name="question_text" required></textarea>
+  </label>
+  <label>選択肢1 (必須)<input type="text" name="choice1" required></label>
+  <label>選択肢2 (必須)<input type="text" name="choice2" required></label>
+  <label>選択肢3<input type="text" name="choice3"></label>
+  <label>選択肢4<input type="text" name="choice4"></label>
+  <label>正解の選択肢
+    <select name="correct_index">
+      <option value="0">選択肢1</option>
+      <option value="1">選択肢2</option>
+      <option value="2">選択肢3</option>
+      <option value="3">選択肢4</option>
+    </select>
+  </label>
+  <label>解説 (任意)
+    <textarea name="explanation"></textarea>
+  </label>
+  <button type="submit">追加する</button>
+</form>
+
+<h2>登録済みの問題一覧</h2>
+<table class="data-table">
+  <thead><tr><th>ID</th><th>カテゴリ</th><th>問題文</th><th>正解</th><th></th></tr></thead>
+  <tbody>
+    {% for q in questions %}
+      <tr>
+        <td>{{ q.id }}</td>
+        <td>{{ q.category }}</td>
+        <td>{{ q.question_text }}</td>
+        <td>{{ [q.choice1, q.choice2, q.choice3, q.choice4][q.correct_index|int] }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin_delete_question', question_id=q.id) }}" onsubmit="return confirm('削除しますか?');">
+            <button type="submit">削除</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5">問題がまだありません</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

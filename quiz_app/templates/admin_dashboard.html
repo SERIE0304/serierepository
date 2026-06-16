@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>管理者ダッシュボード</h1>
+<p><a href="{{ url_for('admin_questions') }}">問題を管理する</a> | <a href="{{ url_for('admin_logout') }}">ログアウト</a></p>
+
+<h2>スタッフ別ランキング</h2>
+<table class="data-table">
+  <thead><tr><th>順位</th><th>名前</th><th>正解数</th><th>回答数</th><th>正答率</th></tr></thead>
+  <tbody>
+    {% for r in ranking %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ r.staff_name }}</td>
+        <td>{{ r.correct }}</td>
+        <td>{{ r.total }}</td>
+        <td>{{ r.rate }}%</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5">まだ回答がありません</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>カテゴリ別正答率</h2>
+<table class="data-table">
+  <thead><tr><th>カテゴリ</th><th>正解数</th><th>回答数</th><th>正答率</th></tr></thead>
+  <tbody>
+    {% for c in category_stats %}
+      <tr>
+        <td>{{ c.category }}</td>
+        <td>{{ c.correct }}</td>
+        <td>{{ c.total }}</td>
+        <td>{{ c.rate }}%</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4">データがありません</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
