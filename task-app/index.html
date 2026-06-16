@@ -3,35 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>社内タスク管理</title>
+  <title>セリエコンチェルト</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="logo.jpeg" type="image/jpeg">
-  <meta name="theme-color" content="#4F46E5">
+  <meta name="theme-color" content="#000080">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="タスク管理">
+  <meta name="apple-mobile-web-app-title" content="セリエ">
   <link rel="apple-touch-icon" href="logo.jpeg">
 </head>
 <body>
   <header>
     <div class="header-inner">
-      <h1>📋 セリエコンチェルト</h1>
+      <h1>⚔ セリエコンチェルト</h1>
       <div class="header-actions">
         <select id="filterAssignee">
           <option value="">全員</option>
-          <option value="代表取締役">代表取締役</option>
-          <option value="取締役">取締役</option>
-          <option value="社員">社員</option>
-          <option value="スタッフA">スタッフA</option>
-          <option value="スタッフB">スタッフB</option>
         </select>
         <button class="btn-primary" id="openModalBtn" style="display:none">＋ タスク追加</button>
       </div>
     </div>
-    <!-- タブ -->
     <div class="tab-bar">
       <button class="tab active" id="tab-task" onclick="switchTab('task')">タスク管理</button>
       <button class="tab" id="tab-time" onclick="switchTab('time')">タイムカード</button>
+      <button class="tab" id="tab-staff" onclick="switchTab('staff')">スタッフ管理</button>
     </div>
   </header>
 
@@ -65,27 +60,36 @@
   <!-- タイムカード -->
   <main id="page-time" style="display:none">
     <div class="time-container">
-
-      <!-- 月・スタッフ選択バー -->
       <div class="time-month-bar">
         <button class="btn-secondary" onclick="changeMonth(-1)">◀</button>
         <span id="monthLabel" class="month-label"></span>
         <button class="btn-secondary" onclick="changeMonth(1)">▶</button>
         <select id="timeStaffFilter" onchange="renderTimeCard()" class="staff-filter">
-          <option value="">スタッフ選択</option>
-          <option value="代表取締役">代表取締役</option>
-          <option value="取締役">取締役</option>
-          <option value="社員">社員</option>
-          <option value="スタッフA">スタッフA</option>
-          <option value="スタッフB">スタッフB</option>
+          <option value="">全スタッフ</option>
         </select>
       </div>
-
-      <!-- 月合計 -->
       <div class="time-total-bar" id="timeTotalBar"></div>
-
-      <!-- 日付ごとのカレンダー -->
       <div class="time-calendar" id="timeCalendar"></div>
+    </div>
+  </main>
+
+  <!-- スタッフ管理 -->
+  <main id="page-staff" style="display:none">
+    <div class="staff-page">
+      <div class="staff-list-box">
+        <div id="staffListEl"></div>
+      </div>
+      <div class="dq-win" style="margin-bottom:12px;">
+        <div class="form-group">
+          <label>▶ 新規スタッフ名</label>
+          <input type="text" id="newStaffName" placeholder="名前を入力" maxlength="20">
+        </div>
+        <div class="form-group">
+          <label>▶ 役職</label>
+          <input type="text" id="newStaffRole" placeholder="例：スタッフ、パート など" maxlength="20">
+        </div>
+        <button class="btn-primary" onclick="addStaff()" style="width:100%;margin-top:6px;">＋ スタッフを追加</button>
+      </div>
     </div>
   </main>
 
@@ -105,14 +109,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>担当者</label>
-            <select id="taskAssignee">
-              <option value="">未設定</option>
-              <option value="代表取締役">代表取締役</option>
-              <option value="取締役">取締役</option>
-              <option value="社員">社員</option>
-              <option value="スタッフA">スタッフA</option>
-              <option value="スタッフB">スタッフB</option>
-            </select>
+            <select id="taskAssignee"><option value="">未設定</option></select>
           </div>
           <div class="form-group">
             <label>優先度</label>
@@ -139,7 +136,7 @@
         </div>
         <div class="form-group">
           <label>メモ</label>
-          <textarea id="taskMemo" rows="3" placeholder="補足情報など"></textarea>
+          <textarea id="taskMemo" rows="2" placeholder="補足情報など"></textarea>
         </div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" id="deleteTaskBtn" style="display:none">削除</button>
@@ -165,7 +162,13 @@
         <input type="hidden" id="timeStaff">
         <div class="form-group">
           <label>日付・スタッフ</label>
-          <div id="timeInfo" style="color:#7fd4ff;font-size:0.9rem;padding:6px 0;letter-spacing:1px;"></div>
+          <div id="timeInfo" style="color:#fff;font-size:0.88rem;padding:5px 0;letter-spacing:1px;"></div>
+        </div>
+        <div class="form-group">
+          <label>スタッフ選択 <span class="required">*</span></label>
+          <select id="timeStaffSelect" onchange="document.getElementById('timeStaff').value=this.value">
+            <option value="">選択してください</option>
+          </select>
         </div>
         <div class="form-group">
           <label>勤務時間 <span class="required">*</span></label>
