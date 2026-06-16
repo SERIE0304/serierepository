@@ -179,11 +179,15 @@ function renderTimeCard() {
   sorted.forEach(tc => {
     const row = document.createElement('div');
     row.className = 'time-row';
+    const lockMark = tc.lock === 'yes'
+      ? '<span class="time-row-lock lock-yes">🔑✓</span>'
+      : '<span class="time-row-lock lock-no">🔑✗</span>';
     row.innerHTML = `
       <span class="time-row-date">${formatDate(tc.date)}</span>
       <span class="time-row-staff tag tag-assignee">${escapeHtml(tc.staff)}</span>
       <span class="time-row-hours">${tc.hours}h</span>
       <span class="time-row-pay">¥${(tc.hours * HOURLY_RATE).toLocaleString()}</span>
+      ${lockMark}
       ${tc.memo ? `<span class="time-row-memo">${escapeHtml(tc.memo)}</span>` : '<span></span>'}
       <button class="btn-edit" onclick="editTimeRecord('${tc.id}')">編集</button>
     `;
@@ -214,6 +218,13 @@ function selectHours(h) {
   });
 }
 
+// 鍵選択
+function selectLock(val) {
+  document.getElementById('timeLock').value = val ? 'yes' : 'no';
+  document.getElementById('lockYes').className = 'lock-btn' + (val ? ' selected-yes' : '');
+  document.getElementById('lockNo').className = 'lock-btn' + (!val ? ' selected-no' : '');
+}
+
 // タイムカードモーダル
 const timeOverlay = document.getElementById('timeModalOverlay');
 const timeForm = document.getElementById('timeForm');
@@ -224,6 +235,9 @@ function openTimeModal(record = null) {
   document.getElementById('timeDate').value = record ? record.date : new Date().toISOString().slice(0, 10);
   document.getElementById('timeStaff').value = record ? record.staff : '';
   document.getElementById('timeMemo').value = record ? record.memo : '';
+  document.getElementById('timeLock').value = record ? (record.lock || '') : '';
+  document.getElementById('lockYes').className = 'lock-btn' + (record?.lock === 'yes' ? ' selected-yes' : '');
+  document.getElementById('lockNo').className = 'lock-btn' + (record?.lock === 'no' ? ' selected-no' : '');
   document.getElementById('deleteTimeBtn').style.display = record ? 'inline-block' : 'none';
   buildHourButtons(record ? record.hours : null);
   if (record) {
@@ -259,11 +273,14 @@ timeForm.addEventListener('submit', e => {
   if (!hours) { alert('勤務時間を選択してください'); return; }
   const id = document.getElementById('timeId').value;
   const tcs = loadTimecards();
+  const lock = document.getElementById('timeLock').value;
+  if (!lock) { alert('鍵の確認を選択してください'); return; }
   const data = {
     id: id || generateId(),
     date: document.getElementById('timeDate').value,
     staff: document.getElementById('timeStaff').value,
     hours,
+    lock,
     memo: document.getElementById('timeMemo').value.trim(),
   };
   if (id) { const i = tcs.findIndex(tc => tc.id === id); if (i !== -1) tcs[i] = data; }
