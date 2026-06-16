@@ -46,3 +46,24 @@ python app.py
 - ローカルPCや社内サーバーで動かせばサーバー費用は無料です。
 - 外部公開したい場合は Render / Railway / Fly.io などの無料枠でデプロイできます。
 - データ保存はGoogleスプレッドシートのみなので追加のデータベース費用は不要です。
+
+## Renderでの公開デプロイ手順(誰でもアクセスできるURLが欲しい場合)
+
+1. https://render.com/ にアクセスし、GitHubアカウントでログイン
+2. 「New +」→「Web Service」を選択
+3. このリポジトリ(`serierepository`)を連携
+4. 設定項目を入力:
+   - **Root Directory**: `quiz_app`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn app:app`
+   - **Instance Type**: Free
+5. 「Environment」タブで以下の環境変数を設定:
+   - `QUIZ_SPREADSHEET_ID`: スプレッドシートID
+   - `GOOGLE_CREDENTIALS_JSON`: ダウンロードしたサービスアカウントのJSONファイルの中身をそのまま貼り付け
+   - `ADMIN_PASSWORD`: 管理者パスワード
+   - `FLASK_SECRET_KEY`: 任意のランダムな文字列
+   - `QUIZ_QUESTION_COUNT`: 出題数(省略可、デフォルト10)
+6. 「Create Web Service」をクリックするとビルド・デプロイが始まり、完了すると
+   `https://(サービス名).onrender.com` のようなURLが発行され、誰でもアクセスできるようになります。
+
+※Renderの無料プランは一定時間アクセスがないとスリープし、次のアクセス時に起動まで数十秒かかることがあります。

@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 
@@ -6,6 +7,7 @@ from google.oauth2.service_account import Credentials
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 CREDENTIALS_PATH = os.environ.get("GOOGLE_CREDENTIALS_PATH", "credentials.json")
+CREDENTIALS_JSON = os.environ.get("GOOGLE_CREDENTIALS_JSON")
 SPREADSHEET_ID = os.environ.get("QUIZ_SPREADSHEET_ID")
 
 TRACKS = ["実務編", "フランチャイジー編"]
@@ -22,7 +24,11 @@ RESPONSES_HEADER = [
 
 
 def _client():
-    creds = Credentials.from_service_account_file(CREDENTIALS_PATH, scopes=SCOPES)
+    if CREDENTIALS_JSON:
+        info = json.loads(CREDENTIALS_JSON)
+        creds = Credentials.from_service_account_info(info, scopes=SCOPES)
+    else:
+        creds = Credentials.from_service_account_file(CREDENTIALS_PATH, scopes=SCOPES)
     return gspread.authorize(creds)
 
 
