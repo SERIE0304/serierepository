@@ -19,7 +19,7 @@ const DEFAULT_STAFF = [
 const BUSINESSES = ['フィットネスジム', 'なんだパンダ', '旅館', 'レストランUra no kado'];
 
 function populateBusinessSelects() {
-  const selects = ['filterBusiness', 'timeBusinessFilter', 'taskBusiness', 'timeBusinessSelect'];
+  const selects = ['filterBusiness', 'taskBusiness', 'timeBusinessSelect'];
   selects.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -247,12 +247,11 @@ function renderTimeCard() {
   const y = currentMonth.getFullYear();
   const m = currentMonth.getMonth();
   const staff = document.getElementById('timeStaffFilter').value;
-  const biz = document.getElementById('timeBusinessFilter').value;
   document.getElementById('monthLabel').textContent = `${y}年${m+1}月`;
 
   const all = loadTimecards().filter(tc => {
     const d = new Date(tc.date);
-    return d.getFullYear() === y && d.getMonth() === m && (!staff || tc.staff === staff) && (!biz || tc.business === biz);
+    return d.getFullYear() === y && d.getMonth() === m && (!staff || tc.staff === staff);
   });
 
   // 月合計
@@ -346,8 +345,7 @@ function openTimeModal(idOrNull, dateStr) {
   document.getElementById('timeStaff').value = staffName;
   document.getElementById('timeStaffSelect').value = staffName;
 
-  const bizFilter = document.getElementById('timeBusinessFilter').value;
-  document.getElementById('timeBusinessSelect').value = record?.business || bizFilter || '';
+  document.getElementById('timeBusinessSelect').value = record?.business || '';
 
   const d = new Date(date);
   document.getElementById('timeInfo').textContent =
