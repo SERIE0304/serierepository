@@ -1,4 +1,4 @@
-const CACHE = 'task-app-v10';
+const CACHE = 'task-app-v11';
 const FILES = ['./', 'index.html', 'style.css', 'app.js', 'icon.svg', 'manifest.json'];
 
 self.addEventListener('install', e => {

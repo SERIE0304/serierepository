@@ -15,6 +15,26 @@ const DEFAULT_STAFF = [
   { name: '小筆',     role: 'スタッフ' },
 ];
 
+// ── 事業所 ───────────────────────────────────
+const BUSINESSES = ['フィットネスジム', 'なんだパンダ', '旅館', 'レストランUra no kado'];
+
+function populateBusinessSelects() {
+  const selects = ['filterBusiness', 'timeBusinessFilter', 'taskBusiness', 'timeBusinessSelect'];
+  selects.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const first = el.options[0];
+    el.innerHTML = '';
+    el.appendChild(first);
+    BUSINESSES.forEach(b => {
+      const opt = document.createElement('option');
+      opt.value = b;
+      opt.textContent = b;
+      el.appendChild(opt);
+    });
+  });
+}
+
 function loadStaff() {
   try {
     const s = JSON.parse(localStorage.getItem(STAFF_KEY));
@@ -105,10 +125,11 @@ function saveTasks(t) { localStorage.setItem(STORAGE_KEY, JSON.stringify(t)); }
 function renderBoard() {
   const tasks = loadTasks();
   const filter = document.getElementById('filterAssignee').value;
+  const bizFilter = document.getElementById('filterBusiness').value;
   STATUSES.forEach(status => {
     const list = document.getElementById(`list-${status}`);
     const countEl = document.getElementById(`count-${status}`);
-    const filtered = tasks.filter(t => t.status === status && (!filter || t.assignee === filter));
+    const filtered = tasks.filter(t => t.status === status && (!filter || t.assignee === filter) && (!bizFilter || t.business === bizFilter));
     countEl.textContent = filtered.length;
     list.innerHTML = '';
     filtered.forEach(t => list.appendChild(createCard(t)));
@@ -123,6 +144,7 @@ function createCard(task) {
     <div class="task-title">${escapeHtml(task.title)}</div>
     <div class="task-meta">
       ${task.assignee ? `<span class="tag tag-assignee">${escapeHtml(task.assignee)}</span>` : ''}
+      ${task.business ? `<span class="tag tag-business">${escapeHtml(task.business)}</span>` : ''}
       <span class="tag tag-priority-${task.priority}">${task.priority}</span>
       ${task.dueDate ? `<span class="tag tag-due${overdue?' overdue':''}">${overdue?'⚠ ':''}${formatDate(task.dueDate)}</span>` : ''}
     </div>
@@ -141,6 +163,7 @@ function openModal(task = null) {
   document.getElementById('taskId').value = task?.id || '';
   document.getElementById('taskTitle').value = task?.title || '';
   document.getElementById('taskAssignee').value = task?.assignee || '';
+  document.getElementById('taskBusiness').value = task?.business || '';
   document.getElementById('taskPriority').value = task?.priority || '中';
   document.getElementById('taskDueDate').value = task?.dueDate || '';
   document.getElementById('taskStatus').value = task?.status || '未着手';
@@ -172,6 +195,7 @@ form.addEventListener('submit', e => {
     id: id || generateId(),
     title: document.getElementById('taskTitle').value.trim(),
     assignee: document.getElementById('taskAssignee').value,
+    business: document.getElementById('taskBusiness').value,
     priority: document.getElementById('taskPriority').value,
     dueDate: document.getElementById('taskDueDate').value,
     status: document.getElementById('taskStatus').value,
@@ -184,6 +208,7 @@ form.addEventListener('submit', e => {
 });
 
 document.getElementById('filterAssignee').addEventListener('change', renderBoard);
+document.getElementById('filterBusiness').addEventListener('change', renderBoard);
 
 // ── タブ切り替え ─────────────────────────────
 function switchTab(tab) {
@@ -209,11 +234,12 @@ function renderTimeCard() {
   const y = currentMonth.getFullYear();
   const m = currentMonth.getMonth();
   const staff = document.getElementById('timeStaffFilter').value;
+  const biz = document.getElementById('timeBusinessFilter').value;
   document.getElementById('monthLabel').textContent = `${y}年${m+1}月`;
 
   const all = loadTimecards().filter(tc => {
     const d = new Date(tc.date);
-    return d.getFullYear() === y && d.getMonth() === m && (!staff || tc.staff === staff);
+    return d.getFullYear() === y && d.getMonth() === m && (!staff || tc.staff === staff) && (!biz || tc.business === biz);
   });
 
   // 月合計
@@ -243,6 +269,7 @@ function renderTimeCard() {
     let recHtml = recs.map(tc => `
       <div class="cal-rec">
         ${!staff ? `<span class="tag tag-assignee">${escapeHtml(tc.staff)}</span>` : ''}
+        ${tc.business ? `<span class="tag tag-business">${escapeHtml(tc.business)}</span>` : ''}
         <span class="cal-hours">${tc.hours}h</span>
         <span class="cal-pay">¥${(tc.hours*HOURLY_RATE).toLocaleString()}</span>
         <span class="${tc.lock==='yes'?'lock-yes':'lock-no'}">${tc.lock==='yes'?'🔑✓':'🔑✗'}</span>
@@ -306,6 +333,9 @@ function openTimeModal(idOrNull, dateStr) {
   document.getElementById('timeStaff').value = staffName;
   document.getElementById('timeStaffSelect').value = staffName;
 
+  const bizFilter = document.getElementById('timeBusinessFilter').value;
+  document.getElementById('timeBusinessSelect').value = record?.business || bizFilter || '';
+
   const d = new Date(date);
   document.getElementById('timeInfo').textContent =
     `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${WEEKDAY[d.getDay()]}）`;
@@ -345,9 +375,11 @@ timeForm.addEventListener('submit', e => {
   if (!lock) { alert('鍵の確認を選択してください'); return; }
   const staff = document.getElementById('timeStaffSelect').value || document.getElementById('timeStaff').value;
   if (!staff) { alert('スタッフを選択してください'); return; }
+  const business = document.getElementById('timeBusinessSelect').value;
+  if (!business) { alert('事業所を選択してください'); return; }
   const id = document.getElementById('timeId').value;
   const tcs = loadTimecards();
-  const data = { id: id || generateId(), date: document.getElementById('timeDate').value, staff, hours, lock, memo: document.getElementById('timeMemo').value.trim() };
+  const data = { id: id || generateId(), date: document.getElementById('timeDate').value, staff, business, hours, lock, memo: document.getElementById('timeMemo').value.trim() };
   if (id) { const i = tcs.findIndex(tc => tc.id === id); if (i !== -1) tcs[i] = data; }
   else tcs.push(data);
   saveTimecards(tcs); closeTimeModal(); renderTimeCard();
@@ -355,4 +387,5 @@ timeForm.addEventListener('submit', e => {
 
 // ── 初期化 ───────────────────────────────────
 populateStaffSelects();
+populateBusinessSelects();
 renderBoard();

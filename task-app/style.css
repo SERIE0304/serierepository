@@ -225,6 +225,7 @@ main { max-width: 1000px; margin: 0 auto; padding: 16px; position: relative; z-i
 .tag-priority-高 { color: #ff6666; }
 .tag-priority-中 { color: #ffff66; }
 .tag-priority-低 { color: #8888aa; }
+.tag-business { color: #ffaa44; }
 .tag-due { color: #aaaaaa; }
 .tag-due.overdue { color: #ff6666; }
 .task-memo { font-size: 0.72rem; color: #8888aa; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

@@ -20,6 +20,9 @@
         <select id="filterAssignee">
           <option value="">全員</option>
         </select>
+        <select id="filterBusiness">
+          <option value="">全事業所</option>
+        </select>
         <button class="btn-primary" id="openModalBtn" style="display:none">＋ タスク追加</button>
       </div>
     </div>
@@ -66,6 +69,9 @@
         <button class="btn-secondary" onclick="changeMonth(1)">▶</button>
         <select id="timeStaffFilter" onchange="renderTimeCard()" class="staff-filter">
           <option value="">全スタッフ</option>
+        </select>
+        <select id="timeBusinessFilter" onchange="renderTimeCard()" class="staff-filter">
+          <option value="">全事業所</option>
         </select>
       </div>
       <div class="time-total-bar" id="timeTotalBar"></div>
@@ -122,9 +128,15 @@
         </div>
         <div class="form-row">
           <div class="form-group">
+            <label>事業所</label>
+            <select id="taskBusiness"><option value="">未設定</option></select>
+          </div>
+          <div class="form-group">
             <label>期日</label>
             <input type="date" id="taskDueDate">
           </div>
+        </div>
+        <div class="form-row">
           <div class="form-group">
             <label>ステータス</label>
             <select id="taskStatus">
@@ -167,6 +179,12 @@
         <div class="form-group">
           <label>スタッフ選択 <span class="required">*</span></label>
           <select id="timeStaffSelect" onchange="document.getElementById('timeStaff').value=this.value">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>事業所 <span class="required">*</span></label>
+          <select id="timeBusinessSelect">
             <option value="">選択してください</option>
           </select>
         </div>
