@@ -19,7 +19,7 @@ const DEFAULT_STAFF = [
 const BUSINESSES = ['フィットネスジム', 'なんだパンダ', '旅館', 'レストランUra no kado'];
 
 function populateBusinessSelects() {
-  const selects = ['filterBusiness', 'taskBusiness', 'timeBusinessSelect'];
+  const selects = ['taskBusiness', 'timeBusinessSelect'];
   selects.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -138,11 +138,10 @@ function saveTasks(t) { localStorage.setItem(STORAGE_KEY, JSON.stringify(t)); }
 function renderBoard() {
   const tasks = loadTasks();
   const filter = document.getElementById('filterAssignee').value;
-  const bizFilter = document.getElementById('filterBusiness').value;
   STATUSES.forEach(status => {
     const list = document.getElementById(`list-${status}`);
     const countEl = document.getElementById(`count-${status}`);
-    const filtered = tasks.filter(t => t.status === status && (!filter || t.assignee === filter) && (!bizFilter || t.business === bizFilter));
+    const filtered = tasks.filter(t => t.status === status && (!filter || t.assignee === filter));
     countEl.textContent = filtered.length;
     list.innerHTML = '';
     filtered.forEach(t => list.appendChild(createCard(t)));
@@ -221,7 +220,6 @@ form.addEventListener('submit', e => {
 });
 
 document.getElementById('filterAssignee').addEventListener('change', renderBoard);
-document.getElementById('filterBusiness').addEventListener('change', renderBoard);
 
 // ── タブ切り替え ─────────────────────────────
 function switchTab(tab) {
