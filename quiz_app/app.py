@@ -9,6 +9,7 @@ import sheets
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-change-me")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+QUIZ_QUESTION_COUNT = int(os.environ.get("QUIZ_QUESTION_COUNT", 10))
 
 
 @app.route("/")
@@ -44,7 +45,7 @@ def quiz_start():
         flash("対象の問題がありません")
         return redirect(url_for("index"))
 
-    random.shuffle(questions)
+    questions = random.sample(questions, min(QUIZ_QUESTION_COUNT, len(questions)))
     session["quiz"] = {
         "staff_name": staff_name,
         "track": track,

@@ -32,6 +32,7 @@ pip install -r requirements.txt
 export QUIZ_SPREADSHEET_ID="あなたのスプレッドシートID"
 export GOOGLE_CREDENTIALS_PATH="credentials.json"   # 省略時はquiz_app直下のcredentials.json
 export ADMIN_PASSWORD="好きな管理者パスワード"
+export QUIZ_QUESTION_COUNT="10"   # 1回のクイズで出題する問題数（省略時は10）
 export FLASK_SECRET_KEY="任意のランダム文字列"
 ```
 
