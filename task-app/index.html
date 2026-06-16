@@ -13,14 +13,58 @@
   <link rel="apple-touch-icon" href="logo.jpeg">
 </head>
 <body>
+
+  <!-- ログイン画面 -->
+  <div id="loginScreen" class="login-screen">
+    <div class="dq-win login-box">
+      <h2 style="margin-bottom:14px;">⚔ ログイン</h2>
+      <div class="form-group">
+        <label>メールアドレス</label>
+        <input type="email" id="loginEmail" placeholder="メールアドレス">
+      </div>
+      <div class="form-group">
+        <label>パスワード</label>
+        <input type="password" id="loginPassword" placeholder="パスワード">
+      </div>
+      <div id="loginError" class="login-error"></div>
+      <button class="btn-primary" id="loginBtn" style="width:100%;margin-top:6px;">ログイン</button>
+    </div>
+  </div>
+
+  <!-- 初回セットアップ（管理者登録） -->
+  <div id="setupScreen" class="login-screen" style="display:none">
+    <div class="dq-win login-box">
+      <h2 style="margin-bottom:14px;">⚔ 初回セットアップ（代表取締役）</h2>
+      <p style="color:#aaddff;font-size:0.78rem;margin-bottom:10px;">スタッフが未登録です。最初に代表取締役（管理者）のアカウントを作成してください。</p>
+      <div class="form-group">
+        <label>名前</label>
+        <input type="text" id="setupName" placeholder="例：芹江匡晋">
+      </div>
+      <div class="form-group">
+        <label>メールアドレス</label>
+        <input type="email" id="setupEmail" placeholder="メールアドレス">
+      </div>
+      <div class="form-group">
+        <label>パスワード</label>
+        <input type="password" id="setupPassword" placeholder="パスワード（6文字以上）">
+      </div>
+      <div id="setupError" class="login-error"></div>
+      <button class="btn-primary" id="setupBtn" style="width:100%;margin-top:6px;">管理者を作成</button>
+    </div>
+  </div>
+
+  <!-- メインアプリ -->
+  <div id="appRoot" style="display:none">
   <header>
     <div class="header-inner">
       <h1>⚔ 株式会社セリエコンチェルト</h1>
       <div class="header-actions">
+        <span id="loginUserLabel" class="login-user-label"></span>
         <select id="filterAssignee">
           <option value="">全員</option>
         </select>
         <button class="btn-primary" id="openModalBtn" style="display:none">＋ タスク追加</button>
+        <button class="btn-secondary" id="logoutBtn">ログアウト</button>
       </div>
     </div>
     <div class="tab-bar">
@@ -77,7 +121,7 @@
       <div class="staff-list-box">
         <div id="staffListEl"></div>
       </div>
-      <div class="dq-win" style="margin-bottom:12px;">
+      <div class="dq-win" id="addStaffBox" style="margin-bottom:12px;">
         <div class="form-group">
           <label>▶ 新規スタッフ名</label>
           <input type="text" id="newStaffName" placeholder="名前を入力" maxlength="20">
@@ -86,6 +130,15 @@
           <label>▶ 役職</label>
           <input type="text" id="newStaffRole" placeholder="例：スタッフ、パート など" maxlength="20">
         </div>
+        <div class="form-group">
+          <label>▶ メールアドレス</label>
+          <input type="email" id="newStaffEmail" placeholder="ログイン用メールアドレス">
+        </div>
+        <div class="form-group">
+          <label>▶ パスワード</label>
+          <input type="text" id="newStaffPassword" placeholder="ログイン用パスワード（6文字以上）">
+        </div>
+        <div id="addStaffError" class="login-error"></div>
         <button class="btn-primary" onclick="addStaff()" style="width:100%;margin-top:6px;">＋ スタッフを追加</button>
       </div>
     </div>
@@ -209,6 +262,13 @@
     </div>
   </div>
 
+  </div><!-- /appRoot -->
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {

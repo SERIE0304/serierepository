@@ -1,19 +1,10 @@
 const STORAGE_KEY = 'shaanai-tasks';
-const TIME_KEY = 'shaanai-timecards';
-const STAFF_KEY = 'shaanai-staff';
 const STATUSES = ['未着手', '進行中', '完了'];
 const HOURLY_RATE = 1100;
 const WEEKDAY = ['日','月','火','水','木','金','土'];
 
 let currentMonth = new Date();
 currentMonth.setDate(1);
-
-// ── スタッフ管理 ─────────────────────────────
-const DEFAULT_STAFF = [
-  { name: '芹江匡晋', role: '代表取締役' },
-  { name: '芹江恵',   role: '取締役' },
-  { name: '小筆',     role: 'スタッフ' },
-];
 
 // ── 事業所 ───────────────────────────────────
 const BUSINESSES = ['フィットネスジム', 'なんだパンダ', '旅館', 'レストランUra no kado'];
@@ -35,18 +26,15 @@ function populateBusinessSelects() {
   });
 }
 
-function loadStaff() {
-  try {
-    const s = JSON.parse(localStorage.getItem(STAFF_KEY));
-    return s && s.length > 0 ? s : DEFAULT_STAFF;
-  } catch { return DEFAULT_STAFF; }
-}
-function saveStaff(list) { localStorage.setItem(STAFF_KEY, JSON.stringify(list)); }
+// ── スタッフ管理（Firebase） ─────────────────
+let staffCache = []; // [{uid, name, role}] from staffPublic, readable by all logged-in users
+let fullStaffCache = []; // [{uid, name, role, email, password, isAdmin}] admin only
 
-function getStaffNames() { return loadStaff().map(s => s.name); }
+function getStaffNames() { return staffCache.map(s => s.name); }
 
 function populateStaffSelects() {
-  const staff = loadStaff();
+  const list = currentProfile && currentProfile.isAdmin ? staffCache : staffCache.filter(s => s.uid === currentProfile?.uid);
+
   const withPlaceholder = ['filterAssignee', 'taskAssignee', 'timeStaffSelect'];
   withPlaceholder.forEach(id => {
     const el = document.getElementById(id);
@@ -54,7 +42,7 @@ function populateStaffSelects() {
     const first = el.options[0];
     el.innerHTML = '';
     el.appendChild(first);
-    staff.forEach(s => {
+    staffCache.forEach(s => {
       const opt = document.createElement('option');
       opt.value = s.name;
       opt.textContent = `${s.name}（${s.role}）`;
@@ -62,35 +50,62 @@ function populateStaffSelects() {
     });
   });
 
+  const timeSelectEl = document.getElementById('timeStaffSelect');
+  if (timeSelectEl && currentProfile && !currentProfile.isAdmin) {
+    timeSelectEl.value = currentProfile.name;
+    timeSelectEl.disabled = true;
+    document.getElementById('timeStaff').value = currentProfile.uid;
+  } else if (timeSelectEl) {
+    timeSelectEl.disabled = false;
+  }
+
   const filterEl = document.getElementById('timeStaffFilter');
   if (filterEl) {
     const prev = filterEl.value;
     filterEl.innerHTML = '';
-    staff.forEach(s => {
+    list.forEach(s => {
       const opt = document.createElement('option');
-      opt.value = s.name;
+      opt.value = s.uid;
       opt.textContent = `${s.name}（${s.role}）`;
       filterEl.appendChild(opt);
     });
-    filterEl.value = staff.find(s => s.name === prev) ? prev : (staff[0]?.name || '');
+    filterEl.value = list.find(s => s.uid === prev) ? prev : (list[0]?.uid || '');
+    filterEl.disabled = !currentProfile?.isAdmin && list.length <= 1;
   }
 }
 
 function renderStaffPage() {
-  const staff = loadStaff();
   const el = document.getElementById('staffListEl');
+  const addBox = document.getElementById('addStaffBox');
   el.innerHTML = '';
-  staff.forEach((s, i) => {
+
+  if (!currentProfile?.isAdmin) {
+    addBox.style.display = 'none';
+    const self = fullStaffCache.find(s => s.uid === currentProfile?.uid) || currentProfile;
+    const row = document.createElement('div');
+    row.className = 'staff-item';
+    row.innerHTML = `
+      <div>
+        <span class="staff-item-name">▶ ${escapeHtml(self.name)}</span>
+        <span class="staff-item-role">（${escapeHtml(self.role)}）</span>
+      </div>`;
+    el.appendChild(row);
+    return;
+  }
+
+  addBox.style.display = '';
+  fullStaffCache.forEach(s => {
     const row = document.createElement('div');
     row.className = 'staff-item';
     row.innerHTML = `
       <div>
         <span class="staff-item-name">▶ ${escapeHtml(s.name)}</span>
         <span class="staff-item-role">（${escapeHtml(s.role)}）</span>
+        <div style="color:#aaddff;font-size:0.72rem;">${escapeHtml(s.email)} ／ PW: ${escapeHtml(s.password)}</div>
       </div>
-      ${i >= DEFAULT_STAFF.length
-        ? `<button class="btn-danger" onclick="removeStaff(${i})">削除</button>`
-        : '<span style="color:#4444aa;font-size:0.7rem;">固定</span>'}
+      ${s.uid !== currentProfile.uid
+        ? `<button class="btn-danger" onclick="removeStaff('${s.uid}')">削除</button>`
+        : '<span style="color:#4444aa;font-size:0.7rem;">本人</span>'}
     `;
     el.appendChild(row);
   });
@@ -99,24 +114,23 @@ function renderStaffPage() {
 function addStaff() {
   const name = document.getElementById('newStaffName').value.trim();
   const role = document.getElementById('newStaffRole').value.trim() || 'スタッフ';
-  if (!name) { alert('名前を入力してください'); return; }
-  const staff = loadStaff();
-  if (staff.find(s => s.name === name)) { alert('同じ名前のスタッフが既にいます'); return; }
-  staff.push({ name, role });
-  saveStaff(staff);
-  document.getElementById('newStaffName').value = '';
-  document.getElementById('newStaffRole').value = '';
-  populateStaffSelects();
-  renderStaffPage();
+  const email = document.getElementById('newStaffEmail').value.trim();
+  const password = document.getElementById('newStaffPassword').value;
+  const errEl = document.getElementById('addStaffError');
+  errEl.textContent = '';
+  if (!name || !email || !password) { errEl.textContent = '名前・メール・パスワードを入力してください'; return; }
+  if (password.length < 6) { errEl.textContent = 'パスワードは6文字以上で入力してください'; return; }
+  addStaffAccount(name, role, email, password).then(() => {
+    document.getElementById('newStaffName').value = '';
+    document.getElementById('newStaffRole').value = '';
+    document.getElementById('newStaffEmail').value = '';
+    document.getElementById('newStaffPassword').value = '';
+  }).catch(err => { errEl.textContent = err.message || 'エラーが発生しました'; });
 }
 
-function removeStaff(idx) {
+function removeStaff(uid) {
   if (!confirm('このスタッフを削除しますか？')) return;
-  const staff = loadStaff();
-  staff.splice(idx, 1);
-  saveStaff(staff);
-  populateStaffSelects();
-  renderStaffPage();
+  removeStaffAccount(uid);
 }
 
 // ── ユーティリティ ───────────────────────────
@@ -131,7 +145,7 @@ function formatDate(d) {
   return `${dt.getMonth()+1}/${dt.getDate()}`;
 }
 
-// ── タスク ───────────────────────────────────
+// ── タスク（ローカル保存） ───────────────────
 function loadTasks() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } }
 function saveTasks(t) { localStorage.setItem(STORAGE_KEY, JSON.stringify(t)); }
 
@@ -232,9 +246,34 @@ function switchTab(tab) {
   if (tab === 'staff') renderStaffPage();
 }
 
-// ── タイムカード ─────────────────────────────
-function loadTimecards() { try { return JSON.parse(localStorage.getItem(TIME_KEY)) || []; } catch { return []; } }
-function saveTimecards(tc) { localStorage.setItem(TIME_KEY, JSON.stringify(tc)); }
+// ── タイムカード（Firebase） ─────────────────
+let timecardCache = []; // [{id, staffUid, date, business, hours, lock, memo}]
+
+function listenTimecards() {
+  const ref = currentProfile.isAdmin ? db.ref('timecards') : db.ref('timecards/' + currentProfile.uid);
+  ref.on('value', snap => {
+    const val = snap.val() || {};
+    const records = [];
+    if (currentProfile.isAdmin) {
+      Object.keys(val).forEach(staffUid => {
+        Object.keys(val[staffUid] || {}).forEach(id => {
+          records.push({ id, staffUid, ...val[staffUid][id] });
+        });
+      });
+    } else {
+      Object.keys(val).forEach(id => {
+        records.push({ id, staffUid: currentProfile.uid, ...val[id] });
+      });
+    }
+    timecardCache = records;
+    if (document.getElementById('page-time').style.display !== 'none') renderTimeCard();
+  });
+}
+
+function staffNameByUid(uid) {
+  const s = staffCache.find(s => s.uid === uid);
+  return s ? s.name : '';
+}
 
 function changeMonth(dir) {
   currentMonth.setMonth(currentMonth.getMonth() + dir);
@@ -244,19 +283,19 @@ function changeMonth(dir) {
 function renderTimeCard() {
   const y = currentMonth.getFullYear();
   const m = currentMonth.getMonth();
-  const staff = document.getElementById('timeStaffFilter').value;
+  const filterUid = document.getElementById('timeStaffFilter').value;
   document.getElementById('monthLabel').textContent = `${y}年${m+1}月`;
 
-  const all = loadTimecards().filter(tc => {
+  const all = timecardCache.filter(tc => {
     const d = new Date(tc.date);
-    return d.getFullYear() === y && d.getMonth() === m && (!staff || tc.staff === staff);
+    return d.getFullYear() === y && d.getMonth() === m && (!filterUid || tc.staffUid === filterUid);
   });
 
   // 月合計
   const totalBar = document.getElementById('timeTotalBar');
   const totalH = all.reduce((s, tc) => s + tc.hours, 0);
   totalBar.innerHTML = `<div class="total-bar-inner">
-    <span class="total-label">${escapeHtml(staff || '全スタッフ')} ${y}年${m+1}月</span>
+    <span class="total-label">${escapeHtml(staffNameByUid(filterUid) || '全スタッフ')} ${y}年${m+1}月</span>
     <span class="total-hours">${totalH}時間</span>
     <span class="total-pay">¥${(totalH * HOURLY_RATE).toLocaleString()}</span>
   </div>`;
@@ -278,13 +317,13 @@ function renderTimeCard() {
 
     let recHtml = recs.map(tc => `
       <div class="cal-rec">
-        ${!staff ? `<span class="tag tag-assignee">${escapeHtml(tc.staff)}</span>` : ''}
+        ${currentProfile.isAdmin ? `<span class="tag tag-assignee">${escapeHtml(staffNameByUid(tc.staffUid))}</span>` : ''}
         ${tc.business ? `<span class="tag tag-business">${escapeHtml(tc.business)}</span>` : ''}
         <span class="cal-hours">${tc.hours}h</span>
         <span class="cal-pay">¥${(tc.hours*HOURLY_RATE).toLocaleString()}</span>
         <span class="${tc.lock==='yes'?'lock-yes':'lock-no'}">${tc.lock==='yes'?'🔑✓':'🔑✗'}</span>
         ${tc.memo?`<span class="cal-memo">${escapeHtml(tc.memo)}</span>`:''}
-        <button class="btn-edit" onclick="openTimeModal('${tc.id}')">編集</button>
+        <button class="btn-edit" onclick="openTimeModal('${tc.staffUid}','${tc.id}')">編集</button>
       </div>`).join('');
 
     row.innerHTML = `
@@ -293,7 +332,7 @@ function renderTimeCard() {
         <span class="cal-week">${WEEKDAY[dow]}</span>
       </div>
       <div class="cal-content">${recHtml}</div>
-      <button class="cal-add" onclick="openTimeModal(null,'${dateStr}')">＋</button>`;
+      <button class="cal-add" onclick="openTimeModal(null,null,'${dateStr}')">＋</button>`;
     cal.appendChild(row);
   }
 }
@@ -328,10 +367,10 @@ function selectLock(val) {
 const timeOverlay = document.getElementById('timeModalOverlay');
 const timeForm = document.getElementById('timeForm');
 
-function openTimeModal(idOrNull, dateStr) {
-  const tcs = loadTimecards();
-  const record = idOrNull ? tcs.find(tc => tc.id === idOrNull) : null;
-  const staffFilter = document.getElementById('timeStaffFilter').value;
+function openTimeModal(staffUidOrNull, idOrNull, dateStr) {
+  const record = (staffUidOrNull && idOrNull)
+    ? timecardCache.find(tc => tc.staffUid === staffUidOrNull && tc.id === idOrNull)
+    : null;
 
   document.getElementById('timeModalTitle').textContent = record ? '勤務記録 編集' : '勤務記録 追加';
   document.getElementById('timeId').value = record?.id || '';
@@ -339,9 +378,12 @@ function openTimeModal(idOrNull, dateStr) {
   const date = record?.date || dateStr || new Date().toISOString().slice(0,10);
   document.getElementById('timeDate').value = date;
 
-  const staffName = record?.staff || staffFilter || '';
-  document.getElementById('timeStaff').value = staffName;
-  document.getElementById('timeStaffSelect').value = staffName;
+  const defaultUid = currentProfile.isAdmin
+    ? (document.getElementById('timeStaffFilter').value || currentProfile.uid)
+    : currentProfile.uid;
+  const staffUid = record?.staffUid || defaultUid;
+  document.getElementById('timeStaff').value = staffUid;
+  document.getElementById('timeStaffSelect').value = staffNameByUid(staffUid);
 
   document.getElementById('timeBusinessSelect').value = record?.business || '';
 
@@ -371,9 +413,10 @@ timeOverlay.addEventListener('click', e => { if (e.target === timeOverlay) close
 
 document.getElementById('deleteTimeBtn').addEventListener('click', () => {
   const id = document.getElementById('timeId').value;
+  const staffUid = document.getElementById('timeStaff').value;
   if (!id || !confirm('この記録を削除しますか？')) return;
-  saveTimecards(loadTimecards().filter(tc => tc.id !== id));
-  closeTimeModal(); renderTimeCard();
+  db.ref('timecards/' + staffUid + '/' + id).remove();
+  closeTimeModal();
 });
 
 timeForm.addEventListener('submit', e => {
@@ -382,19 +425,35 @@ timeForm.addEventListener('submit', e => {
   if (!hours) { alert('勤務時間を選択してください'); return; }
   const lock = document.getElementById('timeLock').value;
   if (!lock) { alert('鍵の確認を選択してください'); return; }
-  const staff = document.getElementById('timeStaffSelect').value || document.getElementById('timeStaff').value;
-  if (!staff) { alert('スタッフを選択してください'); return; }
+  let staffUid = document.getElementById('timeStaff').value;
+  if (!currentProfile.isAdmin) staffUid = currentProfile.uid;
+  if (!staffUid) { alert('スタッフを選択してください'); return; }
   const business = document.getElementById('timeBusinessSelect').value;
   if (!business) { alert('事業所を選択してください'); return; }
-  const id = document.getElementById('timeId').value;
-  const tcs = loadTimecards();
-  const data = { id: id || generateId(), date: document.getElementById('timeDate').value, staff, business, hours, lock, memo: document.getElementById('timeMemo').value.trim() };
-  if (id) { const i = tcs.findIndex(tc => tc.id === id); if (i !== -1) tcs[i] = data; }
-  else tcs.push(data);
-  saveTimecards(tcs); closeTimeModal(); renderTimeCard();
+  const id = document.getElementById('timeId').value || generateId();
+  const data = { date: document.getElementById('timeDate').value, business, hours, lock, memo: document.getElementById('timeMemo').value.trim() };
+  db.ref('timecards/' + staffUid + '/' + id).set(data);
+  closeTimeModal();
 });
 
 // ── 初期化 ───────────────────────────────────
-populateStaffSelects();
 populateBusinessSelects();
 renderBoard();
+
+window.onAuthReady = function() {
+  const staffRef = currentProfile.isAdmin ? db.ref('staff') : null;
+  db.ref('staffPublic').on('value', snap => {
+    const val = snap.val() || {};
+    staffCache = Object.keys(val).map(uid => ({ uid, ...val[uid] }));
+    populateStaffSelects();
+    if (document.getElementById('page-staff').style.display !== 'none') renderStaffPage();
+  });
+  if (currentProfile.isAdmin) {
+    db.ref('staff').on('value', snap => {
+      const val = snap.val() || {};
+      fullStaffCache = Object.keys(val).map(uid => ({ uid, ...val[uid] }));
+      if (document.getElementById('page-staff').style.display !== 'none') renderStaffPage();
+    });
+  }
+  listenTimecards();
+};

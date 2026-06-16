@@ -464,3 +464,31 @@ main { max-width: 1000px; margin: 0 auto; padding: 16px; position: relative; z-i
   .header-inner { flex-wrap: wrap; height: auto; padding: 8px 0; gap: 6px; }
   .form-row { grid-template-columns: 1fr; }
 }
+
+/* ログイン／セットアップ画面 */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,30,0.6);
+  padding: 16px;
+}
+.login-box {
+  width: 100%;
+  max-width: 360px;
+}
+.login-error {
+  color: #ff6666;
+  font-size: 0.78rem;
+  min-height: 1em;
+  margin: 4px 0 2px;
+}
+.login-user-label {
+  color: #aaddff;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  margin-right: 4px;
+}
