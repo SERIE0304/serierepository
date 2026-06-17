@@ -94,11 +94,14 @@ function hlAnswer(q){
   q=q.toLowerCase();
   if(q.includes('体験')||q.includes('試し'))return '体験レッスンは¥2,000（1回）です！🥊\n大田原店・黒磯店とも営業時間内であればいつでもOK！\n初めての方も大歓迎です。\n▶ お申し込み：https://honeylarva.com/contact';
   if(q.includes('料金')||q.includes('値段')||q.includes('いくら')||q.includes('価格')||q.includes('費用')||q.includes('プラン'))return '料金プラン（税込・大田原／黒磯 共通）💪\n【一般コース】月4回 ¥6,000／月8回 ¥7,000／フリー ¥10,000\n【ジュニア】月4回 ¥5,000／月8回 ¥7,000\n【シニア(60歳以上)】¥8,000\n【パーソナル】60分 ¥10,000\n【オンラインダイエット】月 ¥13,000\n⚠️大田原・黒磯とも一般会員は新規入会一時停止中。ジュニアは受付中！\n空き次第ご案内（予約優先）→ https://honeylarva.com/contact';
-  if(q.includes('クラス')||q.includes('種類'))return '一般・ジュニア・シニア（60歳以上）の各クラスがあります🥊\n骨盤・呼吸を意識した独自プログラムが特徴です！';
-  if(q.includes('場所')||q.includes('アクセス')||q.includes('どこ'))return '大田原市と那須塩原市の2拠点があります📍\n詳しいアクセスは公式HPでご確認ください。';
+  if(q.includes('クラス')||q.includes('種類')||q.includes('コース')||q.includes('プログラム'))return 'クラスは3種類あります🥊\n【一般クラス】骨盤・呼吸を意識したフィットネスボクシング（60歳以上はシニア料金）\n【ジュニア体育クラス】小中学生対象・多様性重視の基礎トレーニング\n【オンラインダイエット】自宅から参加できるダイエットプログラム\n▶ 詳細：https://honeylarva.com/contact';
+  if(q.includes('大田原'))return '【大田原店】📍\n住所：大田原市山の手1-7-7\n営業時間：平日 13:30〜15:00 / 18:00〜21:00\n※17:00〜18:00はジュニア枠のため一般は18:00〜\n☎ 0287-33-9217';
+  if(q.includes('黒磯')||q.includes('那須塩原'))return '【黒磯店】📍\n住所：那須塩原市中央町3-12 2F\n（福島整形外科向かい）\n☎ 0287-33-9217\n▶ 詳細：https://honeylarva.com/free/kuroiso';
+  if(q.includes('場所')||q.includes('アクセス')||q.includes('どこ')||q.includes('住所'))return 'どちらの店舗をお探しですか？📍\n「大田原店」または「黒磯店」と入力してください！\n\n【大田原店】大田原市山の手1-7-7\n【黒磯店】那須塩原市中央町3-12 2F';
   if(q.includes('fc')||q.includes('フランチャイズ')||q.includes('加盟')||q.includes('加入'))return 'Honey LaRvaのFC加盟で、ご自身の地域でジムを開業できます🎉\n研修・集客サポート充実！お問い合わせください。';
-  if(q.includes('シニア')||q.includes('60')||q.includes('高齢'))return '60歳以上向けの「ミドルクラス」があります👴👵\n無理なく安全に続けられるプログラムです！';
-  if(q.includes('ジュニア')||q.includes('子供')||q.includes('子ども'))return 'ジュニアクラスでは多様性を重視した基礎トレーニングを行っています🧒\nお子さんの体力づくりにぴったりです！';
+  if(q.includes('シニア')||q.includes('60')||q.includes('高齢'))return '60歳以上の方はシニア料金 ¥8,000 で一般クラスにご参加いただけます👴👵\n無理なく安全に続けられるプログラムです！';
+  if(q.includes('ジュニア')||q.includes('子供')||q.includes('子ども'))return 'ジュニア体育クラスは小中学生対象です🧒\n多様性を重視した基礎トレーニングでお子さんの体力づくりに最適！\n月4回 ¥5,000 / 月8回 ¥7,000（新規受付中）';
+  if(q.includes('オンライン'))return 'オンラインダイエットコースは月額 ¥13,000です💻\n自宅から参加できるダイエットプログラムです。\n▶ お申し込み：https://honeylarva.com/contact';
   return 'ご質問ありがとうございます🥊\n詳しくは公式HP（honeylarva.com）またはジムへ直接お問い合わせください！';
 }
 async function hlSend(){
