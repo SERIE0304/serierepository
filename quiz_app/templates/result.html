@@ -4,23 +4,46 @@
 <p class="track-label">{{ track }}</p>
 <p class="score">{{ score }} / {{ total }} 点 ({{ percentage }}%)</p>
 
+{% set wrong = results | selectattr('correct', 'equalto', false) | list %}
+{% set correct_list = results | selectattr('correct', 'equalto', true) | list %}
+
+{% if wrong %}
+<h2 class="track-heading" style="color:#c0392b;">❌ 間違えた問題 ({{ wrong | length }}問)</h2>
 <ol class="result-list">
-  {% for r in results %}
-    <li class="{{ 'ok' if r.correct else 'ng' }}">
-      <p>{{ r.question_text }}</p>
-      <p>あなたの回答:
+  {% for r in wrong %}
+    <li class="ng">
+      <p><strong>{{ loop.index }}. {{ r.question_text }}</strong></p>
+      <p>
         {% if r.timed_out %}
-          ⏰ 時間切れ / 正解: {{ r.choices[r.correct_index] if r.choices else '' }}
-        {% elif not r.correct %}
-          {{ r.choices[r.selected_index] if r.choices else '' }} / 正解: {{ r.choices[r.correct_index] if r.choices else '' }}
+          ⏰ 時間切れ
         {% else %}
-          {{ r.choices[r.selected_index] if r.choices else '' }}
+          あなたの回答: <span style="color:#c0392b;">{{ r.choices[r.selected_index] if r.choices and r.selected_index >= 0 else '―' }}</span>
         {% endif %}
       </p>
-      {% if r.explanation %}<p class="explanation">解説: {{ r.explanation }}</p>{% endif %}
+      <p>✅ 正解: <span style="color:#27ae60; font-weight:bold;">{{ r.choices[r.correct_index] if r.choices else '' }}</span></p>
+      {% if r.explanation %}<p class="explanation">📖 {{ r.explanation }}</p>{% endif %}
     </li>
   {% endfor %}
 </ol>
+{% else %}
+<p style="color:#27ae60; font-weight:bold; font-size:1.1rem;">🎉 全問正解です！素晴らしい！</p>
+{% endif %}
 
+{% if correct_list %}
+<details style="margin-top:2rem;">
+  <summary style="cursor:pointer; font-weight:bold; color:#555;">✅ 正解した問題 ({{ correct_list | length }}問) — クリックして表示</summary>
+  <ol class="result-list" style="margin-top:1rem;">
+    {% for r in correct_list %}
+      <li class="ok">
+        <p>{{ r.question_text }}</p>
+        <p>あなたの回答: <span style="color:#27ae60;">{{ r.choices[r.selected_index] if r.choices and r.selected_index >= 0 else '―' }}</span></p>
+        {% if r.explanation %}<p class="explanation">📖 {{ r.explanation }}</p>{% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+</details>
+{% endif %}
+
+<br>
 <a href="{{ url_for('index') }}">トップに戻る</a>
 {% endblock %}
