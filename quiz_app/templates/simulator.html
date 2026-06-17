@@ -50,8 +50,9 @@
       <span style="font-size:0.8rem; color:#888;">→ 月割: <span id="gloves_monthly_disp">2,500円</span></span>
     </label>
     <label>その他消耗品（円/月）<input type="number" id="consumables" value="2500" min="0" step="500" oninput="calc()"></label>
-    <label>人件費（円/月）<span style="color:#999; font-size:0.82rem;">（一人運営なら0）</span><input type="number" id="labor" value="0" min="0" step="10000" oninput="calc()"></label>
+    <label>追加人件費（円/月）<span style="color:#999; font-size:0.82rem;">（100人以下はワンオペ可・超えると+8万円自動加算）</span><input type="number" id="labor" value="0" min="0" step="10000" oninput="calc()"></label>
   </div>
+  <div id="labor_alert" style="display:none; background:#fdf0f0; border-left:4px solid #e74c3c; border-radius:6px; padding:0.6rem 0.9rem; font-size:0.88rem; color:#c0392b;"></div>
   <div style="background:#fff8e1; border-radius:6px; padding:0.7rem; font-size:0.88rem; color:#7d6608; border-left:4px solid #f5c842;">
     💡 <strong>ポイント：</strong>ロイヤリティ・光熱費・家賃などのランニングコストは<strong>会員数が何人増えても変わりません。</strong>
   </div>
@@ -153,8 +154,19 @@ function calc() {
   var glovesAnnual= parseInt(document.getElementById('gloves_annual').value) || 0;
   var glovesM     = Math.round(glovesAnnual / 12);
   var consumables = parseInt(document.getElementById('consumables').value) || 0;
-  var labor       = parseInt(document.getElementById('labor').value) || 0;
+  var laborManual = parseInt(document.getElementById('labor').value) || 0;
   var royalty     = 50000;
+
+  // 100人超でアルバイト1名（8万円/月）が自動加算
+  var laborAuto  = members > 100 ? 80000 : 0;
+  var labor      = laborManual + laborAuto;
+  var alertEl    = document.getElementById('labor_alert');
+  if (members > 100) {
+    alertEl.style.display = 'block';
+    alertEl.textContent   = '⚠️ 会員数が100人を超えたため、アルバイト代 80,000円/月 が自動加算されています。';
+  } else {
+    alertEl.style.display = 'none';
+  }
 
   var initFranchise = parseInt(document.getElementById('init_franchise').value) || 0;
   var initDeposit   = parseInt(document.getElementById('init_deposit').value) || 0;
@@ -218,11 +230,13 @@ function calc() {
   var cumProfit = 0, paybackFound = false, paybackText = '10年以上';
   var curMembers = members;
   for (var yr = 1; yr <= 10; yr++) {
-    var churn     = Math.round(members * 0.1 * yr);          // 初期会員数の10%×年数が退会済み累計
-    curMembers    = Math.max(0, members - churn);
-    var yrRevenue = fee * curMembers;
-    var yrProfit  = yrRevenue - cost;
-    var yrAnnual  = yrProfit * 12;
+    var churn      = Math.round(members * 0.1 * yr);
+    curMembers     = Math.max(0, members - churn);
+    var yrLaborAuto= curMembers > 100 ? 80000 : 0;
+    var yrCost     = rent + royalty + utilities + glovesM + consumables + laborManual + yrLaborAuto;
+    var yrRevenue  = fee * curMembers;
+    var yrProfit   = yrRevenue - yrCost;
+    var yrAnnual   = yrProfit * 12;
     cumProfit    += yrAnnual;
 
     if (!paybackFound && initTotal > 0 && cumProfit >= initTotal) {
