@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIチャットボット | Honey LaRva</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .chat-container {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,200,0,0.3);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+    overflow: hidden;
+  }
+  .chat-header {
+    background: linear-gradient(135deg, rgba(255,200,0,0.15), rgba(255,140,0,0.1));
+    border-bottom: 1px solid rgba(255,200,0,0.2);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .avatar {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #ffc800, #ff8c00);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .header-info .name { font-size: 16px; font-weight: bold; color: #fff; }
+  .header-info .status {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    background: #4caf50;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scroll-behavior: smooth;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,200,0,0.3); border-radius: 2px; }
+
+  .msg { display: flex; gap: 10px; max-width: 88%; }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+  .msg.bot .msg-avatar { background: linear-gradient(135deg, #ffc800, #ff8c00); }
+  .msg.user .msg-avatar { background: rgba(255,255,255,0.12); }
+
+  .msg-bubble {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .msg.bot .msg-bubble {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    border-bottom-left-radius: 4px;
+  }
+  .msg.user .msg-bubble {
+    background: linear-gradient(135deg, #ffc800, #ff8c00);
+    color: #1a1a2e;
+    font-weight: 500;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-time {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 4px;
+    text-align: right;
+  }
+  .msg.bot .msg-time { text-align: left; }
+
+  .quick-replies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 0 20px;
+  }
+  .quick-btn {
+    background: rgba(255,200,0,0.1);
+    border: 1px solid rgba(255,200,0,0.35);
+    color: #ffc800;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .quick-btn:hover { background: rgba(255,200,0,0.2); }
+
+  .typing-indicator {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+  }
+  .typing-indicator.show { display: flex; }
+  .dot { width: 7px; height: 7px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: bounce 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+  .chat-input-area {
+    border-top: 1px solid rgba(255,200,0,0.15);
+    padding: 14px 16px;
+    background: rgba(0,0,0,0.2);
+  }
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  .chat-input {
+    flex: 1;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 22px;
+    padding: 10px 16px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    resize: none;
+    max-height: 100px;
+    line-height: 1.5;
+    transition: border-color 0.2s;
+  }
+  .chat-input:focus { border-color: #ffc800; }
+  .chat-input::placeholder { color: rgba(255,255,255,0.35); }
+  .send-btn {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #ffc800, #ff8c00);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    flex-shrink: 0;
+  }
+  .send-btn:hover { transform: scale(1.05); box-shadow: 0 4px 14px rgba(255,200,0,0.35); }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+</style>
+</head>
+<body>
+<div class="chat-container">
+  <div class="chat-header">
+    <div class="avatar">🥊</div>
+    <div class="header-info">
+      <div class="name">LaRva AI アシスタント</div>
+      <div class="status">
+        <div class="status-dot"></div>
+        オンライン｜Honey LaRva 公式
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="chat-messages">
+    <div class="msg bot">
+      <div class="msg-avatar">🥊</div>
+      <div>
+        <div class="msg-bubble">
+          こんにちは！Honey LaRva AIアシスタントです 👋<br>
+          ジムのクラス・料金・体験レッスン・フランチャイズなど、
+          何でもお気軽にご質問ください！
+        </div>
+        <div class="msg-time" id="init-time"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quick-replies" id="quick-replies">
+    <button class="quick-btn" onclick="sendQuick('体験レッスンについて教えて')">体験レッスン</button>
+    <button class="quick-btn" onclick="sendQuick('料金を教えてください')">料金・プラン</button>
+    <button class="quick-btn" onclick="sendQuick('どんなクラスがありますか？')">クラス一覧</button>
+    <button class="quick-btn" onclick="sendQuick('場所・アクセスは？')">アクセス</button>
+    <button class="quick-btn" onclick="sendQuick('フランチャイズ加入について知りたい')">FC加入</button>
+  </div>
+
+  <div class="chat-input-area">
+    <div class="input-row">
+      <textarea class="chat-input" id="user-input" placeholder="メッセージを入力..." rows="1"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Honey LaRvaに関する知識ベース
+const GYM_CONTEXT = `
+あなたはHoney LaRva（ハニーラーバ）フィットネスボクシングジムの公式AIアシスタントです。
+以下の情報をもとに、丁寧・明るく・簡潔に回答してください（200文字以内を目安）。
+絵文字を適度に使い、親しみやすい口調で。
+
+【ジム基本情報】
+- ジム名：Honey LaRva（ハニーラーバ）フィットネスボクシング
+- 場所：栃木県大田原市・那須塩原市（2拠点）
+- 公式HP：https://honeylarva.com/
+- コンセプト：ボクシングの動きで骨盤・呼吸を整えるフィットネスジム
+
+【クラス種類】
+- 一般クラス：骨盤・呼吸意識のフィットネスプログラム
+- ジュニアクラス：多様性重視の基礎トレーニング
+- シニアクラス（ミドルクラス）：60歳以上対象
+- 出張講座：健康講演・骨盤底筋トレーニング指導
+
+【対応できること】
+- 体験レッスンのご案内
+- 料金・プランの説明（詳細は公式HPまたはお電話でご確認ください）
+- クラス内容の説明
+- アクセス案内
+- フランチャイズ加入についての初期案内
+
+【フランチャイズ】
+Honey LaRvaのフランチャイジーとして加入し、自分の地域でジムを開業できます。
+研修サポート・集客支援・継続コンサルティングあり。詳細はお問い合わせください。
+
+わからない詳細な料金や具体的な日程は「公式HPまたは直接お問い合わせください」と案内してください。
+`;
+
+const API_ENDPOINT = '/api/chat'; // chatbot_api.pyのエンドポイント
+
+let messages = [
+  { role: 'user', content: GYM_CONTEXT + '\n\nまず自己紹介してください。' },
+  { role: 'assistant', content: 'こんにちは！Honey LaRva AIアシスタントです 👋\nジムのクラス・料金・体験レッスン・フランチャイズなど、何でもお気軽にご質問ください！' }
+];
+
+let isLoading = false;
+
+function nowStr() {
+  const d = new Date();
+  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+
+document.getElementById('init-time').textContent = nowStr();
+
+function addMessage(role, text) {
+  const container = document.getElementById('chat-messages');
+  const isBot = role === 'bot';
+
+  const el = document.createElement('div');
+  el.className = 'msg ' + (isBot ? 'bot' : 'user');
+
+  const time = nowStr();
+  el.innerHTML = `
+    <div class="msg-avatar">${isBot ? '🥊' : '👤'}</div>
+    <div>
+      <div class="msg-bubble">${text.replace(/\n/g, '<br>')}</div>
+      <div class="msg-time">${time}</div>
+    </div>
+  `;
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping(show) {
+  let el = document.getElementById('typing-el');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'typing-el';
+    el.className = 'msg bot';
+    el.innerHTML = `
+      <div class="msg-avatar">🥊</div>
+      <div class="typing-indicator show">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+    `;
+    document.getElementById('chat-messages').appendChild(el);
+  }
+  el.style.display = show ? 'flex' : 'none';
+  if (show) document.getElementById('chat-messages').scrollTop = 9999;
+}
+
+async function callAPI(userMessage) {
+  messages.push({ role: 'user', content: userMessage });
+
+  // APIバックエンドに送信
+  try {
+    const res = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: messages.slice(1) }) // システムメッセージ除外
+    });
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    const reply = data.reply;
+    messages.push({ role: 'assistant', content: reply });
+    return reply;
+  } catch (e) {
+    // フォールバック回答
+    return fallbackAnswer(userMessage);
+  }
+}
+
+function fallbackAnswer(q) {
+  q = q.toLowerCase();
+  if (q.includes('体験') || q.includes('試し')) return '体験レッスンは随時受付中です！🥊 まずは公式HP（https://honeylarva.com/）からご予約いただくか、直接お電話ください。初めての方も大歓迎です。';
+  if (q.includes('料金') || q.includes('値段') || q.includes('いくら')) return '料金プランは月会費制となっています。詳細な金額は公式HP（https://honeylarva.com/）またはジムへ直接お問い合わせください 💪';
+  if (q.includes('クラス') || q.includes('プログラム')) return '一般・ジュニア・シニア（60歳以上）の各クラスがあります🥊 骨盤・呼吸を意識した独自プログラムが特徴です！';
+  if (q.includes('場所') || q.includes('アクセス') || q.includes('どこ')) return '栃木県大田原市と那須塩原市に2拠点あります📍 詳しいアクセスは公式HP（https://honeylarva.com/）でご確認ください！';
+  if (q.includes('フランチャイズ') || q.includes('fc') || q.includes('加盟')) return 'Honey LaRvaのフランチャイジーとして開業できます 🎉 研修・集客サポートも充実！詳細はこのページの「FC加入ボタン」またはお問い合わせフォームからどうぞ。';
+  if (q.includes('シニア') || q.includes('60') || q.includes('高齢')) return '60歳以上を対象にした「ミドルクラス」があります👴👵 無理なく安全に続けられるプログラムです！';
+  return 'ご質問ありがとうございます🥊 詳しくは公式HP（https://honeylarva.com/）またはジムに直接お問い合わせいただくと、スタッフが丁寧にご案内します！';
+}
+
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('quick-replies').style.display = 'none';
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+
+  addMessage('user', text);
+  showTyping(true);
+
+  const reply = await callAPI(text);
+
+  showTyping(false);
+  addMessage('bot', reply);
+  isLoading = false;
+  document.getElementById('send-btn').disabled = false;
+  input.focus();
+}
+
+function sendQuick(text) {
+  document.getElementById('user-input').value = text;
+  sendMessage();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+</script>
+</body>
+</html>

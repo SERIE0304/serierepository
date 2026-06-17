@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ダイエット目標日数計算ツール | Honey LaRva</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,200,0,0.3);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 480px;
+    width: 100%;
+    color: #fff;
+    backdrop-filter: blur(10px);
+  }
+  .logo {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .logo span {
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffc800;
+    letter-spacing: 2px;
+  }
+  h2 {
+    text-align: center;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 28px;
+  }
+  .form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .form-group {
+    flex: 1;
+  }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    color: rgba(255,200,0,0.8);
+    margin-bottom: 6px;
+    font-weight: bold;
+  }
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus {
+    border-color: #ffc800;
+  }
+  .form-group select option { background: #1a1a2e; color: #fff; }
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #ffc800, #ff8c00);
+    border: none;
+    border-radius: 10px;
+    color: #1a1a2e;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,200,0,0.3); }
+  .result {
+    display: none;
+    margin-top: 28px;
+    background: rgba(255,200,0,0.08);
+    border: 1px solid rgba(255,200,0,0.4);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .result.show { display: block; }
+  .result-days {
+    font-size: 56px;
+    font-weight: bold;
+    color: #ffc800;
+    line-height: 1;
+  }
+  .result-days span { font-size: 22px; margin-left: 4px; }
+  .result-label { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 8px; }
+  .result-detail {
+    margin-top: 16px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.8;
+    text-align: left;
+  }
+  .result-detail strong { color: #ffc800; }
+  .cta {
+    margin-top: 20px;
+    background: linear-gradient(135deg, rgba(255,200,0,0.15), rgba(255,140,0,0.1));
+    border: 1px solid rgba(255,200,0,0.3);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.7;
+  }
+  .cta a {
+    color: #ffc800;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .bmi-bar {
+    margin-top: 16px;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bmi-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(to right, #4caf50, #ffc800, #f44336);
+    transition: width 0.6s ease;
+  }
+  .bmi-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+  }
+  .error { color: #ff6b6b; font-size: 13px; margin-top: 8px; display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo"><span>🥊 Honey LaRva</span></div>
+  <h2>ダイエット目標日数 計算ツール</h2>
+  <p class="subtitle">年齢・性別・体格を入力するだけで、目標達成までの期間を算出します</p>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>性別</label>
+      <select id="gender">
+        <option value="male">男性</option>
+        <option value="female">女性</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>年齢</label>
+      <input type="number" id="age" placeholder="例: 35" min="10" max="100">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>身長 (cm)</label>
+      <input type="number" id="height" placeholder="例: 165" min="100" max="220">
+    </div>
+    <div class="form-group">
+      <label>現在の体重 (kg)</label>
+      <input type="number" id="weight" placeholder="例: 68" min="30" max="200">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>目標体重 (kg) <span style="color:rgba(255,255,255,0.4);font-weight:normal;">空欄＝標準体重</span></label>
+      <input type="number" id="target" placeholder="例: 60" min="30" max="200">
+    </div>
+  </div>
+
+  <p class="error" id="error-msg"></p>
+  <button class="btn" onclick="calculate()">目標日数を計算する 📊</button>
+
+  <div class="result" id="result">
+    <div class="result-days" id="days-display">--<span>日</span></div>
+    <div class="result-label" id="days-label">目標達成まで</div>
+
+    <div class="bmi-bar"><div class="bmi-fill" id="bmi-fill" style="width:50%"></div></div>
+    <div class="bmi-labels"><span>低体重</span><span>標準</span><span>肥満</span></div>
+
+    <div class="result-detail" id="result-detail"></div>
+
+    <div class="cta">
+      💪 <strong>Honey LaRvaのフィットネスボクシング</strong>で<br>
+      骨盤・呼吸を意識しながら効率よく減量！<br>
+      <a href="https://honeylarva.com/" target="_blank">▶ 無料体験レッスンを予約する</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function calculate() {
+  const gender = document.getElementById('gender').value;
+  const age = parseFloat(document.getElementById('age').value);
+  const height = parseFloat(document.getElementById('height').value);
+  const weight = parseFloat(document.getElementById('weight').value);
+  const targetInput = document.getElementById('target').value;
+  const errEl = document.getElementById('error-msg');
+
+  errEl.style.display = 'none';
+  if (!age || !height || !weight) {
+    errEl.textContent = '年齢・身長・体重を入力してください。';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const h = height / 100;
+  const bmi = weight / (h * h);
+  const idealWeight = h * h * 22;
+
+  let target = targetInput ? parseFloat(targetInput) : idealWeight;
+  if (target >= weight) {
+    errEl.textContent = '目標体重は現在の体重より少なく設定してください。';
+    errEl.style.display = 'block';
+    target = idealWeight;
+  }
+
+  // 基礎代謝 (Mifflin-St Jeor)
+  let bmr;
+  if (gender === 'male') {
+    bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+  } else {
+    bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+  }
+
+  // フィットネスボクシング（週3回）による活動代謝
+  const activityMultiplier = 1.55; // 中程度の活動
+  const tdee = bmr * activityMultiplier;
+
+  // 1日の赤字カロリー（安全な範囲: 500〜700kcal）
+  const dailyDeficit = 600;
+  const lossPerDay = dailyDeficit / 7200; // kg/day (1kg≒7200kcal)
+
+  const weightToLose = weight - target;
+  const days = Math.round(weightToLose / lossPerDay);
+  const months = Math.floor(days / 30);
+  const remDays = days % 30;
+
+  // BMIバー位置
+  const bmiPct = Math.min(Math.max(((bmi - 15) / (40 - 15)) * 100, 5), 95);
+  document.getElementById('bmi-fill').style.width = bmiPct + '%';
+
+  // 結果表示
+  document.getElementById('days-display').innerHTML = days + '<span>日</span>';
+  let label = '';
+  if (months > 0) label = `（約${months}ヶ月${remDays > 0 ? remDays + '日' : ''}）`;
+  document.getElementById('days-label').textContent = '目標達成まで' + label;
+
+  const bmiStatus = bmi < 18.5 ? '低体重' : bmi < 25 ? '標準体重' : bmi < 30 ? '過体重' : '肥満';
+  document.getElementById('result-detail').innerHTML = `
+    <strong>現在のBMI：</strong>${bmi.toFixed(1)}（${bmiStatus}）<br>
+    <strong>標準体重：</strong>${idealWeight.toFixed(1)} kg<br>
+    <strong>目標体重：</strong>${target.toFixed(1)} kg（減量目標 ${weightToLose.toFixed(1)} kg）<br>
+    <strong>推定基礎代謝：</strong>${Math.round(bmr)} kcal/日<br>
+    <strong>想定消費カロリー：</strong>${Math.round(tdee)} kcal/日<br>
+    ※週3回のフィットネスボクシング参加＋1日600kcal赤字で計算
+  `;
+
+  document.getElementById('result').classList.add('show');
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') calculate();
+});
+</script>
+</body>
+</html>

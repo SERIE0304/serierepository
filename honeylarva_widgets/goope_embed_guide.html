@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Goope埋め込みコード | Honey LaRva</title>
+<style>
+  body { font-family: 'Meiryo', sans-serif; background: #1a1a2e; color: #fff; padding: 30px; }
+  h1 { color: #ffc800; margin-bottom: 30px; }
+  h2 { color: #ffc800; margin: 24px 0 12px; border-left: 4px solid #ffc800; padding-left: 12px; }
+  .code-block {
+    background: #0d0d1a;
+    border: 1px solid rgba(255,200,0,0.3);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: monospace;
+    font-size: 13px;
+    color: #7ec8e3;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(255,200,0,0.2);
+    border: 1px solid rgba(255,200,0,0.4);
+    color: #ffc800;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .note { background: rgba(255,200,0,0.07); border-left: 3px solid #ffc800; padding: 12px 16px; border-radius: 4px; font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.7; margin: 12px 0; }
+  p { color: rgba(255,255,255,0.75); line-height: 1.8; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<h1>🥊 Honey LaRva ウィジェット — Goope埋め込みガイド</h1>
+
+<p>以下のiframeコードをGoopeの「HTMLパーツ」または「カスタムHTML」欄に貼り付けてください。</p>
+<p>各ウィジェットは別ページ（GitHub Pages等）にホストしてiframeで読み込む方式です。</p>
+
+<div class="note">
+  ⚠️ <strong>事前準備：</strong> HTMLファイルをGitHub Pagesなどに公開し、以下の <code>YOUR_GITHUB_USERNAME</code> と <code>YOUR_REPO_NAME</code> を実際の値に置き換えてください。
+</div>
+
+<h2>① ダイエット目標日数 計算ツール</h2>
+<p>年齢・性別・身長・体重を入力して、目標達成日数を算出します。</p>
+<div class="code-block" id="code1"><button class="copy-btn" onclick="copy('code1')">コピー</button>&lt;iframe
+  src="https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME/honeylarva_widgets/diet_calculator.html"
+  width="100%"
+  height="720"
+  frameborder="0"
+  style="border-radius:16px; max-width:500px; display:block; margin:0 auto;"
+  title="ダイエット目標日数計算ツール"
+&gt;&lt;/iframe&gt;</div>
+
+<h2>② フランチャイジー加入ボタン＆モーダル</h2>
+<p>ボタンをクリックするとフランチャイズ申込フォームが開きます。</p>
+<div class="code-block" id="code2"><button class="copy-btn" onclick="copy('code2')">コピー</button>&lt;iframe
+  src="https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME/honeylarva_widgets/franchise_modal.html"
+  width="100%"
+  height="600"
+  frameborder="0"
+  style="border-radius:16px; max-width:560px; display:block; margin:0 auto;"
+  title="フランチャイジー加入申込"
+&gt;&lt;/iframe&gt;</div>
+
+<h2>③ AIチャットボット</h2>
+<p>Honey LaRvaに関する質問に自動で回答します。（バックエンドAPIサーバーの設定が必要です）</p>
+<div class="code-block" id="code3"><button class="copy-btn" onclick="copy('code3')">コピー</button>&lt;iframe
+  src="https://YOUR_GITHUB_USERNAME.github.io/YOUR_REPO_NAME/honeylarva_widgets/chatbot_widget.html"
+  width="100%"
+  height="640"
+  frameborder="0"
+  style="border-radius:20px; max-width:520px; display:block; margin:0 auto;"
+  title="Honey LaRva AIアシスタント"
+&gt;&lt;/iframe&gt;</div>
+
+<div class="note">
+  💬 <strong>AIチャットボットについて：</strong> chatbot_api.py を常時起動しているサーバーにデプロイし、<br>
+  chatbot_widget.html の <code>const API_ENDPOINT = '/api/chat';</code> を実際のサーバーURLに変更してください。<br>
+  例: <code>https://your-server.com/api/chat</code>
+</div>
+
+<h2>フォームメール設定（フランチャイズ申込）</h2>
+<p>franchise_modal.html の <code>const FORM_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';</code> を変更してください。</p>
+<p><strong>Formspree（無料）を使う場合：</strong></p>
+<div class="code-block">1. https://formspree.io にアクセスして無料登録
+2. 「New Form」でフォームを作成（送信先: f.serie.masaaki@gmail.com）
+3. 取得したフォームID（例: xkjhqrtz）を FORM_ENDPOINT に貼り付ける</div>
+
+<script>
+function copy(id) {
+  const text = document.getElementById(id).innerText.replace('コピー', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('#' + id + ' .copy-btn');
+    btn.textContent = '✓ コピー完了';
+    setTimeout(() => btn.textContent = 'コピー', 2000);
+  });
+}
+</script>
+</body>
+</html>

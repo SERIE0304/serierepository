@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フランチャイジー加入 | Honey LaRva</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  /* ── フランチャイズ紹介カード ── */
+  .fc-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,200,0,0.3);
+    border-radius: 20px;
+    padding: 40px 32px;
+    max-width: 520px;
+    width: 100%;
+    color: #fff;
+    text-align: center;
+  }
+  .fc-card .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ffc800, #ff8c00);
+    color: #1a1a2e;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 14px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+  .fc-card h2 {
+    font-size: 26px;
+    font-weight: bold;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  .fc-card h2 span { color: #ffc800; }
+  .fc-card .lead {
+    font-size: 14px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.8;
+    margin-bottom: 28px;
+  }
+  .features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 32px;
+    text-align: left;
+  }
+  .feature-item {
+    background: rgba(255,200,0,0.07);
+    border: 1px solid rgba(255,200,0,0.2);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .feature-item .icon { font-size: 22px; margin-bottom: 6px; }
+  .feature-item .title { font-size: 13px; font-weight: bold; color: #ffc800; margin-bottom: 4px; }
+  .feature-item .desc { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+  .open-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #ffc800, #ff8c00);
+    color: #1a1a2e;
+    font-size: 17px;
+    font-weight: bold;
+    padding: 16px 48px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    letter-spacing: 1px;
+  }
+  .open-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,200,0,0.35); }
+  .note { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 12px; }
+
+  /* ── モーダル ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #16213e;
+    border: 1px solid rgba(255,200,0,0.4);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 480px;
+    width: 100%;
+    position: relative;
+    animation: slideIn 0.25s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 18px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .modal-close:hover { color: #fff; }
+  .modal h3 {
+    font-size: 20px;
+    color: #ffc800;
+    margin-bottom: 6px;
+  }
+  .modal .modal-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 24px;
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    color: rgba(255,200,0,0.85);
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  .form-group label .req {
+    color: #ff6b6b;
+    margin-left: 4px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: #ffc800; }
+  .form-group select option { background: #16213e; }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #ffc800, #ff8c00);
+    border: none;
+    border-radius: 10px;
+    color: #1a1a2e;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: transform 0.2s;
+  }
+  .submit-btn:hover { transform: translateY(-1px); }
+  .success-msg {
+    display: none;
+    text-align: center;
+    padding: 32px 16px;
+  }
+  .success-msg .icon { font-size: 52px; margin-bottom: 16px; }
+  .success-msg h4 { font-size: 20px; color: #ffc800; margin-bottom: 10px; }
+  .success-msg p { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<!-- 紹介カード -->
+<div class="fc-card">
+  <div class="badge">🥊 FRANCHISE OPPORTUNITY</div>
+  <h2>Honey LaRvaの<br><span>フランチャイジー</span>になろう</h2>
+  <p class="lead">
+    骨盤・呼吸を意識したフィットネスボクシングプログラムを<br>
+    あなたの地域でも展開しませんか？<br>
+    独自のカリキュラムと集客サポートで開業をバックアップします。
+  </p>
+
+  <div class="features">
+    <div class="feature-item">
+      <div class="icon">📚</div>
+      <div class="title">充実した研修</div>
+      <div class="desc">独自カリキュラムと指導資格取得サポート</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">📣</div>
+      <div class="title">集客サポート</div>
+      <div class="desc">SNS・チラシ・イベント出展を本部が支援</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">💼</div>
+      <div class="title">低コスト開業</div>
+      <div class="desc">スモールスタート可能な柔軟なプラン</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">🤝</div>
+      <div class="title">継続サポート</div>
+      <div class="desc">開業後も定期コンサルティングを提供</div>
+    </div>
+  </div>
+
+  <button class="open-btn" onclick="openModal()">📩 加入を申し込む・詳細を聞く</button>
+  <p class="note">※ 無料相談も受け付けています。お気軽にどうぞ。</p>
+</div>
+
+<!-- モーダル -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+
+    <div id="form-section">
+      <h3>フランチャイジー加入申込</h3>
+      <p class="modal-sub">以下をご記入の上、送信してください。担当者より3営業日以内にご連絡します。</p>
+
+      <div class="form-group">
+        <label>お名前<span class="req">*</span></label>
+        <input type="text" id="fc-name" placeholder="山田 太郎">
+      </div>
+      <div class="form-group">
+        <label>メールアドレス<span class="req">*</span></label>
+        <input type="email" id="fc-email" placeholder="example@email.com">
+      </div>
+      <div class="form-group">
+        <label>電話番号</label>
+        <input type="tel" id="fc-tel" placeholder="090-1234-5678">
+      </div>
+      <div class="form-group">
+        <label>ご住所（都道府県・市区町村）<span class="req">*</span></label>
+        <input type="text" id="fc-address" placeholder="例: 栃木県那須塩原市">
+      </div>
+      <div class="form-group">
+        <label>ご興味の内容</label>
+        <select id="fc-interest">
+          <option value="">選択してください</option>
+          <option value="full">フルフランチャイズ加入</option>
+          <option value="partial">業務提携・一部プログラム導入</option>
+          <option value="info">まず詳細資料が欲しい</option>
+          <option value="consult">無料相談希望</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>ご質問・ご要望</label>
+        <textarea id="fc-message" placeholder="ご自由にお書きください..."></textarea>
+      </div>
+
+      <p id="fc-error" style="color:#ff6b6b;font-size:13px;margin-bottom:8px;display:none;"></p>
+      <button class="submit-btn" onclick="submitForm()">送信する →</button>
+    </div>
+
+    <div class="success-msg" id="success-section">
+      <div class="icon">✅</div>
+      <h4>送信完了！</h4>
+      <p>お問い合わせありがとうございます。<br>担当者より3営業日以内にご連絡いたします。<br><br>引き続き Honey LaRva をよろしくお願いします🥊</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function submitForm() {
+  const name = document.getElementById('fc-name').value.trim();
+  const email = document.getElementById('fc-email').value.trim();
+  const address = document.getElementById('fc-address').value.trim();
+  const errEl = document.getElementById('fc-error');
+
+  if (!name || !email || !address) {
+    errEl.textContent = '名前・メールアドレス・住所は必須です。';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.textContent = '正しいメールアドレスを入力してください。';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  // FormspreeなどのフォームバックエンドURLに送信
+  // 実際のフォームID・送信先に置き換えてください
+  const FORM_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+  const payload = {
+    name, email,
+    tel: document.getElementById('fc-tel').value,
+    address,
+    interest: document.getElementById('fc-interest').value,
+    message: document.getElementById('fc-message').value,
+  };
+
+  // Formspree送信（またはメールAPI）
+  fetch(FORM_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(r => {
+    // 送信成功（またはモック表示）
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('success-section').style.display = 'block';
+  })
+  .catch(() => {
+    // フォールバック：成功表示（本番ではエラー処理を追加）
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('success-section').style.display = 'block';
+  });
+}
+</script>
+</body>
+</html>
