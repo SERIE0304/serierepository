@@ -1,0 +1,160 @@
+<!-- ========================================
+  Honey LaRva ダイエット計算ツール（浮きウィジェット）
+  Goope「外部パーツ」に貼り付けるコード
+  チャットボットの左隣に表示されます
+  ======================================== -->
+<style>
+#dc-fab{position:fixed;bottom:24px;right:96px;z-index:9997;font-family:'Hiragino Sans','Meiryo',sans-serif;}
+#dc-btn{width:60px;height:60px;background:linear-gradient(135deg,#ffc800,#ff8c00);border:none;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 4px 18px rgba(255,200,0,0.45);transition:transform .2s;display:flex;align-items:center;justify-content:center;}
+#dc-btn:hover{transform:scale(1.1);}
+#dc-panel{display:none;position:fixed;bottom:96px;right:96px;width:320px;max-height:520px;overflow-y:auto;background:#16213e;border:1px solid rgba(255,200,0,0.35);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.5);z-index:9996;color:#fff;}
+#dc-panel.open{display:block;}
+#dc-panel::-webkit-scrollbar{width:3px;}
+#dc-panel::-webkit-scrollbar-thumb{background:rgba(255,200,0,.3);border-radius:2px;}
+#dc-head{background:linear-gradient(135deg,rgba(255,200,0,.15),rgba(255,140,0,.1));padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,200,0,.2);position:sticky;top:0;z-index:1;}
+#dc-head .av{width:36px;height:36px;background:linear-gradient(135deg,#ffc800,#ff8c00);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+#dc-head .nm{font-size:13px;font-weight:bold;color:#fff;line-height:1.3;}
+#dc-head .sb{font-size:10px;color:rgba(255,255,255,.5);}
+#dc-close{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;cursor:pointer;line-height:1;flex-shrink:0;}
+#dc-body{padding:16px;}
+.dc-row{display:flex;gap:10px;margin-bottom:12px;}
+.dc-group{flex:1;}
+.dc-group label{display:block;font-size:11px;color:rgba(255,200,0,.8);margin-bottom:5px;font-weight:bold;}
+.dc-group input,.dc-group select{width:100%;padding:8px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:13px;outline:none;transition:border-color .2s;font-family:inherit;}
+.dc-group input:focus,.dc-group select:focus{border-color:#ffc800;}
+.dc-group select option{background:#1a1a2e;color:#fff;}
+.dc-btn{width:100%;padding:11px;background:linear-gradient(135deg,#ffc800,#ff8c00);border:none;border-radius:10px;color:#1a1a2e;font-size:14px;font-weight:bold;cursor:pointer;margin-top:4px;transition:transform .2s;}
+.dc-btn:hover{transform:translateY(-1px);}
+.dc-err{color:#ff6b6b;font-size:12px;margin-top:6px;display:none;}
+.dc-result{display:none;margin-top:16px;background:rgba(255,200,0,.08);border:1px solid rgba(255,200,0,.4);border-radius:12px;padding:16px;text-align:center;}
+.dc-result.show{display:block;}
+.dc-days{font-size:44px;font-weight:bold;color:#ffc800;line-height:1;}
+.dc-days span{font-size:18px;margin-left:3px;}
+.dc-label{font-size:13px;color:rgba(255,255,255,.7);margin-top:6px;}
+.dc-bmi-bar{margin-top:12px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;}
+.dc-bmi-fill{height:100%;border-radius:3px;background:linear-gradient(to right,#4caf50,#ffc800,#f44336);transition:width .6s ease;}
+.dc-bmi-labels{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;}
+.dc-detail{margin-top:12px;font-size:12px;color:rgba(255,255,255,.6);line-height:1.8;text-align:left;}
+.dc-detail strong{color:#ffc800;}
+.dc-cta{margin-top:14px;background:linear-gradient(135deg,rgba(255,200,0,.15),rgba(255,140,0,.1));border:1px solid rgba(255,200,0,.3);border-radius:10px;padding:12px;font-size:12px;color:rgba(255,255,255,.8);line-height:1.7;text-align:center;}
+.dc-cta strong{color:#ffc800;}
+.dc-cta a{color:#ffc800;text-decoration:none;font-weight:bold;}
+</style>
+
+<div id="dc-fab">
+  <div id="dc-panel">
+    <div id="dc-head">
+      <div class="av">📊</div>
+      <div>
+        <div class="nm">ダイエット計算ツール</div>
+        <div class="sb">目標達成日数を無料で診断</div>
+      </div>
+      <button id="dc-close" onclick="dcClose()">✕</button>
+    </div>
+    <div id="dc-body">
+      <div class="dc-row">
+        <div class="dc-group">
+          <label>性別</label>
+          <select id="dc-gender">
+            <option value="male">男性</option>
+            <option value="female">女性</option>
+          </select>
+        </div>
+        <div class="dc-group">
+          <label>年齢</label>
+          <input type="number" id="dc-age" placeholder="例: 35" min="10" max="100">
+        </div>
+      </div>
+      <div class="dc-row">
+        <div class="dc-group">
+          <label>身長 (cm)</label>
+          <input type="number" id="dc-height" placeholder="例: 165" min="100" max="220">
+        </div>
+        <div class="dc-group">
+          <label>現在の体重 (kg)</label>
+          <input type="number" id="dc-weight" placeholder="例: 68" min="30" max="200">
+        </div>
+      </div>
+      <div class="dc-row">
+        <div class="dc-group">
+          <label>目標体重 (kg) <span style="color:rgba(255,255,255,.4);font-weight:normal;">空欄＝標準体重</span></label>
+          <input type="number" id="dc-target" placeholder="例: 60" min="30" max="200">
+        </div>
+      </div>
+      <div class="dc-row">
+        <div class="dc-group">
+          <label>運動頻度（Honey LaRva通う回数）</label>
+          <select id="dc-freq">
+            <option value="1">緩やか（週1回）</option>
+            <option value="2" selected>週2回</option>
+            <option value="5">積極的（週5回）</option>
+          </select>
+        </div>
+      </div>
+      <p class="dc-err" id="dc-err"></p>
+      <button class="dc-btn" onclick="dcCalc()">目標日数を計算する 📊</button>
+
+      <div class="dc-result" id="dc-result">
+        <div class="dc-days" id="dc-days">--<span>日</span></div>
+        <div class="dc-label" id="dc-days-label">目標達成まで</div>
+        <div class="dc-bmi-bar"><div class="dc-bmi-fill" id="dc-bmi-fill" style="width:50%"></div></div>
+        <div class="dc-bmi-labels"><span>低体重</span><span>標準</span><span>肥満</span></div>
+        <div class="dc-detail" id="dc-detail"></div>
+        <div class="dc-cta">
+          💪 <strong>Honey LaRva</strong>では<br>
+          🔬 <strong>科学的根拠をもとに、食事を十分に摂りながらダイエット指導しています。</strong><br>
+          無理な食事制限なし・リバウンドしにくい体づくりをサポート。<br><br>
+          <a href="https://honeylarva.com/contact" target="_blank">▶ 体験レッスン（¥2,000）を予約する</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button id="dc-btn" onclick="dcToggle()" title="ダイエット計算ツール">📊</button>
+</div>
+
+<script>
+var dcOpen=false;
+function dcToggle(){dcOpen=!dcOpen;document.getElementById('dc-panel').classList.toggle('open',dcOpen);}
+function dcClose(){dcOpen=false;document.getElementById('dc-panel').classList.remove('open');}
+function dcCalc(){
+  var gender=document.getElementById('dc-gender').value;
+  var age=parseFloat(document.getElementById('dc-age').value);
+  var height=parseFloat(document.getElementById('dc-height').value);
+  var weight=parseFloat(document.getElementById('dc-weight').value);
+  var targetInput=document.getElementById('dc-target').value;
+  var freq=parseInt(document.getElementById('dc-freq').value);
+  var err=document.getElementById('dc-err');
+  err.style.display='none';
+  if(!age||!height||!weight){err.textContent='年齢・身長・体重を入力してください。';err.style.display='block';return;}
+  var h=height/100;
+  var bmi=weight/(h*h);
+  var ideal=h*h*22;
+  var target=targetInput?parseFloat(targetInput):ideal;
+  if(target>=weight){err.textContent='目標体重は現在の体重より少なく設定してください。';err.style.display='block';target=ideal;}
+  var bmr=gender==='male'?(10*weight+6.25*height-5*age+5):(10*weight+6.25*height-5*age-161);
+  var exDeficit=Math.round(200*freq/7);
+  var daily=Math.min(250+exDeficit,300);
+  var freqLabel=freq===1?'緩やか（週1回）':freq===2?'週2回':'積極的（週5回）';
+  var toLose=weight-target;
+  var days=Math.round(toLose*7200/daily);
+  var months=Math.floor(days/30);
+  var rem=days%30;
+  var bmiPct=Math.min(Math.max(((bmi-15)/(40-15))*100,5),95);
+  document.getElementById('dc-bmi-fill').style.width=bmiPct+'%';
+  document.getElementById('dc-days').innerHTML=days+'<span>日</span>';
+  var lbl='';
+  if(months>0)lbl='（約'+months+'ヶ月'+(rem>0?rem+'日':'')+'）';
+  document.getElementById('dc-days-label').textContent='目標達成まで'+lbl;
+  var bmiStatus=bmi<18.5?'低体重':bmi<25?'標準体重':bmi<30?'過体重':'肥満';
+  var cap=(250+exDeficit>300)?'（上限300kcal適用）':'';
+  document.getElementById('dc-detail').innerHTML=
+    '<strong>現在のBMI：</strong>'+bmi.toFixed(1)+'（'+bmiStatus+'）<br>'+
+    '<strong>標準体重：</strong>'+ideal.toFixed(1)+' kg<br>'+
+    '<strong>目標体重：</strong>'+target.toFixed(1)+' kg（減量目標 '+toLose.toFixed(1)+' kg）<br>'+
+    '<strong>基礎代謝：</strong>'+Math.round(bmr)+' kcal/日<br>'+
+    '<strong>運動頻度：</strong>'+freqLabel+'（＋'+exDeficit+' kcal/日）<br>'+
+    '<strong>1日の消費赤字：</strong>食事250 ＋ 運動'+exDeficit+' ＝ <strong>'+daily+' kcal/日</strong>'+cap;
+  document.getElementById('dc-result').classList.add('show');
+  document.getElementById('dc-panel').scrollTop=9999;
+}
+</script>
