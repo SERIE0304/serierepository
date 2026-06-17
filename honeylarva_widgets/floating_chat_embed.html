@@ -57,6 +57,7 @@
       <div class="hm b"><div class="hav">🥊</div><div class="hb">こんにちは！🥊<br>Honey LaRvaのAIアシスタントです。ご質問どうぞ！</div></div>
     </div>
     <div class="hqr" id="hl-qr">
+      <button class="hqb" onclick="hlQ('ジムへ通う目的を教えて')">🎯 通う目的</button>
       <button class="hqb" onclick="hlQ('体験レッスンは？')">体験レッスン</button>
       <button class="hqb" onclick="hlQ('料金は？')">料金</button>
       <button class="hqb" onclick="hlQ('クラスの種類は？')">クラス</button>
@@ -92,6 +93,14 @@ function hlTyping(show){
 }
 function hlAnswer(q){
   q=q.toLowerCase();
+  if(q.includes('目的')||q.includes('なぜ')||q.includes('理由'))return 'どんな目的でお越しですか？🎯\nあてはまるものを入力してください！\n\n① ダイエット・減量\n② 健康維持・体力づくり\n③ ストレス発散\n④ 競技・ボクシング上達\n⑤ 骨盤・姿勢改善・骨盤底筋\n⑥ シニアの健康維持\n⑦ お子さんの体力づくり';
+  if(q.includes('ダイエット')||q.includes('減量')||q.includes('痩せ')||q.includes('体重'))return 'ダイエット・減量を目指す方にぴったりです💪\nHoney LaRvaでは食事250kcal＋運動200kcalの赤字で無理なく体重管理！\nページ上の「ダイエット計算ツール」で目標日数も計算できます📊\n体験レッスン ¥2,000 でまずお試しください！\n▶ https://honeylarva.com/contact';
+  if(q.includes('健康')||q.includes('体力')||q.includes('維持'))return '健康維持・体力づくりに最適です🥊\n骨盤・呼吸を意識したボクシングの動きで、全身をバランスよく鍛えられます。\n年齢・体力を問わず続けやすいプログラムです！\n体験レッスン ¥2,000 でお気軽にどうぞ🎉\n▶ https://honeylarva.com/contact';
+  if(q.includes('ストレス')||q.includes('発散')||q.includes('リフレッシュ'))return 'ストレス発散に最高です😤🥊\nボクシングの動きでパンチを打つ爽快感は格別！\n日々のストレスをすっきり解消できます。\n体験レッスン ¥2,000 でまず体感してみてください！\n▶ https://honeylarva.com/contact';
+  if(q.includes('競技')||q.includes('ボクシング上達')||q.includes('大会')||q.includes('試合')||q.includes('上達'))return '競技・ボクシング上達を目指す方も歓迎です🥊\n黒磯店ではボクシング連盟体育館での練習や大会出場サポートも行っています！\n全米ストレングス＆コンディショニング資格保持者が指導します。\n▶ まずは相談：https://honeylarva.com/contact';
+  if(q.includes('骨盤')||q.includes('姿勢')||q.includes('骨盤底筋'))return '骨盤・姿勢改善・骨盤底筋トレーニングはHoney LaRvaの最も得意とする分野です🌟\nボクシングの動きを通じて骨盤を整え、呼吸・体の使い方を根本から改善します。\n講師は骨盤底筋トレーニングの外部講座も行っています！\n体験レッスン ¥2,000 でぜひ体感を👇\n▶ https://honeylarva.com/contact';
+  if((q.includes('シニア')||q.includes('60')||q.includes('高齢'))&&(q.includes('目的')||q.includes('健康')||q.includes('維持')||q.includes('通')))return '60歳以上の方もシニア料金 ¥8,000 でご参加いただけます👴👵\nゆっくりしたペースで骨盤・呼吸を意識しながら無理なく続けられます。\n転倒防止・筋力維持・健康寿命延伸に効果的です！\n体験レッスン ¥2,000 でお試しください。\n▶ https://honeylarva.com/contact';
+  if(q.includes('子供')||q.includes('子ども')||q.includes('お子'))return 'ジュニア体育クラスはお子さんの体力づくりに最適です🧒\n多様性を重視した基礎トレーニングで、運動が得意な子も苦手な子も楽しく参加できます！\n月4回 ¥5,000 / 月8回 ¥7,000（新規受付中）\n▶ お問い合わせ：https://honeylarva.com/contact';
   if(q.includes('体験')||q.includes('試し'))return '体験レッスンは¥2,000（1回）です！🥊\n大田原店・黒磯店とも営業時間内であればいつでもOK！\n初めての方も大歓迎です。\n▶ お申し込み：https://honeylarva.com/contact';
   if(q.includes('料金')||q.includes('値段')||q.includes('いくら')||q.includes('価格')||q.includes('費用')||q.includes('プラン'))return '料金プラン（税込・大田原／黒磯 共通）💪\n【一般コース】月4回 ¥6,000／月8回 ¥7,000／フリー ¥10,000\n【ジュニア】月4回 ¥5,000／月8回 ¥7,000\n【シニア(60歳以上)】¥8,000\n【パーソナル】60分 ¥10,000\n【オンラインダイエット】月 ¥13,000\n⚠️大田原・黒磯とも一般会員は新規入会一時停止中。ジュニアは受付中！\n空き次第ご案内（予約優先）→ https://honeylarva.com/contact';
   if(q.includes('クラス')||q.includes('種類')||q.includes('コース')||q.includes('プログラム'))return 'クラスは3種類あります🥊\n【一般クラス】骨盤・呼吸を意識したフィットネスボクシング（60歳以上はシニア料金）\n【ジュニア体育クラス】小中学生対象・多様性重視の基礎トレーニング\n【オンラインダイエット】自宅から参加できるダイエットプログラム\n▶ 詳細：https://honeylarva.com/contact';
