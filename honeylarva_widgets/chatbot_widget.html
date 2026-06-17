@@ -271,6 +271,11 @@ const GYM_CONTEXT = `
 ⚠️大田原・黒磯とも一般会員は新規入会を一時停止中。ジュニアは受付中。
 空きができ次第、予約された方を優先してご案内。予約先：https://honeylarva.com/contact
 
+【体験レッスン】
+- 料金：¥2,000（1回）
+- 大田原店・黒磯店とも営業時間内であればいつでも参加OK
+- 予約先：https://honeylarva.com/contact
+
 【対応できること】
 - 体験レッスンのご案内
 - 料金・プランの説明
@@ -361,7 +366,7 @@ async function callAPI(userMessage) {
 
 function fallbackAnswer(q) {
   q = q.toLowerCase();
-  if (q.includes('体験') || q.includes('試し')) return '体験レッスンは随時受付中です！🥊 まずは公式HP（https://honeylarva.com/）からご予約いただくか、直接お電話ください。初めての方も大歓迎です。';
+  if (q.includes('体験') || q.includes('試し')) return '体験レッスンは ¥2,000（1回）です！🥊\n大田原店・黒磯店とも、営業時間内であればいつでもOK！\n初めての方も大歓迎です。\n▶ お申し込み：https://honeylarva.com/contact';
   if (q.includes('料金') || q.includes('値段') || q.includes('いくら') || q.includes('価格') || q.includes('費用') || q.includes('プラン')) return '料金プラン（税込・大田原／黒磯 共通）💪\n【一般コース】月4回 ¥6,000 / 月8回 ¥7,000 / フリー ¥10,000\n【ジュニア】月4回 ¥5,000 / 月8回 ¥7,000\n【シニア（60歳以上）】¥8,000\n【パーソナルトレーニング】60分 ¥10,000\n【オンラインダイエット】月額 ¥13,000\n⚠️大田原・黒磯とも一般会員は新規入会を一時停止中。ジュニアは受付中！\n空きができ次第、予約された方を優先してご案内します。\n▶ 予約：https://honeylarva.com/contact';
   if (q.includes('クラス') || q.includes('プログラム')) return '一般・ジュニア・シニア（60歳以上）の各クラスがあります🥊 骨盤・呼吸を意識した独自プログラムが特徴です！';
   if (q.includes('場所') || q.includes('アクセス') || q.includes('どこ')) return '栃木県大田原市と那須塩原市に2拠点あります📍 詳しいアクセスは公式HP（https://honeylarva.com/）でご確認ください！';
