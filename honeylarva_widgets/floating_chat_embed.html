@@ -1,0 +1,115 @@
+<!-- ========================================
+  Honey LaRva 浮きチャットボット
+  Goope「外部パーツ」に貼り付けるコード
+  ======================================== -->
+<style>
+#hl-fab{position:fixed;bottom:24px;right:24px;z-index:9999;font-family:'Hiragino Sans','Meiryo',sans-serif;}
+#hl-btn{width:60px;height:60px;background:linear-gradient(135deg,#ffc800,#ff8c00);border:none;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 4px 18px rgba(255,200,0,0.45);transition:transform .2s;}
+#hl-btn:hover{transform:scale(1.1);}
+#hl-badge{position:absolute;top:-2px;right:-2px;width:18px;height:18px;background:#f44336;border-radius:50%;border:2px solid #fff;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
+#hl-panel{display:none;position:fixed;bottom:96px;right:24px;width:320px;height:480px;background:#16213e;border:1px solid rgba(255,200,0,0.35);border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.5);flex-direction:column;z-index:9998;}
+#hl-panel.open{display:flex;}
+#hl-head{background:linear-gradient(135deg,rgba(255,200,0,.15),rgba(255,140,0,.1));padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,200,0,.2);}
+#hl-head .av{width:36px;height:36px;background:linear-gradient(135deg,#ffc800,#ff8c00);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;}
+#hl-head .nm{font-size:14px;font-weight:bold;color:#fff;}
+#hl-head .st{font-size:11px;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:4px;}
+#hl-head .sd{width:6px;height:6px;background:#4caf50;border-radius:50%;animation:blink 2s infinite;}
+#hl-close{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;cursor:pointer;line-height:1;}
+#hl-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+#hl-msgs::-webkit-scrollbar{width:3px;}
+#hl-msgs::-webkit-scrollbar-thumb{background:rgba(255,200,0,.3);border-radius:2px;}
+.hm{display:flex;gap:8px;max-width:90%;}
+.hm.u{align-self:flex-end;flex-direction:row-reverse;}
+.hm .hav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;align-self:flex-end;}
+.hm.b .hav{background:linear-gradient(135deg,#ffc800,#ff8c00);}
+.hm.u .hav{background:rgba(255,255,255,.12);}
+.hm .hb{padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.6;color:#fff;}
+.hm.b .hb{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-bottom-left-radius:3px;}
+.hm.u .hb{background:linear-gradient(135deg,#ffc800,#ff8c00);color:#1a1a2e;font-weight:500;border-bottom-right-radius:3px;}
+.hqr{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 8px;}
+.hqb{background:rgba(255,200,0,.1);border:1px solid rgba(255,200,0,.3);color:#ffc800;font-size:12px;padding:5px 10px;border-radius:16px;cursor:pointer;white-space:nowrap;}
+.hqb:hover{background:rgba(255,200,0,.2);}
+.htd{display:none;align-items:center;gap:4px;padding:8px 12px;background:rgba(255,255,255,.08);border-radius:12px;width:fit-content;}
+.htd.on{display:flex;}
+.htd span{width:6px;height:6px;background:rgba(255,255,255,.5);border-radius:50%;animation:bounce 1.2s infinite;}
+.htd span:nth-child(2){animation-delay:.2s}.htd span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+#hl-inp-area{padding:10px 12px;border-top:1px solid rgba(255,200,0,.15);background:rgba(0,0,0,.2);display:flex;gap:8px;align-items:center;}
+#hl-inp{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:8px 14px;color:#fff;font-size:13px;font-family:inherit;outline:none;}
+#hl-inp:focus{border-color:#ffc800;}
+#hl-inp::placeholder{color:rgba(255,255,255,.35);}
+#hl-send{width:36px;height:36px;background:linear-gradient(135deg,#ffc800,#ff8c00);border:none;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+#hl-send:disabled{opacity:.5;cursor:not-allowed;}
+</style>
+
+<div id="hl-fab">
+  <div id="hl-panel">
+    <div id="hl-head">
+      <div class="av">🥊</div>
+      <div>
+        <div class="nm">LaRva AIアシスタント</div>
+        <div class="st"><div class="sd"></div>オンライン</div>
+      </div>
+      <button id="hl-close" onclick="hlClose()">✕</button>
+    </div>
+    <div id="hl-msgs">
+      <div class="hm b"><div class="hav">🥊</div><div class="hb">こんにちは！🥊<br>Honey LaRvaのAIアシスタントです。ご質問どうぞ！</div></div>
+    </div>
+    <div class="hqr" id="hl-qr">
+      <button class="hqb" onclick="hlQ('体験レッスンは？')">体験レッスン</button>
+      <button class="hqb" onclick="hlQ('料金は？')">料金</button>
+      <button class="hqb" onclick="hlQ('クラスの種類は？')">クラス</button>
+      <button class="hqb" onclick="hlQ('場所は？')">アクセス</button>
+      <button class="hqb" onclick="hlQ('FC加入について')">FC加入</button>
+    </div>
+    <div id="hl-inp-area">
+      <input id="hl-inp" placeholder="メッセージを入力..." onkeydown="if(event.key==='Enter')hlSend()">
+      <button id="hl-send" onclick="hlSend()">➤</button>
+    </div>
+  </div>
+  <button id="hl-btn" onclick="hlToggle()" title="AIアシスタントに質問">🥊
+    <div id="hl-badge"></div>
+  </button>
+</div>
+
+<script>
+var hlOpen=false,hlBusy=false;
+function hlToggle(){hlOpen=!hlOpen;document.getElementById('hl-panel').classList.toggle('open',hlOpen);document.getElementById('hl-badge').style.display=hlOpen?'none':'block';if(hlOpen)document.getElementById('hl-inp').focus();}
+function hlClose(){hlOpen=false;document.getElementById('hl-panel').classList.remove('open');}
+function hlNow(){var d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
+function hlAdd(role,text){
+  var c=document.getElementById('hl-msgs');
+  var el=document.createElement('div');el.className='hm '+(role==='b'?'b':'u');
+  el.innerHTML='<div class="hav">'+(role==='b'?'🥊':'👤')+'</div><div class="hb">'+text.replace(/\n/g,'<br>')+'</div>';
+  c.appendChild(el);c.scrollTop=c.scrollHeight;
+}
+function hlTyping(show){
+  var el=document.getElementById('hl-td');
+  if(!el){el=document.createElement('div');el.id='hl-td';el.className='hm b';el.innerHTML='<div class="hav">🥊</div><div class="htd on" id="hl-tdi"><span></span><span></span><span></span></div>';document.getElementById('hl-msgs').appendChild(el);}
+  el.style.display=show?'flex':'none';
+  if(show)document.getElementById('hl-msgs').scrollTop=9999;
+}
+function hlAnswer(q){
+  q=q.toLowerCase();
+  if(q.includes('体験')||q.includes('試し'))return '体験レッスンは随時受付中です！🥊\nまずは公式HPからご予約ください。初めての方も大歓迎です。';
+  if(q.includes('料金')||q.includes('値段')||q.includes('いくら'))return '料金プランは月会費制です💪\n詳細は公式HPまたはジムへ直接お問い合わせください。';
+  if(q.includes('クラス')||q.includes('種類'))return '一般・ジュニア・シニア（60歳以上）の各クラスがあります🥊\n骨盤・呼吸を意識した独自プログラムが特徴です！';
+  if(q.includes('場所')||q.includes('アクセス')||q.includes('どこ'))return '大田原市と那須塩原市の2拠点があります📍\n詳しいアクセスは公式HPでご確認ください。';
+  if(q.includes('fc')||q.includes('フランチャイズ')||q.includes('加盟')||q.includes('加入'))return 'Honey LaRvaのFC加盟で、ご自身の地域でジムを開業できます🎉\n研修・集客サポート充実！お問い合わせください。';
+  if(q.includes('シニア')||q.includes('60')||q.includes('高齢'))return '60歳以上向けの「ミドルクラス」があります👴👵\n無理なく安全に続けられるプログラムです！';
+  if(q.includes('ジュニア')||q.includes('子供')||q.includes('子ども'))return 'ジュニアクラスでは多様性を重視した基礎トレーニングを行っています🧒\nお子さんの体力づくりにぴったりです！';
+  return 'ご質問ありがとうございます🥊\n詳しくは公式HP（honeylarva.com）またはジムへ直接お問い合わせください！';
+}
+async function hlSend(){
+  var inp=document.getElementById('hl-inp');
+  var text=inp.value.trim();if(!text||hlBusy)return;
+  inp.value='';document.getElementById('hl-qr').style.display='none';
+  hlBusy=true;document.getElementById('hl-send').disabled=true;
+  hlAdd('u',text);hlTyping(true);
+  await new Promise(function(r){setTimeout(r,700);});
+  hlTyping(false);hlAdd('b',hlAnswer(text));
+  hlBusy=false;document.getElementById('hl-send').disabled=false;inp.focus();
+}
+function hlQ(t){document.getElementById('hl-inp').value=t;hlSend();}
+</script>
