@@ -47,8 +47,11 @@
 {% if track == 'フランチャイジー編' %}
 <div class="card" style="margin-top:2rem; background:#eaf4fb; border-left:4px solid #2980b9; text-align:center; gap:0.8rem;">
   <p style="font-size:1.1rem; font-weight:bold; margin:0;">🏪 フランチャイズ加盟にご興味はありますか？</p>
+  <a href="{{ url_for('comparison') }}">
+    <button style="background:#8e44ad; width:100%;">📊 他社FCと比較してみる</button>
+  </a>
   <a href="{{ url_for('simulator') }}">
-    <button style="background:#27ae60; width:100%;">📊 経営シミュレーターで収支を試算する</button>
+    <button style="background:#27ae60; width:100%;">💹 経営シミュレーターで収支を試算する</button>
   </a>
   <a href="{{ url_for('inquiry') }}">
     <button style="background:#2980b9; width:100%;">📩 フランチャイズ加盟のお問い合わせはこちら</button>

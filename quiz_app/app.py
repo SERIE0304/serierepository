@@ -137,6 +137,11 @@ def simulator():
     return render_template("simulator.html")
 
 
+@app.route("/comparison")
+def comparison():
+    return render_template("comparison.html")
+
+
 @app.route("/inquiry", methods=["GET", "POST"])
 def inquiry():
     if request.method == "POST":

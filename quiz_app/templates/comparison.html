@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title %}他社FC比較 — ハニーラルヴァFC{% endblock %}
+{% block content %}
+<h1 style="text-align:center;">📊 フランチャイズ比較</h1>
+<p style="text-align:center; color:#555; margin-bottom:2rem;">ハニーラルヴァFCと主要フランチャイズを徹底比較</p>
+
+<!-- ハイライトカード -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem;">
+  <div class="card" style="background:linear-gradient(135deg,#27ae60,#2ecc71); color:#fff; text-align:center; padding:1.5rem;">
+    <p style="font-size:2rem; margin:0; font-weight:bold;">約160万円</p>
+    <p style="margin:0.3rem 0 0; font-size:0.9rem;">初期投資（最小クラス）</p>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,#2980b9,#3498db); color:#fff; text-align:center; padding:1.5rem;">
+    <p style="font-size:2rem; margin:0; font-weight:bold;">固定5万円</p>
+    <p style="margin:0.3rem 0 0; font-size:0.9rem;">月額ロイヤリティ（売上連動なし）</p>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,#8e44ad,#9b59b6); color:#fff; text-align:center; padding:1.5rem;">
+    <p style="font-size:2rem; margin:0; font-weight:bold;">1名運営</p>
+    <p style="margin:0.3rem 0 0; font-size:0.9rem;">〜100名まで一人で対応可能</p>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,#e67e22,#f39c12); color:#fff; text-align:center; padding:1.5rem;">
+    <p style="font-size:2rem; margin:0; font-weight:bold;">在庫ゼロ</p>
+    <p style="margin:0.3rem 0 0; font-size:0.9rem;">食品・物販リスクなし</p>
+  </div>
+</div>
+
+<!-- 比較テーブル -->
+<div class="card" style="overflow-x:auto; padding:1.5rem;">
+  <h2 style="margin-top:0;">主要FCとの比較表</h2>
+  <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+    <thead>
+      <tr style="background:#2c3e50; color:#fff;">
+        <th style="padding:0.8rem; text-align:left;">フランチャイズ</th>
+        <th style="padding:0.8rem; text-align:center;">初期投資</th>
+        <th style="padding:0.8rem; text-align:center;">ロイヤリティ</th>
+        <th style="padding:0.8rem; text-align:center;">在庫リスク</th>
+        <th style="padding:0.8rem; text-align:center;">一人運営</th>
+        <th style="padding:0.8rem; text-align:center;">オーナー年収目安</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background:#eafaf1; font-weight:bold; border:2px solid #27ae60;">
+        <td style="padding:0.8rem;">🍯 ハニーラルヴァ</td>
+        <td style="padding:0.8rem; text-align:center; color:#27ae60; font-weight:bold;">約160万円</td>
+        <td style="padding:0.8rem; text-align:center; color:#27ae60; font-weight:bold;">固定5万円/月</td>
+        <td style="padding:0.8rem; text-align:center;">✅ なし</td>
+        <td style="padding:0.8rem; text-align:center;">✅ 可能</td>
+        <td style="padding:0.8rem; text-align:center;">シミュレーターで試算</td>
+      </tr>
+      <tr style="background:#fff;">
+        <td style="padding:0.8rem;">🏪 コンビニ（7-Eleven）</td>
+        <td style="padding:0.8rem; text-align:center; color:#c0392b;">250〜300万円</td>
+        <td style="padding:0.8rem; text-align:center; color:#c0392b;">粗利の43〜45%</td>
+        <td style="padding:0.8rem; text-align:center;">❌ 大量在庫</td>
+        <td style="padding:0.8rem; text-align:center;">❌ 不可</td>
+        <td style="padding:0.8rem; text-align:center;">600〜800万円<br><span style="color:#999; font-size:0.8rem;">（長時間労働）</span></td>
+      </tr>
+      <tr style="background:#f9f9f9;">
+        <td style="padding:0.8rem;">💪 カーブス</td>
+        <td style="padding:0.8rem; text-align:center; color:#c0392b;">約2,000万円</td>
+        <td style="padding:0.8rem; text-align:center; color:#e67e22;">売上の6%</td>
+        <td style="padding:0.8rem; text-align:center;">✅ なし</td>
+        <td style="padding:0.8rem; text-align:center;">⚠️ 困難</td>
+        <td style="padding:0.8rem; text-align:center;">480〜600万円</td>
+      </tr>
+      <tr style="background:#fff;">
+        <td style="padding:0.8rem;">🏋️ チョコザップ</td>
+        <td style="padding:0.8rem; text-align:center; color:#c0392b;">2,000〜9,000万円</td>
+        <td style="padding:0.8rem; text-align:center; color:#e67e22;">売上の7%</td>
+        <td style="padding:0.8rem; text-align:center;">✅ なし</td>
+        <td style="padding:0.8rem; text-align:center;">✅ 無人可</td>
+        <td style="padding:0.8rem; text-align:center;">約360万円</td>
+      </tr>
+      <tr style="background:#f9f9f9;">
+        <td style="padding:0.8rem;">📚 明光義塾</td>
+        <td style="padding:0.8rem; text-align:center; color:#c0392b;">750万円〜</td>
+        <td style="padding:0.8rem; text-align:center; color:#e67e22;">売上の10%</td>
+        <td style="padding:0.8rem; text-align:center;">✅ なし</td>
+        <td style="padding:0.8rem; text-align:center;">⚠️ 困難</td>
+        <td style="padding:0.8rem; text-align:center;">700〜1,000万円</td>
+      </tr>
+      <tr style="background:#fff;">
+        <td style="padding:0.8rem;">🧹 おそうじ本舗</td>
+        <td style="padding:0.8rem; text-align:center; color:#e67e22;">約420万円</td>
+        <td style="padding:0.8rem; text-align:center; color:#e67e22;">固定6万円+広告2万円</td>
+        <td style="padding:0.8rem; text-align:center;">⚠️ 用具在庫</td>
+        <td style="padding:0.8rem; text-align:center;">✅ 可能</td>
+        <td style="padding:0.8rem; text-align:center;">400〜500万円</td>
+      </tr>
+      <tr style="background:#f9f9f9;">
+        <td style="padding:0.8rem;">✏️ 公文</td>
+        <td style="padding:0.8rem; text-align:center;">50〜60万円</td>
+        <td style="padding:0.8rem; text-align:center; color:#c0392b;">授業料の55%</td>
+        <td style="padding:0.8rem; text-align:center;">✅ なし</td>
+        <td style="padding:0.8rem; text-align:center;">⚠️ 困難</td>
+        <td style="padding:0.8rem; text-align:center;">240〜480万円</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="color:#999; font-size:0.8rem; margin-top:1rem;">※ 各社データは一般的な公開情報をもとにした概算値です。実際の条件は各社との契約内容により異なります。</p>
+</div>
+
+<!-- 初期投資比較バーチャート -->
+<div class="card" style="margin-top:1.5rem; padding:1.5rem;">
+  <h2 style="margin-top:0;">💰 初期投資比較（万円）</h2>
+  <div id="bar-chart" style="display:flex; flex-direction:column; gap:0.6rem;">
+  </div>
+</div>
+
+<!-- ロイヤリティの仕組み説明 -->
+<div class="card" style="margin-top:1.5rem; background:#eaf4fb; border-left:4px solid #2980b9; padding:1.5rem;">
+  <h2 style="margin-top:0; color:#2980b9;">📌 固定ロイヤリティの圧倒的メリット</h2>
+  <p>多くのFCは<strong>売上に対してロイヤリティが％で発生</strong>します。会員が増えて売上が上がるほど、本部に支払う金額も増えます。</p>
+  <p>ハニーラルヴァは<strong>月額固定5万円のみ</strong>。会員が50名でも100名でも、本部への支払いは変わりません。</p>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
+    <div style="background:#fdecea; border-radius:8px; padding:1rem; text-align:center;">
+      <p style="font-weight:bold; color:#c0392b; margin:0;">他社FC（売上連動型）</p>
+      <p style="margin:0.5rem 0 0; font-size:0.9rem;">会員100名・月会費1万円の場合<br>売上100万円 × 6〜10% = <strong style="color:#c0392b;">6〜10万円/月</strong>をロイヤリティとして支払い</p>
+    </div>
+    <div style="background:#eafaf1; border-radius:8px; padding:1rem; text-align:center;">
+      <p style="font-weight:bold; color:#27ae60; margin:0;">ハニーラルヴァ（固定型）</p>
+      <p style="margin:0.5rem 0 0; font-size:0.9rem;">会員数に関わらず<br>ロイヤリティは常に <strong style="color:#27ae60;">5万円/月のみ</strong><br>会員が増えるほど利益率UP！</p>
+    </div>
+  </div>
+</div>
+
+<!-- 収益シミュレーション比較 -->
+<div class="card" style="margin-top:1.5rem; padding:1.5rem;">
+  <h2 style="margin-top:0;">📈 会員数別・手残り比較シミュレーション</h2>
+  <p style="color:#555; font-size:0.9rem;">月会費1万円、家賃10万円、ロイヤリティ5万円、その他固定費3万円で試算</p>
+  <canvas id="profit-chart" style="width:100%; max-height:300px;"></canvas>
+</div>
+
+<!-- CTA -->
+<div class="card" style="margin-top:2rem; text-align:center; background:#eaf4fb; padding:2rem;">
+  <p style="font-size:1.1rem; font-weight:bold; margin:0 0 1rem;">🍯 ハニーラルヴァFCで独立を考えてみませんか？</p>
+  <div style="display:flex; flex-direction:column; gap:0.8rem; max-width:400px; margin:0 auto;">
+    <a href="{{ url_for('simulator') }}">
+      <button style="background:#27ae60; width:100%;">📊 経営シミュレーターで収支を試算する</button>
+    </a>
+    <a href="{{ url_for('inquiry') }}">
+      <button style="background:#2980b9; width:100%;">📩 フランチャイズ加盟のお問い合わせ</button>
+    </a>
+  </div>
+</div>
+
+<br>
+<a href="{{ url_for('index') }}">← トップに戻る</a>
+
+<script>
+// バーチャート
+const barData = [
+  { label: '🍯 ハニーラルヴァ', value: 160, color: '#27ae60' },
+  { label: '🧹 おそうじ本舗', value: 420, color: '#e67e22' },
+  { label: '🏪 コンビニ', value: 275, color: '#e74c3c' },
+  { label: '📚 明光義塾', value: 750, color: '#e74c3c' },
+  { label: '💪 カーブス', value: 2000, color: '#c0392b' },
+  { label: '🏋️ チョコザップ', value: 5500, color: '#c0392b' },
+];
+const maxVal = Math.max(...barData.map(d => d.value));
+const container = document.getElementById('bar-chart');
+barData.forEach(d => {
+  const pct = (d.value / maxVal * 100).toFixed(1);
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex; align-items:center; gap:0.5rem;';
+  row.innerHTML = `
+    <span style="width:140px; font-size:0.85rem; flex-shrink:0;">${d.label}</span>
+    <div style="flex:1; background:#eee; border-radius:4px; height:24px; position:relative;">
+      <div style="width:${pct}%; background:${d.color}; height:100%; border-radius:4px; transition:width 0.6s;"></div>
+    </div>
+    <span style="width:70px; font-size:0.85rem; text-align:right; font-weight:bold; color:${d.color};">${d.value.toLocaleString()}万円</span>
+  `;
+  container.appendChild(row);
+});
+
+// 収益比較チャート
+const canvas = document.getElementById('profit-chart');
+canvas.width = canvas.offsetWidth || 600;
+canvas.height = 300;
+const ctx = canvas.getContext('2d');
+const members = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+const fee = 10000;
+const rent = 100000;
+const royaltyFixed = 50000;
+const other = 30000;
+
+// ハニーラルヴァ: revenue - rent - royaltyFixed - other
+const honey = members.map(m => m * fee - rent - royaltyFixed - other);
+// 他社FC: revenue - rent - revenue*0.07 - other (カーブス系6%)
+const other_fc = members.map(m => m * fee - rent - m * fee * 0.07 - other);
+
+const allVals = [...honey, ...other_fc];
+const minV = Math.min(...allVals);
+const maxV = Math.max(...allVals);
+const pad = 50;
+const w = canvas.width - pad * 2;
+const h = canvas.height - pad * 2;
+
+function toX(i) { return pad + (i / (members.length - 1)) * w; }
+function toY(v) { return pad + h - ((v - minV) / (maxV - minV)) * h; }
+
+// grid
+ctx.strokeStyle = '#eee';
+ctx.lineWidth = 1;
+for (let i = 0; i <= 4; i++) {
+  const y = pad + (i / 4) * h;
+  ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(pad + w, y); ctx.stroke();
+  const val = maxV - (i / 4) * (maxV - minV);
+  ctx.fillStyle = '#999'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+  ctx.fillText((val / 10000).toFixed(0) + '万', pad - 4, y + 4);
+}
+members.forEach((m, i) => {
+  const x = toX(i);
+  ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, pad + h); ctx.stroke();
+  ctx.fillStyle = '#999'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(m + '名', x, pad + h + 16);
+});
+
+// zero line
+const y0 = toY(0);
+ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+ctx.beginPath(); ctx.moveTo(pad, y0); ctx.lineTo(pad + w, y0); ctx.stroke();
+ctx.setLineDash([]);
+
+// ハニーラルヴァ line
+ctx.strokeStyle = '#27ae60'; ctx.lineWidth = 3;
+ctx.beginPath();
+honey.forEach((v, i) => { i === 0 ? ctx.moveTo(toX(i), toY(v)) : ctx.lineTo(toX(i), toY(v)); });
+ctx.stroke();
+
+// 他社FC line
+ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 3;
+ctx.beginPath();
+other_fc.forEach((v, i) => { i === 0 ? ctx.moveTo(toX(i), toY(v)) : ctx.lineTo(toX(i), toY(v)); });
+ctx.stroke();
+
+// legend
+ctx.fillStyle = '#27ae60'; ctx.fillRect(pad, 10, 20, 10);
+ctx.fillStyle = '#333'; ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
+ctx.fillText('ハニーラルヴァ（固定ロイヤリティ）', pad + 26, 20);
+ctx.fillStyle = '#e74c3c'; ctx.fillRect(pad + 220, 10, 20, 10);
+ctx.fillStyle = '#333';
+ctx.fillText('他社FC（売上の7%ロイヤリティ）', pad + 246, 20);
+
+ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+ctx.fillText('会員数（名）', pad + w / 2, pad + h + 34);
+</script>
+{% endblock %}
