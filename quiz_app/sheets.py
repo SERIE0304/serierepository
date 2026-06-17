@@ -26,6 +26,9 @@ RESPONSES_HEADER = [
     "timestamp", "staff_name", "track", "question_id", "category",
     "selected_index", "correct",
 ]
+INQUIRIES_HEADER = [
+    "timestamp", "name", "email", "phone", "message",
+]
 
 
 def _client():
@@ -137,3 +140,15 @@ def record_response(staff_name, track, question_id, category, selected_index, co
 
 def all_responses():
     return responses_sheet().get_all_records()
+
+
+def inquiries_sheet():
+    return _get_or_create_sheet("Inquiries", INQUIRIES_HEADER)
+
+
+def record_inquiry(name, email, phone, message):
+    ws = inquiries_sheet()
+    ws.append_row([
+        datetime.now().isoformat(timespec="seconds"),
+        name, email, phone, message,
+    ])

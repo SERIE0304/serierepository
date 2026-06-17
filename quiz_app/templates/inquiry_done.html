@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}送信完了 — 株式会社セリエコンチェルト{% endblock %}
+{% block content %}
+<div class="card" style="text-align:center; padding:2.5rem;">
+  <p style="font-size:2.5rem; margin:0;">✅</p>
+  <h2>お問い合わせを受け付けました</h2>
+  <p style="color:#555;">担当者より <strong>info@serieconcerto.co.jp</strong> からご連絡いたします。<br>しばらくお待ちください。</p>
+  <a href="{{ url_for('index') }}">
+    <button style="margin-top:1rem;">トップに戻る</button>
+  </a>
+</div>
+{% endblock %}

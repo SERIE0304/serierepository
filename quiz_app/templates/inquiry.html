@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}FC加盟お問い合わせ — 株式会社セリエコンチェルト{% endblock %}
+{% block content %}
+<h1>フランチャイズ加盟 お問い合わせ</h1>
+<p style="color:#555;">ハニーラルヴァのフランチャイズ加盟についてご興味をお持ちの方は、下記フォームよりお問い合わせください。担当者よりご連絡いたします。</p>
+<p style="color:#555;">メール直接連絡先: <a href="mailto:info@serieconcerto.co.jp">info@serieconcerto.co.jp</a></p>
+
+<form method="post" class="card">
+  <label>
+    お名前 <span style="color:#e74c3c;">*</span>
+    <input type="text" name="name" required placeholder="山田 太郎">
+  </label>
+  <label>
+    メールアドレス <span style="color:#e74c3c;">*</span>
+    <input type="email" name="email" required placeholder="example@email.com">
+  </label>
+  <label>
+    電話番号 <span style="color:#999; font-size:0.85rem;">（任意）</span>
+    <input type="tel" name="phone" placeholder="090-0000-0000">
+  </label>
+  <label>
+    お問い合わせ内容 <span style="color:#e74c3c;">*</span>
+    <textarea name="message" required rows="5" placeholder="ご質問・ご希望などをご記入ください"></textarea>
+  </label>
+  <button type="submit">送信する</button>
+</form>
+
+<p style="margin-top:1rem;"><a href="{{ url_for('index') }}">← トップに戻る</a></p>
+{% endblock %}

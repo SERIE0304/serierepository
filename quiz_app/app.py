@@ -132,6 +132,21 @@ def quiz_result():
     )
 
 
+@app.route("/inquiry", methods=["GET", "POST"])
+def inquiry():
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        phone = request.form.get("phone", "").strip()
+        message = request.form.get("message", "").strip()
+        if not name or not email or not message:
+            flash("お名前・メールアドレス・お問い合わせ内容は必須です")
+            return redirect(url_for("inquiry"))
+        sheets.record_inquiry(name, email, phone, message)
+        return render_template("inquiry_done.html")
+    return render_template("inquiry.html")
+
+
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
     if request.method == "POST":
