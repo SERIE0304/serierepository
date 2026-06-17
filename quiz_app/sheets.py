@@ -29,6 +29,9 @@ RESPONSES_HEADER = [
 INQUIRIES_HEADER = [
     "timestamp", "name", "email", "phone", "message",
 ]
+PAGEVIEWS_HEADER = [
+    "timestamp", "page", "ip",
+]
 
 
 def _client():
@@ -152,3 +155,22 @@ def record_inquiry(name, email, phone, message):
         datetime.now().isoformat(timespec="seconds"),
         name, email, phone, message,
     ])
+
+
+def pageviews_sheet():
+    return _get_or_create_sheet("Pageviews", PAGEVIEWS_HEADER)
+
+
+def record_pageview(page, ip=""):
+    try:
+        ws = pageviews_sheet()
+        ws.append_row([datetime.now().isoformat(timespec="seconds"), page, ip])
+    except Exception:
+        pass  # アクセスログ失敗はアプリに影響させない
+
+
+def all_pageviews():
+    try:
+        return pageviews_sheet().get_all_records()
+    except Exception:
+        return []

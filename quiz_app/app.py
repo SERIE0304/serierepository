@@ -12,8 +12,15 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 QUIZ_QUESTION_COUNT = int(os.environ.get("QUIZ_QUESTION_COUNT", 10))
 
 
+def _track(page):
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr or "")
+    ip = ip.split(",")[0].strip()
+    sheets.record_pageview(page, ip)
+
+
 @app.route("/")
 def index():
+    _track("トップ")
     return render_template("index.html", tracks=sheets.TRACKS)
 
 
@@ -55,6 +62,7 @@ def quiz_start():
         "score": 0,
         "results": [],
     }
+    _track(f"クイズ開始:{track}")
     return redirect(url_for("quiz_question"))
 
 
@@ -134,16 +142,20 @@ def quiz_result():
 
 @app.route("/simulator")
 def simulator():
+    _track("シミュレーター")
     return render_template("simulator.html")
 
 
 @app.route("/comparison")
 def comparison():
+    _track("FC比較")
     return render_template("comparison.html")
 
 
 @app.route("/inquiry", methods=["GET", "POST"])
 def inquiry():
+    if request.method == "GET":
+        _track("問い合わせ")
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip()
@@ -183,6 +195,19 @@ def admin_dashboard():
         return redirect(url_for("admin_login"))
 
     responses = sheets.all_responses()
+    pageviews = sheets.all_pageviews()
+
+    # ページ別集計
+    from collections import Counter
+    pv_by_page = Counter(p["page"] for p in pageviews)
+    pv_total = len(pageviews)
+    # 日別集計（直近7日）
+    from datetime import date, timedelta
+    today = date.today()
+    pv_daily = {}
+    for i in range(6, -1, -1):
+        d = (today - timedelta(days=i)).isoformat()
+        pv_daily[d] = sum(1 for p in pageviews if p.get("timestamp", "").startswith(d))
 
     by_staff = defaultdict(lambda: defaultdict(lambda: {"correct": 0, "total": 0}))
     by_category = defaultdict(lambda: defaultdict(lambda: {"correct": 0, "total": 0}))
@@ -220,6 +245,7 @@ def admin_dashboard():
     return render_template(
         "admin_dashboard.html", tracks=sheets.TRACKS,
         ranking_by_track=ranking_by_track, category_stats_by_track=category_stats_by_track,
+        pv_by_page=pv_by_page, pv_total=pv_total, pv_daily=pv_daily,
     )
 
 
