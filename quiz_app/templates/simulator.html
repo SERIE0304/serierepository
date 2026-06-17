@@ -13,6 +13,17 @@
     <label>内装・設備費（円）<input type="number" id="init_equipment" value="100000" min="0" step="50000" oninput="calc()"></label>
     <label>その他初期費用（円）<input type="number" id="init_other" value="0" min="0" step="10000" oninput="calc()"></label>
   </div>
+  <!-- 保証金分割払いオプション -->
+  <div style="background:#fff8e1; border-left:4px solid #f5c842; border-radius:6px; padding:0.8rem 1rem; display:flex; align-items:flex-start; gap:0.8rem;">
+    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; margin:0; font-weight:bold; flex-shrink:0;">
+      <input type="checkbox" id="deposit_installment" onchange="calc()" style="width:18px; height:18px; margin:0;">
+      保証金を分割払いにする
+    </label>
+    <div style="font-size:0.85rem; color:#7d6608; line-height:1.5;">
+      初期の100万円は不要。代わりにロイヤリティに<strong>+2万円/月</strong>を上乗せして返済。<br>
+      <span id="installment_info" style="color:#555;"></span>
+    </div>
+  </div>
   <div style="display:flex; justify-content:space-between; align-items:center; background:#f5eefa; border-radius:6px; padding:0.7rem 1rem;">
     <span style="font-weight:bold; color:#8e44ad;">初期投資合計</span>
     <span style="font-size:1.4rem; font-weight:bold; color:#8e44ad;" id="r_init_total">—</span>
@@ -78,7 +89,7 @@
       <tr><td style="padding:0.25rem 0; color:#555;">月売上</td><td style="text-align:right; font-weight:bold;" id="r_revenue">—</td></tr>
       <tr style="border-top:1px solid #d0e8f5;"><td colspan="2" style="padding:0.2rem 0; color:#888; font-size:0.82rem;">── ランニングコスト（固定）──</td></tr>
       <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">家賃</td><td style="text-align:right;" id="r_rent">—</td></tr>
-      <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">ロイヤリティ</td><td style="text-align:right;">50,000円</td></tr>
+      <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">ロイヤリティ<span id="r_royalty_note" style="font-size:0.78rem; color:#e67e22;"></span></td><td style="text-align:right;" id="r_royalty">50,000円</td></tr>
       <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">水道光熱費</td><td style="text-align:right;" id="r_utilities">—</td></tr>
       <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">グローブ（月割）</td><td style="text-align:right;" id="r_gloves">—</td></tr>
       <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">その他消耗品</td><td style="text-align:right;" id="r_consumables">—</td></tr>
@@ -163,7 +174,16 @@ function calc() {
   var glovesM     = Math.round(glovesAnnual / 12);
   var consumables = parseInt(document.getElementById('consumables').value) || 0;
   var laborManual = parseInt(document.getElementById('labor').value) || 0;
-  var royalty     = 50000;
+  var installment = document.getElementById('deposit_installment').checked;
+  var royalty     = installment ? 70000 : 50000;  // +2万円/月で分割返済
+  var depositVal  = parseInt(document.getElementById('init_deposit').value) || 0;
+  var installmentMonths = installment && royalty > 0 ? Math.ceil(depositVal / 20000) : 0;
+  var infoEl = document.getElementById('installment_info');
+  if (installment) {
+    infoEl.textContent = '月々2万円 × ' + installmentMonths + 'ヶ月（約' + Math.ceil(installmentMonths/12) + '年）で完済。初日から開業できます。';
+  } else {
+    infoEl.textContent = '';
+  }
 
   // 100人超でアルバイト1名（8万円/月）が自動加算
   var laborAuto  = members > 100 ? 80000 : 0;
@@ -180,7 +200,8 @@ function calc() {
   var initDeposit   = parseInt(document.getElementById('init_deposit').value) || 0;
   var initEquipment = parseInt(document.getElementById('init_equipment').value) || 0;
   var initOther     = parseInt(document.getElementById('init_other').value) || 0;
-  var initTotal     = initFranchise + initDeposit + initEquipment + initOther;
+  // 分割払い選択時は保証金を初期投資から除く（月々返済に変わるため）
+  var initTotal     = initFranchise + (installment ? 0 : initDeposit) + initEquipment + initOther;
 
   document.getElementById('gloves_monthly_disp').textContent = glovesM.toLocaleString() + '円';
 
@@ -190,7 +211,9 @@ function calc() {
   var annual   = profit * 12;
   var breakeven = cost > 0 ? Math.ceil(cost / fee) : 0;
 
-  document.getElementById('r_init_total').textContent    = initTotal.toLocaleString() + '円';
+  document.getElementById('r_init_total').textContent    = initTotal.toLocaleString() + '円' + (installment ? '（保証金は月払い）' : '');
+  document.getElementById('r_royalty').textContent       = royalty.toLocaleString() + '円';
+  document.getElementById('r_royalty_note').textContent  = installment ? '（+2万円返済込み）' : '';
   document.getElementById('r_revenue').textContent       = fmt(revenue);
   document.getElementById('r_rent').textContent          = fmt(rent);
   document.getElementById('r_utilities').textContent     = fmt(utilities);
