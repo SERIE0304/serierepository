@@ -8,9 +8,13 @@
   {% for r in results %}
     <li class="{{ 'ok' if r.correct else 'ng' }}">
       <p>{{ r.question_text }}</p>
-      <p>あなたの回答: {{ r.choices[r.selected_index] if r.choices else '' }}
-        {% if not r.correct %}
-          / 正解: {{ r.choices[r.correct_index] if r.choices else '' }}
+      <p>あなたの回答:
+        {% if r.timed_out %}
+          ⏰ 時間切れ / 正解: {{ r.choices[r.correct_index] if r.choices else '' }}
+        {% elif not r.correct %}
+          {{ r.choices[r.selected_index] if r.choices else '' }} / 正解: {{ r.choices[r.correct_index] if r.choices else '' }}
+        {% else %}
+          {{ r.choices[r.selected_index] if r.choices else '' }}
         {% endif %}
       </p>
       {% if r.explanation %}<p class="explanation">解説: {{ r.explanation }}</p>{% endif %}

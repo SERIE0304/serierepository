@@ -90,9 +90,10 @@ def quiz_answer():
         return redirect(url_for("index"))
 
     qid = request.form.get("question_id")
-    selected_index = int(request.form.get("selected_index"))
+    selected_index = int(request.form.get("selected_index", -1))
+    timed_out = selected_index == -1
     question = next((q for q in sheets.list_questions() if str(q["id"]) == str(qid)), None)
-    correct = bool(question) and int(question["correct_index"]) == selected_index
+    correct = bool(question) and not timed_out and int(question["correct_index"]) == selected_index
 
     if correct:
         quiz["score"] += 1
@@ -101,6 +102,7 @@ def quiz_answer():
         "selected_index": selected_index,
         "correct_index": int(question["correct_index"]) if question else None,
         "correct": correct,
+        "timed_out": timed_out,
         "explanation": question.get("explanation", "") if question else "",
         "choices": [question[c] for c in ["choice1", "choice2", "choice3", "choice4"] if question.get(c)] if question else [],
     })
