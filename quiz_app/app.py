@@ -31,11 +31,23 @@ def quiz_categories():
     if not staff_name or track not in sheets.TRACKS:
         flash("名前と編を選択してください")
         return redirect(url_for("index"))
-
-    categories = sheets.list_categories(track)
-    return render_template(
-        "categories.html", staff_name=staff_name, track=track, categories=categories,
-    )
+    # カテゴリ選択を省略して直接クイズ開始
+    questions = sheets.list_questions(track, None)
+    if not questions:
+        flash("対象の問題がありません")
+        return redirect(url_for("index"))
+    questions = random.sample(questions, min(QUIZ_QUESTION_COUNT, len(questions)))
+    session["quiz"] = {
+        "staff_name": staff_name,
+        "track": track,
+        "category": "全体",
+        "question_ids": [q["id"] for q in questions],
+        "current": 0,
+        "score": 0,
+        "results": [],
+    }
+    _track(f"クイズ開始:{track}")
+    return redirect(url_for("quiz_question"))
 
 
 @app.route("/quiz/start", methods=["POST"])
