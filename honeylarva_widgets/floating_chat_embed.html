@@ -93,7 +93,8 @@ function hlTyping(show){
 }
 function hlAnswer(q){
   q=q.toLowerCase();
-  if(q.includes('目的')||q.includes('なぜ')||q.includes('理由'))return 'どんな目的でお越しですか？🎯\nあてはまるものを入力してください！\n\n① ダイエット\n② お子さんの体力づくり\n③ 骨盤底筋・姿勢改善\n④ 競技の上達\n⑤ 健康維持・ストレス発散';
+  if(q.includes('目的')||q.includes('なぜ')||q.includes('理由'))return 'どんな目的でお越しですか？🎯\nあてはまるものを入力してください！\n\n① ダイエット\n② お子さんの体力づくり\n③ 骨盤底筋・姿勢改善\n④ 競技の上達\n⑤ 健康維持・ストレス発散\n⑥ その他';
+  if(q.includes('その他'))return 'その他のご目的・ご相談もお気軽にどうぞ🥊\nHoney LaRvaでは一人ひとりの目的に合わせてサポートします！\nまずは体験レッスン（¥2,000）でお気軽にご相談ください。\n☎ 0287-33-9217\n✉ https://honeylarva.com/contact';
   if(q.includes('ダイエット')||q.includes('減量')||q.includes('痩せ')||q.includes('体重'))return 'ダイエットを目指す方にぴったりです💪\n【科学的根拠】WHO推奨：週150〜300分の中強度有酸素運動が体重管理に有効。フィットネスボクシングはMET値7〜8の高強度運動で、EPOC（運動後過剰酸素消費）効果により24〜48時間カロリー消費が続きます（NSCA）。\nダイエット計算ツールで目標日数もチェック！\n体験レッスン ¥2,000 でまずお試しください！\n▶ https://honeylarva.com/contact';
   if(q.includes('健康')||q.includes('体力')||q.includes('維持')||q.includes('ストレス')||q.includes('発散')||q.includes('リフレッシュ'))return '健康維持・ストレス発散に最適です🥊😤\n【科学的根拠】WHO：週150分以上の有酸素運動で生活習慣病リスクを20〜30%低減、うつ・不安障害リスクも最大30%低減。運動によるエンドルフィン分泌とコルチゾール低下が科学的に証明されています。ミット打ちで心身ともにスッキリ！\n体験レッスン ¥2,000 でお気軽にどうぞ🎉\n▶ https://honeylarva.com/contact';
   if(q.includes('競技')||q.includes('ボクシング上達')||q.includes('大会')||q.includes('試合')||q.includes('上達'))return '競技・ボクシング上達を目指す方も歓迎です🥊\n【科学的根拠】NSCA-CPTの「特異性の原則」に基づき、ボクシング特有の動作を反復することで反応時間・協調性・心肺機能が向上。段階的トレーニング計画（ピリオダイゼーション）で実力を着実に伸ばします。\n▶ まずは相談：https://honeylarva.com/contact';
