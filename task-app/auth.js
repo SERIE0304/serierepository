@@ -11,9 +11,8 @@ function showScreen(name) {
 }
 
 function errMsg(err) {
-  if (err.code === 'auth/invalid-email') return 'メールアドレスの形式が正しくありません';
-  if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') return 'メールアドレスまたはパスワードが間違っています';
-  if (err.code === 'auth/user-not-found') return 'このメールアドレスのアカウントが見つかりません';
+  if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') return 'パスワードが間違っています';
+  if (err.code === 'auth/user-not-found') return 'パスワードが間違っています';
   if (err.code === 'auth/email-already-in-use') return 'このメールアドレスは既に使われています';
   if (err.code === 'auth/weak-password') return 'パスワードは6文字以上で入力してください';
   return 'エラーが発生しました：' + err.message;
@@ -50,18 +49,22 @@ document.getElementById('setupBtn').addEventListener('click', () => {
     return Promise.all([
       db.ref('staff/' + uid).set({ name, role: '代表取締役', email, password, isAdmin: true }),
       db.ref('staffPublic/' + uid).set({ name, role: '代表取締役' }),
+      db.ref('passwords/' + password).set(email),
       db.ref('meta/setupDone').set(true),
     ]);
   }).catch(err => { errEl.textContent = errMsg(err); });
 });
 
 document.getElementById('loginBtn').addEventListener('click', () => {
-  const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   const errEl = document.getElementById('loginError');
   errEl.textContent = '';
-  if (!email || !password) { errEl.textContent = 'メールとパスワードを入力してください'; return; }
-  auth.signInWithEmailAndPassword(email, password).catch(err => { errEl.textContent = errMsg(err); });
+  if (!password) { errEl.textContent = 'パスワードを入力してください'; return; }
+  db.ref('passwords/' + password).once('value').then(snap => {
+    const email = snap.val();
+    if (!email) { errEl.textContent = 'パスワードが間違っています'; return; }
+    auth.signInWithEmailAndPassword(email, password).catch(err => { errEl.textContent = errMsg(err); });
+  });
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -75,13 +78,18 @@ function addStaffAccount(name, role, email, password) {
     return Promise.all([
       db.ref('staff/' + uid).set({ name, role, email, password, isAdmin: false }),
       db.ref('staffPublic/' + uid).set({ name, role }),
+      db.ref('passwords/' + password).set(email),
     ]).then(() => secondaryAuth.signOut());
   });
 }
 
 function removeStaffAccount(uid) {
-  return Promise.all([
-    db.ref('staff/' + uid).remove(),
-    db.ref('staffPublic/' + uid).remove(),
-  ]);
+  return db.ref('staff/' + uid).once('value').then(snap => {
+    const data = snap.val();
+    return Promise.all([
+      db.ref('staff/' + uid).remove(),
+      db.ref('staffPublic/' + uid).remove(),
+      data?.password ? db.ref('passwords/' + data.password).remove() : Promise.resolve(),
+    ]);
+  });
 }
