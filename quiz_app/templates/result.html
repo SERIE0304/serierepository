@@ -45,11 +45,13 @@
 {% endif %}
 
 {% if track == 'フランチャイジー編' %}
-<div class="card" style="margin-top:2rem; background:#eaf4fb; border-left:4px solid #2980b9; text-align:center;">
+<div class="card" style="margin-top:2rem; background:#eaf4fb; border-left:4px solid #2980b9; text-align:center; gap:0.8rem;">
   <p style="font-size:1.1rem; font-weight:bold; margin:0;">🏪 フランチャイズ加盟にご興味はありますか？</p>
-  <p style="color:#555; margin:0.5rem 0;">お気軽にお問い合わせください。担当者よりご連絡いたします。</p>
+  <a href="{{ url_for('simulator') }}">
+    <button style="background:#27ae60; width:100%;">📊 経営シミュレーターで収支を試算する</button>
+  </a>
   <a href="{{ url_for('inquiry') }}">
-    <button style="margin-top:0.5rem; background:#2980b9;">フランチャイズ加盟のお問い合わせはこちら</button>
+    <button style="background:#2980b9; width:100%;">📩 フランチャイズ加盟のお問い合わせはこちら</button>
   </a>
 </div>
 {% endif %}

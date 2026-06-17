@@ -132,6 +132,11 @@ def quiz_result():
     )
 
 
+@app.route("/simulator")
+def simulator():
+    return render_template("simulator.html")
+
+
 @app.route("/inquiry", methods=["GET", "POST"])
 def inquiry():
     if request.method == "POST":
