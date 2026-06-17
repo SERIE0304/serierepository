@@ -13,13 +13,35 @@
   </div>
   {% for choice in choices %}
     <label class="choice">
-      <input type="radio" name="selected_index_radio" value="{{ loop.index0 }}" onchange="document.getElementById('selected-index-hidden').value=this.value">
+      <input type="radio" name="selected_index_radio" value="{{ loop.index0 }}" onchange="document.getElementById('selected-index-hidden').value=this.value; playTap();">
       {{ choice }}
     </label>
   {% endfor %}
   <button type="submit" id="submit-btn">回答する</button>
 </form>
 <script>
+  var audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function playTap() {
+    try {
+      var ctx = getAudioCtx();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.18, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.12);
+    } catch(e) {}
+  }
+
   var timeLeft = 15;
   var bar = document.getElementById('timer-bar');
   var display = document.getElementById('timer-display');
