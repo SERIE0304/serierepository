@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Honey LaRva ウィジェット プレビュー</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+    background: #111;
+    color: #fff;
+    padding: 30px 20px;
+  }
+  h1 {
+    text-align: center;
+    color: #ffc800;
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+  .top-note {
+    text-align: center;
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    margin-bottom: 40px;
+  }
+  .section {
+    max-width: 560px;
+    margin: 0 auto 60px;
+  }
+  .section-label {
+    display: inline-block;
+    background: linear-gradient(135deg, #ffc800, #ff8c00);
+    color: #1a1a2e;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 4px 16px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(255,200,0,0.15);
+    margin: 0 auto 60px;
+    max-width: 560px;
+  }
+
+  /* ========== ① ダイエット計算ツール ========== */
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,200,0,0.3);
+    border-radius: 16px;
+    padding: 32px;
+    color: #fff;
+    backdrop-filter: blur(10px);
+  }
+  .logo { text-align: center; margin-bottom: 24px; }
+  .logo span { font-size: 22px; font-weight: bold; color: #ffc800; letter-spacing: 2px; }
+  h2 { text-align: center; font-size: 18px; margin-bottom: 8px; }
+  .subtitle { text-align: center; font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 28px; }
+  .form-row { display: flex; gap: 12px; margin-bottom: 16px; }
+  .form-group { flex: 1; }
+  .form-group label { display: block; font-size: 12px; color: rgba(255,200,0,0.8); margin-bottom: 6px; font-weight: bold; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 10px 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px; color: #fff; font-size: 14px; outline: none;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: #ffc800; }
+  .form-group select option { background: #1a1a2e; }
+  .calc-btn {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #ffc800, #ff8c00);
+    border: none; border-radius: 10px; color: #1a1a2e;
+    font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 8px;
+    transition: transform 0.2s;
+  }
+  .calc-btn:hover { transform: translateY(-1px); }
+  .result {
+    display: none; margin-top: 28px;
+    background: rgba(255,200,0,0.08);
+    border: 1px solid rgba(255,200,0,0.4);
+    border-radius: 12px; padding: 24px; text-align: center;
+  }
+  .result.show { display: block; }
+  .result-days { font-size: 56px; font-weight: bold; color: #ffc800; line-height: 1; }
+  .result-days span { font-size: 22px; margin-left: 4px; }
+  .result-label { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 8px; }
+  .result-detail { margin-top: 16px; font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.8; text-align: left; }
+  .result-detail strong { color: #ffc800; }
+  .bmi-bar { margin-top: 16px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+  .bmi-fill { height: 100%; border-radius: 4px; background: linear-gradient(to right, #4caf50, #ffc800, #f44336); transition: width 0.6s; }
+  .bmi-labels { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+  .cta { margin-top: 20px; background: rgba(255,200,0,0.1); border: 1px solid rgba(255,200,0,0.3); border-radius: 10px; padding: 16px; font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.7; }
+  .cta a { color: #ffc800; font-weight: bold; }
+  .err { color: #ff6b6b; font-size: 13px; margin-top: 8px; display: none; }
+
+  /* ========== ② フランチャイズ ========== */
+  .fc-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,200,0,0.3);
+    border-radius: 20px; padding: 40px 32px; color: #fff; text-align: center;
+  }
+  .badge { display: inline-block; background: linear-gradient(135deg,#ffc800,#ff8c00); color: #1a1a2e; font-size: 11px; font-weight: bold; padding: 4px 14px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 20px; }
+  .fc-card h2 { font-size: 24px; line-height: 1.4; margin-bottom: 10px; }
+  .fc-card h2 span { color: #ffc800; }
+  .lead { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.8; margin-bottom: 28px; }
+  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 32px; text-align: left; }
+  .feature-item { background: rgba(255,200,0,0.07); border: 1px solid rgba(255,200,0,0.2); border-radius: 10px; padding: 14px 16px; }
+  .feature-item .icon { font-size: 22px; margin-bottom: 6px; }
+  .feature-item .title { font-size: 13px; font-weight: bold; color: #ffc800; margin-bottom: 4px; }
+  .feature-item .desc { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+  .open-btn { display: inline-block; background: linear-gradient(135deg,#ffc800,#ff8c00); color: #1a1a2e; font-size: 17px; font-weight: bold; padding: 16px 48px; border-radius: 50px; border: none; cursor: pointer; transition: transform 0.2s; }
+  .open-btn:hover { transform: translateY(-2px); }
+  .fc-note { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 12px; }
+
+  /* モーダル */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #16213e; border: 1px solid rgba(255,200,0,0.4); border-radius: 16px; padding: 32px; max-width: 480px; width: 100%; position: relative; animation: slideIn 0.25s ease; max-height: 90vh; overflow-y: auto; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .modal-close { position: absolute; top: 16px; right: 18px; background: none; border: none; color: rgba(255,255,255,0.5); font-size: 22px; cursor: pointer; }
+  .modal-close:hover { color: #fff; }
+  .modal h3 { font-size: 20px; color: #ffc800; margin-bottom: 6px; }
+  .modal-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 24px; }
+  .mform-group { margin-bottom: 16px; }
+  .mform-group label { display: block; font-size: 12px; color: rgba(255,200,0,0.85); font-weight: bold; margin-bottom: 6px; }
+  .mform-group label .req { color: #ff6b6b; margin-left: 4px; }
+  .mform-group input, .mform-group select, .mform-group textarea { width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; color: #fff; font-size: 14px; font-family: inherit; outline: none; }
+  .mform-group select option { background: #16213e; }
+  .mform-group textarea { resize: vertical; min-height: 80px; }
+  .submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg,#ffc800,#ff8c00); border: none; border-radius: 10px; color: #1a1a2e; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+  .success-msg { display: none; text-align: center; padding: 32px 16px; }
+  .success-msg .sicon { font-size: 52px; margin-bottom: 16px; }
+  .success-msg h4 { font-size: 20px; color: #ffc800; margin-bottom: 10px; }
+  .success-msg p { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.7; }
+
+  /* ========== ③ チャットボット ========== */
+  .chat-container { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,200,0,0.3); border-radius: 20px; width: 100%; display: flex; flex-direction: column; height: 600px; overflow: hidden; }
+  .chat-header { background: linear-gradient(135deg,rgba(255,200,0,0.15),rgba(255,140,0,0.1)); border-bottom: 1px solid rgba(255,200,0,0.2); padding: 18px 20px; display: flex; align-items: center; gap: 14px; }
+  .chatavatar { width: 44px; height: 44px; background: linear-gradient(135deg,#ffc800,#ff8c00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .header-info .hname { font-size: 16px; font-weight: bold; color: #fff; }
+  .header-info .hstatus { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 7px; height: 7px; background: #4caf50; border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth; }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,200,0,0.3); border-radius: 2px; }
+  .cmsg { display: flex; gap: 10px; max-width: 88%; }
+  .cmsg.user { align-self: flex-end; flex-direction: row-reverse; }
+  .cmsg-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; align-self: flex-end; }
+  .cmsg.bot .cmsg-avatar { background: linear-gradient(135deg,#ffc800,#ff8c00); }
+  .cmsg.user .cmsg-avatar { background: rgba(255,255,255,0.12); }
+  .cmsg-bubble { padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.7; }
+  .cmsg.bot .cmsg-bubble { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-bottom-left-radius: 4px; }
+  .cmsg.user .cmsg-bubble { background: linear-gradient(135deg,#ffc800,#ff8c00); color: #1a1a2e; font-weight: 500; border-bottom-right-radius: 4px; }
+  .cmsg-time { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+  .cmsg.bot .cmsg-time { text-align: left; }
+  .cmsg.user .cmsg-time { text-align: right; }
+  .quick-replies { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 8px; }
+  .quick-btn { background: rgba(255,200,0,0.1); border: 1px solid rgba(255,200,0,0.35); color: #ffc800; font-size: 13px; padding: 6px 14px; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+  .quick-btn:hover { background: rgba(255,200,0,0.2); }
+  .typing-ind { display: none; align-items: center; gap: 5px; padding: 10px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; border-bottom-left-radius: 4px; width: fit-content; }
+  .typing-ind.show { display: flex; }
+  .tdot { width: 7px; height: 7px; background: rgba(255,255,255,0.5); border-radius: 50%; animation: bounce 1.2s infinite; }
+  .tdot:nth-child(2){animation-delay:0.2s} .tdot:nth-child(3){animation-delay:0.4s}
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+  .chat-input-area { border-top: 1px solid rgba(255,200,0,0.15); padding: 14px 16px; background: rgba(0,0,0,0.2); }
+  .input-row { display: flex; gap: 10px; align-items: flex-end; }
+  .chat-input { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 22px; padding: 10px 16px; color: #fff; font-size: 14px; font-family: inherit; outline: none; resize: none; max-height: 100px; line-height: 1.5; }
+  .chat-input:focus { border-color: #ffc800; }
+  .chat-input::placeholder { color: rgba(255,255,255,0.35); }
+  .send-btn { width: 42px; height: 42px; background: linear-gradient(135deg,#ffc800,#ff8c00); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: transform 0.2s; flex-shrink: 0; }
+  .send-btn:hover { transform: scale(1.05); }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<h1>🥊 Honey LaRva ウィジェット プレビュー</h1>
+<p class="top-note">Goopeへ埋め込む前の動作確認ページです</p>
+
+<!-- ① ダイエット計算 -->
+<div class="section">
+  <div class="section-label">① ダイエット目標日数 計算ツール</div>
+  <div class="card">
+    <div class="logo"><span>🥊 Honey LaRva</span></div>
+    <h2>ダイエット目標日数 計算ツール</h2>
+    <p class="subtitle">年齢・性別・体格を入力するだけで、目標達成までの期間を算出します</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>性別</label>
+        <select id="gender"><option value="male">男性</option><option value="female">女性</option></select>
+      </div>
+      <div class="form-group">
+        <label>年齢</label>
+        <input type="number" id="age" placeholder="例: 35" min="10" max="100">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>身長 (cm)</label>
+        <input type="number" id="height" placeholder="例: 165" min="100" max="220">
+      </div>
+      <div class="form-group">
+        <label>現在の体重 (kg)</label>
+        <input type="number" id="weight" placeholder="例: 68" min="30" max="200">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>目標体重 (kg) <span style="color:rgba(255,255,255,0.4);font-weight:normal;">空欄＝標準体重</span></label>
+        <input type="number" id="target" placeholder="例: 60" min="30" max="200">
+      </div>
+    </div>
+    <p class="err" id="err"></p>
+    <button class="calc-btn" onclick="calculate()">目標日数を計算する 📊</button>
+    <div class="result" id="result">
+      <div class="result-days" id="days-display">--<span>日</span></div>
+      <div class="result-label" id="days-label">目標達成まで</div>
+      <div class="bmi-bar"><div class="bmi-fill" id="bmi-fill" style="width:50%"></div></div>
+      <div class="bmi-labels"><span>低体重</span><span>標準</span><span>肥満</span></div>
+      <div class="result-detail" id="result-detail"></div>
+      <div class="cta">💪 <strong>Honey LaRvaのフィットネスボクシング</strong>で骨盤・呼吸を意識しながら効率よく減量！<br><a href="https://honeylarva.com/" target="_blank">▶ 無料体験レッスンを予約する</a></div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ② フランチャイズ -->
+<div class="section">
+  <div class="section-label">② フランチャイジー 加入ボタン</div>
+  <div class="fc-card">
+    <div class="badge">🥊 FRANCHISE OPPORTUNITY</div>
+    <h2>Honey LaRvaの<br><span>フランチャイジー</span>になろう</h2>
+    <p class="lead">骨盤・呼吸を意識したフィットネスボクシングプログラムをあなたの地域でも展開しませんか？<br>独自のカリキュラムと集客サポートで開業をバックアップします。</p>
+    <div class="features">
+      <div class="feature-item"><div class="icon">📚</div><div class="title">充実した研修</div><div class="desc">独自カリキュラムと指導資格取得サポート</div></div>
+      <div class="feature-item"><div class="icon">📣</div><div class="title">集客サポート</div><div class="desc">SNS・チラシ・イベント出展を本部が支援</div></div>
+      <div class="feature-item"><div class="icon">💼</div><div class="title">低コスト開業</div><div class="desc">スモールスタート可能な柔軟なプラン</div></div>
+      <div class="feature-item"><div class="icon">🤝</div><div class="title">継続サポート</div><div class="desc">開業後も定期コンサルティングを提供</div></div>
+    </div>
+    <button class="open-btn" onclick="openModal()">📩 加入を申し込む・詳細を聞く</button>
+    <p class="fc-note">※ 無料相談も受け付けています。お気軽にどうぞ。</p>
+  </div>
+</div>
+
+<!-- FCモーダル -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="form-section">
+      <h3>フランチャイジー加入申込</h3>
+      <p class="modal-sub">以下をご記入の上、送信してください。担当者より3営業日以内にご連絡します。</p>
+      <div class="mform-group"><label>お名前<span class="req">*</span></label><input type="text" id="fc-name" placeholder="山田 太郎"></div>
+      <div class="mform-group"><label>メールアドレス<span class="req">*</span></label><input type="email" id="fc-email" placeholder="example@email.com"></div>
+      <div class="mform-group"><label>電話番号</label><input type="tel" id="fc-tel" placeholder="090-1234-5678"></div>
+      <div class="mform-group"><label>ご住所（都道府県・市区町村）<span class="req">*</span></label><input type="text" id="fc-address" placeholder="例: 栃木県那須塩原市"></div>
+      <div class="mform-group">
+        <label>ご興味の内容</label>
+        <select id="fc-interest">
+          <option value="">選択してください</option>
+          <option value="full">フルフランチャイズ加入</option>
+          <option value="partial">業務提携・一部プログラム導入</option>
+          <option value="info">まず詳細資料が欲しい</option>
+          <option value="consult">無料相談希望</option>
+        </select>
+      </div>
+      <div class="mform-group"><label>ご質問・ご要望</label><textarea id="fc-message" placeholder="ご自由にお書きください..."></textarea></div>
+      <p id="fc-error" style="color:#ff6b6b;font-size:13px;margin-bottom:8px;display:none;"></p>
+      <button class="submit-btn" onclick="submitForm()">送信する →</button>
+    </div>
+    <div class="success-msg" id="success-section">
+      <div class="sicon">✅</div>
+      <h4>送信完了！</h4>
+      <p>お問い合わせありがとうございます。<br>担当者より3営業日以内にご連絡いたします。<br><br>引き続き Honey LaRva をよろしくお願いします🥊</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ③ チャットボット -->
+<div class="section">
+  <div class="section-label">③ AI チャットボット</div>
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="chatavatar">🥊</div>
+      <div class="header-info">
+        <div class="hname">LaRva AI アシスタント</div>
+        <div class="hstatus"><div class="status-dot"></div>オンライン｜Honey LaRva 公式</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="cmsg bot">
+        <div class="cmsg-avatar">🥊</div>
+        <div>
+          <div class="cmsg-bubble">こんにちは！Honey LaRva AIアシスタントです 👋<br>ジムのクラス・料金・体験レッスン・フランチャイズなど、何でもお気軽にご質問ください！</div>
+          <div class="cmsg-time" id="init-time"></div>
+        </div>
+      </div>
+    </div>
+    <div class="quick-replies" id="quick-replies">
+      <button class="quick-btn" onclick="sendQuick('体験レッスンについて教えて')">体験レッスン</button>
+      <button class="quick-btn" onclick="sendQuick('料金を教えてください')">料金・プラン</button>
+      <button class="quick-btn" onclick="sendQuick('どんなクラスがありますか？')">クラス一覧</button>
+      <button class="quick-btn" onclick="sendQuick('場所・アクセスは？')">アクセス</button>
+      <button class="quick-btn" onclick="sendQuick('フランチャイズ加入について知りたい')">FC加入</button>
+    </div>
+    <div class="chat-input-area">
+      <div class="input-row">
+        <textarea class="chat-input" id="user-input" placeholder="メッセージを入力..." rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== ① ダイエット計算 ===== */
+function calculate() {
+  const gender = document.getElementById('gender').value;
+  const age = parseFloat(document.getElementById('age').value);
+  const height = parseFloat(document.getElementById('height').value);
+  const weight = parseFloat(document.getElementById('weight').value);
+  const targetInput = document.getElementById('target').value;
+  const errEl = document.getElementById('err');
+  errEl.style.display = 'none';
+  if (!age || !height || !weight) { errEl.textContent = '年齢・身長・体重を入力してください。'; errEl.style.display = 'block'; return; }
+  const h = height / 100;
+  const bmi = weight / (h * h);
+  const idealWeight = h * h * 22;
+  let target = targetInput ? parseFloat(targetInput) : idealWeight;
+  if (target >= weight) { errEl.textContent = '目標体重は現在の体重より少なく設定してください。'; errEl.style.display = 'block'; target = idealWeight; }
+  let bmr = gender === 'male' ? 10*weight + 6.25*height - 5*age + 5 : 10*weight + 6.25*height - 5*age - 161;
+  const tdee = bmr * 1.55;
+  const lossPerDay = 600 / 7200;
+  const weightToLose = weight - target;
+  const days = Math.round(weightToLose / lossPerDay);
+  const months = Math.floor(days / 30);
+  const remDays = days % 30;
+  const bmiPct = Math.min(Math.max(((bmi - 15) / (40 - 15)) * 100, 5), 95);
+  document.getElementById('bmi-fill').style.width = bmiPct + '%';
+  document.getElementById('days-display').innerHTML = days + '<span>日</span>';
+  let label = months > 0 ? `（約${months}ヶ月${remDays > 0 ? remDays + '日' : ''}）` : '';
+  document.getElementById('days-label').textContent = '目標達成まで' + label;
+  const bmiStatus = bmi < 18.5 ? '低体重' : bmi < 25 ? '標準体重' : bmi < 30 ? '過体重' : '肥満';
+  document.getElementById('result-detail').innerHTML = `<strong>現在のBMI：</strong>${bmi.toFixed(1)}（${bmiStatus}）<br><strong>標準体重：</strong>${idealWeight.toFixed(1)} kg<br><strong>目標体重：</strong>${target.toFixed(1)} kg（減量目標 ${weightToLose.toFixed(1)} kg）<br><strong>推定基礎代謝：</strong>${Math.round(bmr)} kcal/日<br><strong>想定消費カロリー：</strong>${Math.round(tdee)} kcal/日<br>※週3回のフィットネスボクシング参加＋1日600kcal赤字で計算`;
+  document.getElementById('result').classList.add('show');
+}
+
+/* ===== ② フランチャイズ ===== */
+function openModal() { document.getElementById('modal-overlay').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); document.body.style.overflow = ''; }
+function handleOverlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+function submitForm() {
+  const name = document.getElementById('fc-name').value.trim();
+  const email = document.getElementById('fc-email').value.trim();
+  const address = document.getElementById('fc-address').value.trim();
+  const errEl = document.getElementById('fc-error');
+  if (!name || !email || !address) { errEl.textContent = '名前・メールアドレス・住所は必須です。'; errEl.style.display = 'block'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = '正しいメールアドレスを入力してください。'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('success-section').style.display = 'block';
+}
+
+/* ===== ③ チャットボット ===== */
+function nowStr() { const d = new Date(); return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0'); }
+document.getElementById('init-time').textContent = nowStr();
+let isLoading = false;
+
+function addMsg(role, text) {
+  const c = document.getElementById('chat-messages');
+  const isBot = role === 'bot';
+  const el = document.createElement('div');
+  el.className = 'cmsg ' + (isBot ? 'bot' : 'user');
+  el.innerHTML = `<div class="cmsg-avatar">${isBot ? '🥊' : '👤'}</div><div><div class="cmsg-bubble">${text.replace(/\n/g,'<br>')}</div><div class="cmsg-time">${nowStr()}</div></div>`;
+  c.appendChild(el);
+  c.scrollTop = c.scrollHeight;
+}
+
+function showTyping(show) {
+  let el = document.getElementById('typing-el');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'typing-el'; el.className = 'cmsg bot';
+    el.innerHTML = `<div class="cmsg-avatar">🥊</div><div class="typing-ind show"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
+    document.getElementById('chat-messages').appendChild(el);
+  }
+  el.style.display = show ? 'flex' : 'none';
+  if (show) document.getElementById('chat-messages').scrollTop = 9999;
+}
+
+function fallbackAnswer(q) {
+  q = q.toLowerCase();
+  if (q.includes('体験') || q.includes('試し')) return '体験レッスンは随時受付中です！🥊 まずは公式HP（honeylarva.com）からご予約いただくか、直接お電話ください。初めての方も大歓迎です。';
+  if (q.includes('料金') || q.includes('値段') || q.includes('いくら')) return '料金プランは月会費制となっています。詳細な金額は公式HP（honeylarva.com）またはジムへ直接お問い合わせください 💪';
+  if (q.includes('クラス') || q.includes('プログラム')) return '一般・ジュニア・シニア（60歳以上）の各クラスがあります🥊 骨盤・呼吸を意識した独自プログラムが特徴です！';
+  if (q.includes('場所') || q.includes('アクセス') || q.includes('どこ')) return '栃木県大田原市と那須塩原市に2拠点あります📍 詳しいアクセスは公式HP（honeylarva.com）でご確認ください！';
+  if (q.includes('フランチャイズ') || q.includes('fc') || q.includes('加盟')) return 'Honey LaRvaのフランチャイジーとして開業できます 🎉 研修・集客サポートも充実！このページの「FC加入ボタン」からどうぞ。';
+  if (q.includes('シニア') || q.includes('60') || q.includes('高齢')) return '60歳以上を対象にした「ミドルクラス」があります👴👵 無理なく安全に続けられるプログラムです！';
+  if (q.includes('ジュニア') || q.includes('子供') || q.includes('子ども')) return 'ジュニアクラスでは多様性を重視した基礎トレーニングを行っています🧒 お子さんの体力づくりにぴったりです！';
+  return 'ご質問ありがとうございます🥊 詳しくは公式HP（honeylarva.com）またはジムに直接お問い合わせいただくと、スタッフが丁寧にご案内します！';
+}
+
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+  input.value = ''; input.style.height = 'auto';
+  document.getElementById('quick-replies').style.display = 'none';
+  isLoading = true; document.getElementById('send-btn').disabled = true;
+  addMsg('user', text);
+  showTyping(true);
+  await new Promise(r => setTimeout(r, 800));
+  showTyping(false);
+  addMsg('bot', fallbackAnswer(text));
+  isLoading = false; document.getElementById('send-btn').disabled = false;
+  input.focus();
+}
+
+function sendQuick(text) { document.getElementById('user-input').value = text; sendMessage(); }
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+</script>
+</body>
+</html>
