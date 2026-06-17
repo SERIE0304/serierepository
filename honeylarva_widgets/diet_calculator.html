@@ -193,6 +193,17 @@
     </div>
   </div>
 
+  <div class="form-row">
+    <div class="form-group">
+      <label>運動頻度（Honey LaRva通う回数）</label>
+      <select id="freq">
+        <option value="1">緩やか（週1回）</option>
+        <option value="2" selected>週2回</option>
+        <option value="5">積極的（週5回）</option>
+      </select>
+    </div>
+  </div>
+
   <p class="error" id="error-msg"></p>
   <button class="btn" onclick="calculate()">目標日数を計算する 📊</button>
 
@@ -220,6 +231,7 @@ function calculate() {
   const height = parseFloat(document.getElementById('height').value);
   const weight = parseFloat(document.getElementById('weight').value);
   const targetInput = document.getElementById('target').value;
+  const freq = parseInt(document.getElementById('freq').value);
   const errEl = document.getElementById('error-msg');
 
   errEl.style.display = 'none';
@@ -248,16 +260,18 @@ function calculate() {
     bmr = 10 * weight + 6.25 * height - 5 * age - 161;
   }
 
-  // フィットネスボクシング（週3回）による活動代謝
-  const activityMultiplier = 1.55; // 中程度の活動
-  const tdee = bmr * activityMultiplier;
+  // 運動による1日あたり追加消費カロリー（ボクシング1回≒450kcal）
+  const burnPerSession = 450;
+  const exerciseDeficit = Math.round(burnPerSession * freq / 7);
 
-  // 1日の赤字カロリー（安全な範囲: 500〜700kcal）
-  const dailyDeficit = 600;
-  const lossPerDay = dailyDeficit / 7200; // kg/day (1kg≒7200kcal)
+  // 1日の赤字カロリー = 食事制限250kcal + 運動分
+  const dietDeficit = 250;
+  const dailyDeficit = dietDeficit + exerciseDeficit;
+
+  const freqLabel = freq === 1 ? '緩やか（週1回）' : freq === 2 ? '週2回' : '積極的（週5回）';
 
   const weightToLose = weight - target;
-  const days = Math.round(weightToLose / lossPerDay);
+  const days = Math.round(weightToLose * 7200 / dailyDeficit);
   const months = Math.floor(days / 30);
   const remDays = days % 30;
 
@@ -276,9 +290,9 @@ function calculate() {
     <strong>現在のBMI：</strong>${bmi.toFixed(1)}（${bmiStatus}）<br>
     <strong>標準体重：</strong>${idealWeight.toFixed(1)} kg<br>
     <strong>目標体重：</strong>${target.toFixed(1)} kg（減量目標 ${weightToLose.toFixed(1)} kg）<br>
-    <strong>推定基礎代謝：</strong>${Math.round(bmr)} kcal/日<br>
-    <strong>想定消費カロリー：</strong>${Math.round(tdee)} kcal/日<br>
-    ※週3回のフィットネスボクシング参加＋1日600kcal赤字で計算
+    <strong>基礎代謝：</strong>${Math.round(bmr)} kcal/日<br>
+    <strong>運動頻度：</strong>${freqLabel}（＋${exerciseDeficit} kcal/日）<br>
+    <strong>1日の消費赤字：</strong>食事250 ＋ 運動${exerciseDeficit} ＝ <strong>${dailyDeficit} kcal/日</strong>
   `;
 
   document.getElementById('result').classList.add('show');
