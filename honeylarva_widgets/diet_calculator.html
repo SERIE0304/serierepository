@@ -260,8 +260,8 @@ function calculate() {
     bmr = 10 * weight + 6.25 * height - 5 * age - 161;
   }
 
-  // 運動による1日あたり追加消費カロリー（ボクシング1回≒450kcal）
-  const burnPerSession = 450;
+  // 運動による1日あたり追加消費カロリー（Honey LaRva 1回≒200kcal）
+  const burnPerSession = 200;
   const exerciseDeficit = Math.round(burnPerSession * freq / 7);
 
   // 1日の赤字カロリー = 食事制限250kcal + 運動分
