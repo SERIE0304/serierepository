@@ -8,7 +8,7 @@ import sheets
 questions = [
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "「ダイエット」という言葉の語源となったギリシャ語の意味として正しいものはどれか？",
         "choices": ["生き方・生活習慣・住まい・食事療法", "運動・健康・美容・食事", "節食・制限・管理・健康", "体重・体型・体脂肪・体温"],
         "correct_index": 0,
@@ -16,7 +16,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "ホメオダイエットの目的として正しいものはどれか？",
         "choices": ["体脂肪を減らしそれをセットポイント（恒常性）にする", "筋肉量を増やして基礎代謝を上げる", "カロリーを厳しく制限して体重を素早く落とす", "運動量を増やして消費カロリーを最大化する"],
         "correct_index": 0,
@@ -24,7 +24,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "腹囲の正しい測定位置はどれか？",
         "choices": ["へそのラインで測る", "お腹周りの一番細い部分で測る", "みぞおちのラインで測る", "腰骨のラインで測る"],
         "correct_index": 0,
@@ -32,7 +32,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "ホメオダイエットでTDEE（1日の総カロリー）計算に推奨する係数はどれか？",
         "choices": ["基礎代謝×1.4", "基礎代謝×1.2", "基礎代謝×1.55", "基礎代謝×1.725"],
         "correct_index": 0,
@@ -40,7 +40,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "ダイエット中、体重・体温・ボルトスコアを報告してもらう頻度は？",
         "choices": ["5日に1度", "毎日", "週に1度", "10日に1度"],
         "correct_index": 0,
@@ -48,7 +48,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "体温が1度上昇すると代謝量はどう変化するか？",
         "choices": ["13%上昇する", "10%上昇する", "20%上昇する", "5%上昇する"],
         "correct_index": 0,
@@ -56,7 +56,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "体温が1度低下した場合の変化として正しいものはどれか？",
         "choices": ["免疫力30%低下・代謝12%低下", "免疫力10%低下・代謝10%低下", "免疫力20%低下・代謝15%低下", "免疫力50%低下・代謝20%低下"],
         "correct_index": 0,
@@ -64,7 +64,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "生理期間の定義として正しいものはどれか？",
         "choices": ["生理初日5日前から生理後2日の間（6日〜10日間）", "生理初日から生理後7日間", "生理3日前から生理後3日間", "生理初日から生理後5日間"],
         "correct_index": 0,
@@ -72,7 +72,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "生理期間中の運動・食事の対応として正しいものはどれか？",
         "choices": ["トレーニングは行わずストレッチのみ、カロリー制限も緩める", "通常通りトレーニングとカロリー制限を継続する", "有酸素運動のみ行い筋トレは休む", "断食を行って腸内環境を整える"],
         "correct_index": 0,
@@ -80,7 +80,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "健康と美容のための1ヶ月の適切なダイエット量はどれか？",
         "choices": ["1kg〜2kg", "3kg〜4kg", "0.5kg未満", "2kg〜3kg"],
         "correct_index": 0,
@@ -88,7 +88,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "2週間で何g減っていない場合にリフィードを行うか？",
         "choices": ["300g", "500g", "200g", "100g"],
         "correct_index": 0,
@@ -96,7 +96,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "安定期（停滞期）の定義として正しいものはどれか？",
         "choices": ["1ヶ月で体重が600g以下しか減っていない状態", "1ヶ月で体重が500g以下しか減っていない状態", "2週間で体重が変わらない状態", "3ヶ月で1kg以下しか減っていない状態"],
         "correct_index": 0,
@@ -104,7 +104,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "カーボサイクルを止める目安は何kg痩せた時か？",
         "choices": ["2kg", "1kg", "3kg", "5kg"],
         "correct_index": 0,
@@ -112,7 +112,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "脂質1gのカロリーは何kcalか？",
         "choices": ["9kcal", "4kcal", "7kcal", "6kcal"],
         "correct_index": 0,
@@ -120,7 +120,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "NG食品として正しい組み合わせはどれか？",
         "choices": ["人工甘味料・多量のアルコール・多量の赤肉", "白米・もち麦・発酵食品", "プーアル茶・杜仲茶・コーヒー", "エビオス錠・百草丸・整腸薬"],
         "correct_index": 0,
@@ -128,7 +128,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "ホメオダイエットで推奨されるお茶はどれか？",
         "choices": ["プーアル茶・杜仲茶", "センナ茶・ダイエット茶", "麦茶・緑茶", "ハーブティー・ローズヒップ茶"],
         "correct_index": 0,
@@ -136,7 +136,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "もち麦と白米を混ぜる場合の理想的なもち麦の比率はどれか？",
         "choices": ["20%〜30%", "10%〜15%", "40%〜50%", "5%〜10%"],
         "correct_index": 0,
@@ -144,7 +144,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "リフィード時の糖質摂取量の基本（体重1kgあたり）はどれか？",
         "choices": ["糖質9〜12g（基本は10g）", "糖質5g", "糖質20g", "糖質15g"],
         "correct_index": 0,
@@ -152,7 +152,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "朝だけ断食の日の摂取カロリーは通常のアンダーカロリーの何分の何にするか？",
         "choices": ["3分の2", "2分の1", "4分の3", "3分の1"],
         "correct_index": 0,
@@ -160,7 +160,7 @@ questions = [
     },
     {
         "track": "実務編",
-        "category": "ダイエット知識",
+        "category": "業務基礎知識",
         "question_text": "腸活のため朝起きてすぐに飲むものと量として正しいものはどれか？",
         "choices": ["水（水道水またはミネラルウォーター）200〜400cc", "コーヒー200cc", "野菜ジュース200cc", "プーアル茶400cc"],
         "correct_index": 0,
