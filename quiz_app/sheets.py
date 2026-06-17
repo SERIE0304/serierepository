@@ -1,9 +1,14 @@
 import json
 import os
+import time
 from datetime import datetime
 
 import gspread
 from google.oauth2.service_account import Credentials
+
+_questions_cache = None
+_questions_cache_time = 0
+_CACHE_TTL = 300  # 5分間キャッシュ
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 CREDENTIALS_PATH = os.environ.get("GOOGLE_CREDENTIALS_PATH", "credentials.json")
@@ -57,8 +62,21 @@ def responses_sheet():
     return _get_or_create_sheet("Responses", RESPONSES_HEADER)
 
 
+def _all_questions():
+    global _questions_cache, _questions_cache_time
+    if _questions_cache is None or (time.time() - _questions_cache_time) > _CACHE_TTL:
+        _questions_cache = questions_sheet().get_all_records()
+        _questions_cache_time = time.time()
+    return _questions_cache
+
+
+def _invalidate_cache():
+    global _questions_cache
+    _questions_cache = None
+
+
 def list_questions(track=None, category=None):
-    rows = questions_sheet().get_all_records()
+    rows = _all_questions()
     if track:
         rows = [r for r in rows if r.get("track") == track]
     if category:
@@ -67,7 +85,7 @@ def list_questions(track=None, category=None):
 
 
 def list_categories(track=None):
-    rows = questions_sheet().get_all_records()
+    rows = _all_questions()
     if track:
         rows = [r for r in rows if r.get("track") == track]
     seen = []
@@ -79,7 +97,7 @@ def list_categories(track=None):
 
 
 def next_question_id():
-    rows = questions_sheet().get_all_records()
+    rows = _all_questions()
     ids = [int(r["id"]) for r in rows if str(r.get("id", "")).isdigit()]
     return max(ids, default=0) + 1
 
@@ -89,6 +107,7 @@ def add_question(track, category, question_text, choices, correct_index, explana
     qid = next_question_id()
     choices = (choices + ["", "", "", ""])[:4]
     ws.append_row([qid, track, category, question_text, *choices, correct_index, explanation])
+    _invalidate_cache()
     return qid
 
 
@@ -98,6 +117,7 @@ def delete_question(question_id):
     for i, row in enumerate(rows[1:], start=2):
         if row and row[0] == str(question_id):
             ws.delete_rows(i)
+            _invalidate_cache()
             return True
     return False
 
