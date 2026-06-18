@@ -6,15 +6,35 @@
     <input type="text" name="staff_name" required placeholder="例: 山田太郎">
   </label>
   <label>編を選択
-    <select name="track" required>
+    <select name="track" required id="track-select" onchange="togglePassword(this.value)">
       <option value="" disabled selected>選択してください</option>
       {% for t in tracks %}
         <option value="{{ t }}">{{ t }}</option>
       {% endfor %}
     </select>
   </label>
+  <div id="password-field" style="display:none;">
+    <label>パスワード
+      <input type="password" name="track_password" id="track-password" placeholder="パスワードを入力">
+    </label>
+  </div>
   <button type="submit">クイズを始める</button>
 </form>
+<script>
+var TRACK_PASSWORDS = {{ track_passwords | tojson }};
+function togglePassword(track) {
+  var field = document.getElementById('password-field');
+  var input = document.getElementById('track-password');
+  if (TRACK_PASSWORDS[track]) {
+    field.style.display = '';
+    input.required = true;
+  } else {
+    field.style.display = 'none';
+    input.required = false;
+    input.value = '';
+  }
+}
+</script>
 
 <div class="card" style="margin-top:1.5rem; background:#eaf4fb; border-left:4px solid #2980b9; text-align:center; gap:0.8rem;">
   <a href="{{ url_for('simulator') }}">

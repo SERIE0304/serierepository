@@ -21,7 +21,8 @@ def _track(page):
 @app.route("/")
 def index():
     _track("トップ")
-    return render_template("index.html", tracks=sheets.TRACKS)
+    return render_template("index.html", tracks=sheets.TRACKS,
+                           track_passwords={k: True for k in sheets.TRACK_PASSWORDS})
 
 
 @app.route("/quiz/categories", methods=["POST"])
@@ -30,6 +31,10 @@ def quiz_categories():
     track = request.form.get("track", "").strip()
     if not staff_name or track not in sheets.TRACKS:
         flash("名前と編を選択してください")
+        return redirect(url_for("index"))
+    required_pw = sheets.TRACK_PASSWORDS.get(track)
+    if required_pw and request.form.get("track_password", "") != required_pw:
+        flash("パスワードが違います")
         return redirect(url_for("index"))
     # カテゴリ選択を省略して直接クイズ開始
     questions = sheets.list_questions(track, None)
