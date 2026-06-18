@@ -3,6 +3,7 @@
 <p class="progress">問題 {{ progress }} / {{ total }}</p>
 <form method="post" action="{{ url_for('quiz_answer') }}" class="card" id="quiz-form">
   <input type="hidden" name="question_id" value="{{ question.id }}">
+  <input type="hidden" name="correct_index_shuffled" value="{{ correct_index }}">
   <input type="hidden" name="selected_index" value="-1" id="selected-index-hidden">
   <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
     <h2 style="margin:0; flex:1;">{{ question.question_text }}</h2>

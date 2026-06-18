@@ -102,8 +102,13 @@ def quiz_question():
 
     choices = [c for c in [question["choice1"], question["choice2"],
                             question["choice3"], question["choice4"]] if c]
+    correct_text = choices[int(question["correct_index"])]
+    shuffled = choices[:]
+    random.shuffle(shuffled)
+    shuffled_correct_index = shuffled.index(correct_text)
     return render_template(
-        "quiz.html", question=question, choices=choices,
+        "quiz.html", question=question, choices=shuffled,
+        correct_index=shuffled_correct_index,
         progress=idx + 1, total=len(quiz["question_ids"]),
     )
 
@@ -116,9 +121,10 @@ def quiz_answer():
 
     qid = request.form.get("question_id")
     selected_index = int(request.form.get("selected_index", -1))
+    correct_index_shuffled = request.form.get("correct_index_shuffled", "-1")
     timed_out = selected_index == -1
     question = next((q for q in sheets.list_questions() if str(q["id"]) == str(qid)), None)
-    correct = bool(question) and not timed_out and int(question["correct_index"]) == selected_index
+    correct = bool(question) and not timed_out and str(selected_index) == str(correct_index_shuffled)
 
     if correct:
         quiz["score"] += 1
