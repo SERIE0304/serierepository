@@ -1,4 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="38" fill="#f5a623"/>
-  <text y="0.9em" font-size="150" x="18">🍯</text>
+  <rect width="192" height="192" rx="38" fill="#ffffff"/>
+  <rect x="72" y="18" width="48" height="120" rx="24" fill="white" stroke="black" stroke-width="8"/>
+  <rect x="72" y="90" width="48" height="48" fill="black"/>
+  <ellipse cx="96" cy="138" rx="24" ry="24" fill="black"/>
+  <line x1="100" y1="42" x2="116" y2="42" stroke="black" stroke-width="5"/>
+  <line x1="100" y1="62" x2="116" y2="62" stroke="black" stroke-width="5"/>
+  <line x1="100" y1="82" x2="116" y2="82" stroke="black" stroke-width="5"/>
+  <rect x="64" y="14" width="64" height="16" rx="6" fill="black"/>
 </svg>
