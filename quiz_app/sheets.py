@@ -15,8 +15,8 @@ CREDENTIALS_PATH = os.environ.get("GOOGLE_CREDENTIALS_PATH", "credentials.json")
 CREDENTIALS_JSON = os.environ.get("GOOGLE_CREDENTIALS_JSON")
 SPREADSHEET_ID = os.environ.get("QUIZ_SPREADSHEET_ID")
 
-TRACKS = ["実務編", "フランチャイジー編", "オンラインダイエット編"]
-TRACK_PASSWORDS = {"オンラインダイエット編": "3333"}
+TRACKS = ["実務編", "フランチャイジー編", "ダイエット編"]
+TRACK_PASSWORDS = {"ダイエット編": "3333"}
 
 QUESTIONS_HEADER = [
     "id", "track", "category", "question_text",
