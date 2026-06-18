@@ -454,6 +454,8 @@ timeForm.addEventListener('submit', e => {
   const data = { date: document.getElementById('timeDate').value, business, hours, lock, memo: document.getElementById('timeMemo').value.trim() };
   db.ref('timecards/' + staffUid + '/' + id).set(data);
   closeTimeModal();
+  const thanks = document.getElementById('thanksOverlay');
+  thanks.style.display = 'flex';
 });
 
 // ── 初期化 ───────────────────────────────────

@@ -262,6 +262,15 @@
     </div>
   </div>
 
+  <!-- お疲れ様メッセージ -->
+  <div id="thanksOverlay" style="display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;background:rgba(0,0,30,0.7);">
+    <div class="dq-win" style="max-width:340px;width:90%;text-align:center;padding:32px 24px;">
+      <div style="font-size:2rem;margin-bottom:16px;">⚔</div>
+      <div style="font-size:1.1rem;line-height:1.8;letter-spacing:2px;">お疲れ様でした。<br>いつもありがとうございます。</div>
+      <button class="btn-primary" onclick="document.getElementById('thanksOverlay').style.display='none'" style="margin-top:24px;width:100%;">とじる</button>
+    </div>
+  </div>
+
   </div><!-- /appRoot -->
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>

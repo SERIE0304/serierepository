@@ -1,4 +1,4 @@
-const CACHE = 'task-app-v20';
+const CACHE = 'task-app-v21';
 const FILES = ['./', 'index.html', 'style.css', 'app.js', 'auth.js', 'firebase-config.js', 'icon.svg', 'manifest.json'];
 
 self.addEventListener('install', e => {
