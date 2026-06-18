@@ -134,6 +134,10 @@
           <label>▶ パスワード</label>
           <input type="text" id="newStaffPassword" placeholder="ログイン用パスワード（6文字以上）">
         </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" id="newStaffIsAdmin" style="width:18px;height:18px;cursor:pointer;">
+          <label style="color:#aaddff;font-size:0.82rem;cursor:pointer;" for="newStaffIsAdmin">管理者権限（全スタッフのタイムカードを見られる）</label>
+        </div>
         <div id="addStaffError" class="login-error"></div>
         <button class="btn-primary" onclick="addStaff()" style="width:100%;margin-top:6px;">＋ スタッフを追加</button>
       </div>

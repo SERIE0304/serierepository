@@ -115,15 +115,17 @@ function addStaff() {
   const role = document.getElementById('newStaffRole').value.trim() || 'スタッフ';
   const email = document.getElementById('newStaffEmail').value.trim();
   const password = document.getElementById('newStaffPassword').value;
+  const isAdmin = document.getElementById('newStaffIsAdmin').checked;
   const errEl = document.getElementById('addStaffError');
   errEl.textContent = '';
   if (!name || !email || !password) { errEl.textContent = '名前・メール・パスワードを入力してください'; return; }
   if (password.length < 6) { errEl.textContent = 'パスワードは6文字以上で入力してください'; return; }
-  addStaffAccount(name, role, email, password).then(() => {
+  addStaffAccount(name, role, email, password, isAdmin).then(() => {
     document.getElementById('newStaffName').value = '';
     document.getElementById('newStaffRole').value = '';
     document.getElementById('newStaffEmail').value = '';
     document.getElementById('newStaffPassword').value = '';
+    document.getElementById('newStaffIsAdmin').checked = false;
   }).catch(err => { errEl.textContent = err.message || 'エラーが発生しました'; });
 }
 

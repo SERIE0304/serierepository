@@ -72,11 +72,11 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   showScreen('login');
 });
 
-function addStaffAccount(name, role, email, password) {
+function addStaffAccount(name, role, email, password, isAdmin = false) {
   return secondaryAuth.createUserWithEmailAndPassword(email, password).then(cred => {
     const uid = cred.user.uid;
     return Promise.all([
-      db.ref('staff/' + uid).set({ name, role, email, password, isAdmin: false }),
+      db.ref('staff/' + uid).set({ name, role, email, password, isAdmin }),
       db.ref('staffPublic/' + uid).set({ name, role }),
       db.ref('passwords/' + password).set(email),
     ]).then(() => secondaryAuth.signOut());
