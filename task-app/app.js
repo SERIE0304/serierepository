@@ -96,15 +96,20 @@ function renderStaffPage() {
   fullStaffCache.forEach(s => {
     const row = document.createElement('div');
     row.className = 'staff-item';
+    const adminBadge = s.isAdmin ? '👑 管理者' : '一般';
     row.innerHTML = `
       <div>
         <span class="staff-item-name">▶ ${escapeHtml(s.name)}</span>
         <span class="staff-item-role">（${escapeHtml(s.role)}）</span>
         <div style="color:#aaddff;font-size:0.72rem;">${escapeHtml(s.email)} ／ PW: ${escapeHtml(s.password)}</div>
+        <div style="font-size:0.72rem;margin-top:2px;color:#ffdd88;">${adminBadge}</div>
       </div>
-      ${s.uid !== currentProfile.uid
-        ? `<button class="btn-danger" onclick="removeStaff('${s.uid}')">削除</button>`
-        : '<span style="color:#4444aa;font-size:0.7rem;">本人</span>'}
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+        ${s.uid !== currentProfile.uid ? `
+          <button class="btn-secondary" style="font-size:0.7rem;padding:2px 8px;" onclick="toggleAdmin('${s.uid}',${!s.isAdmin})">${s.isAdmin ? '管理者を外す' : '管理者にする'}</button>
+          <button class="btn-danger" onclick="removeStaff('${s.uid}')">削除</button>
+        ` : '<span style="color:#4444aa;font-size:0.7rem;">本人</span>'}
+      </div>
     `;
     el.appendChild(row);
   });
@@ -132,6 +137,12 @@ function addStaff() {
 function removeStaff(uid) {
   if (!confirm('このスタッフを削除しますか？')) return;
   removeStaffAccount(uid);
+}
+
+function toggleAdmin(uid, makeAdmin) {
+  const label = makeAdmin ? '管理者権限を付与しますか？' : '管理者権限を外しますか？';
+  if (!confirm(label)) return;
+  db.ref('staff/' + uid + '/isAdmin').set(makeAdmin);
 }
 
 // ── ユーティリティ ───────────────────────────
