@@ -1,10 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="100" fill="#ffffff"/>
-  <rect x="192" y="48" width="128" height="320" rx="64" fill="white" stroke="black" stroke-width="20"/>
-  <rect x="192" y="240" width="128" height="128" fill="black"/>
-  <ellipse cx="256" cy="368" rx="64" ry="64" fill="black"/>
-  <line x1="268" y1="112" x2="308" y2="112" stroke="black" stroke-width="14"/>
-  <line x1="268" y1="164" x2="308" y2="164" stroke="black" stroke-width="14"/>
-  <line x1="268" y1="216" x2="308" y2="216" stroke="black" stroke-width="14"/>
-  <rect x="172" y="38" width="168" height="42" rx="14" fill="black"/>
+  <rect width="512" height="512" rx="100" fill="#fff5f0"/>
+  <!-- body outline -->
+  <path d="M160,52 Q106,80 100,186 Q96,292 106,426 Q133,480 256,484 Q379,480 406,426 Q416,292 412,186 Q406,80 352,52 Q304,36 256,36 Q208,36 160,52 Z" fill="none" stroke="#333" stroke-width="10"/>
+  <!-- lungs -->
+  <ellipse cx="200" cy="192" rx="58" ry="80" fill="#ffb3c6" stroke="#c0607a" stroke-width="6"/>
+  <ellipse cx="312" cy="192" rx="58" ry="80" fill="#ffb3c6" stroke="#c0607a" stroke-width="6"/>
+  <!-- heart -->
+  <path d="M256,172 C246,154 218,154 218,178 C218,198 256,224 256,224 C256,224 294,198 294,178 C294,154 266,154 256,172 Z" fill="#ff6b8a" stroke="#c0304a" stroke-width="5"/>
+  <!-- stomach -->
+  <ellipse cx="234" cy="280" rx="54" ry="42" fill="#ff9eb5" stroke="#c0607a" stroke-width="6"/>
+  <!-- liver -->
+  <ellipse cx="298" cy="272" rx="48" ry="35" fill="#f0c040" stroke="#b08000" stroke-width="6"/>
+  <!-- small intestine -->
+  <path d="M188,332 Q160,346 173,373 Q186,400 213,394 Q240,388 234,362 Q228,336 256,330 Q284,324 288,352 Q292,378 266,388 Q240,398 244,420" fill="none" stroke="#7ec8e3" stroke-width="13" stroke-linecap="round"/>
+  <!-- large intestine -->
+  <path d="M146,394 Q133,426 160,448 Q213,474 256,474 Q299,474 352,448 Q379,426 366,394 Q346,360 320,368 Q306,373 298,394 Q288,420 256,426 Q224,420 214,394 Q206,373 192,368 Q166,360 146,394 Z" fill="#ffb347" stroke="#c07820" stroke-width="6"/>
 </svg>
