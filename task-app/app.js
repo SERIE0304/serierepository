@@ -454,7 +454,14 @@ timeForm.addEventListener('submit', e => {
   const data = { date: document.getElementById('timeDate').value, business, hours, lock, memo: document.getElementById('timeMemo').value.trim() };
   db.ref('timecards/' + staffUid + '/' + id).set(data);
   closeTimeModal();
+  const messages = [
+    'お疲れ様でした。\nいつもありがとうございます。',
+    'お疲れ様でした。\n帰りは気を付けて帰ってください。',
+    'お疲れ様でした。\nまた次回お願い致します。',
+  ];
+  const msg = messages[Math.floor(Math.random() * messages.length)];
   const thanks = document.getElementById('thanksOverlay');
+  document.getElementById('thanksMsg').innerText = msg;
   thanks.style.display = 'flex';
 });
 
