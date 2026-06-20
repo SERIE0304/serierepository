@@ -45,16 +45,17 @@
 {% endif %}
 
 {% if track == 'フランチャイジー編' %}
-<div class="card" style="margin-top:2rem; background:#eaf4fb; border-left:4px solid #2980b9; text-align:center; gap:0.8rem;">
-  <p style="font-size:1.1rem; font-weight:bold; margin:0;">🏪 フランチャイズ加盟にご興味はありますか？</p>
-  <a href="{{ url_for('comparison') }}">
-    <button style="background:#8e44ad; width:100%;">📊 他社FCと比較してみる</button>
-  </a>
+<div class="card" style="margin-top:2rem; background:linear-gradient(135deg,#fff9e6,#eaf4fb); border-left:4px solid #f39c12; text-align:center; gap:0.8rem;">
+  <p style="font-size:1.2rem; font-weight:bold; color:#e67e22; margin:0;">🍯 ハニーラルヴァフランチャイズ</p>
+  <p style="margin:0; font-size:0.95rem;">初期投資約130万円〜・ワンオペ可能・加盟金0円タイプあり<br>月手残り約<strong>36万円</strong>（年収432万円）が目標です</p>
   <a href="{{ url_for('simulator') }}">
-    <button style="background:#27ae60; width:100%;">💹 経営シミュレーターで収支を試算する</button>
+    <button style="background:#27ae60; width:100%; font-size:1rem;">💹 あなたの年収をシミュレーションする</button>
+  </a>
+  <a href="{{ url_for('comparison') }}">
+    <button style="background:#8e44ad; width:100%;">📊 他社FCと比較する（圧倒的な差）</button>
   </a>
   <a href="{{ url_for('inquiry') }}">
-    <button style="background:#2980b9; width:100%;">📩 フランチャイズ加盟のお問い合わせはこちら</button>
+    <button style="background:#e74c3c; width:100%; font-size:1rem;">📩 加盟のお問い合わせ・詳細を聞く</button>
   </a>
 </div>
 {% endif %}
