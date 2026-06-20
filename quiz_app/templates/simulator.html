@@ -61,7 +61,7 @@
       <span style="font-size:0.8rem; color:#888;">→ 月割: <span id="gloves_monthly_disp">2,500円</span></span>
     </label>
     <label>その他消耗品（円/月）<input type="number" id="consumables" value="2500" min="0" step="500" oninput="calc()"></label>
-    <label>追加人件費（円/月）<span style="color:#999; font-size:0.82rem;">（100人以下はワンオペ可・超えると+8万円自動加算）</span><input type="number" id="labor" value="0" min="0" step="10000" oninput="calc()"></label>
+    <label>追加人件費（円/月）<span style="color:#999; font-size:0.82rem;">（100人以下はワンオペ可・超えると20人ごとにアルバイト1人が自動加算）</span><input type="number" id="labor" value="0" min="0" step="10000" oninput="calc()"></label>
   </div>
   <div id="labor_alert" style="display:none; background:#fdf0f0; border-left:4px solid #e74c3c; border-radius:6px; padding:0.6rem 0.9rem; font-size:0.88rem; color:#c0392b;"></div>
   <div style="background:#fff8e1; border-radius:6px; padding:0.7rem; font-size:0.88rem; color:#7d6608; border-left:4px solid #f5c842;">
@@ -129,6 +129,26 @@
   </div>
 </div>
 
+<!-- 月会費シナリオ比較 -->
+<div class="card" style="gap:0.8rem; margin-bottom:1.2rem;">
+  <h3 style="margin:0; color:#2c3e50;">💴 月会費シナリオ別 年収比較（現在の会員数）</h3>
+  <p style="margin:0; color:#555; font-size:0.85rem;">会員数はそのままで、月会費を変えた場合の年収シミュレーションです。</p>
+  <table style="width:100%; border-collapse:collapse; font-size:0.93rem;">
+    <thead>
+      <tr style="background:#ecf0f1;">
+        <th style="padding:0.4rem 0.6rem; text-align:left;">月会費</th>
+        <th style="padding:0.4rem 0.6rem; text-align:right;">月売上</th>
+        <th style="padding:0.4rem 0.6rem; text-align:right;">月利益</th>
+        <th style="padding:0.4rem 0.6rem; text-align:right; color:#27ae60; font-weight:bold;">年収</th>
+      </tr>
+    </thead>
+    <tbody id="fee_scenario_body"></tbody>
+  </table>
+  <div style="background:#fff8e1; border-left:4px solid #f5c842; border-radius:6px; padding:0.6rem 0.9rem; font-size:0.85rem; color:#7d6608;">
+    💡 会員数が同じでも月会費が<strong>6,000円→10,000円</strong>になると年収の差が大きく開きます。サービスの質で単価を上げることが収益向上の近道です。
+  </div>
+</div>
+
 <!-- 多年度シミュレーション表 -->
 <div class="card" style="gap:0.8rem; margin-bottom:1.2rem; overflow-x:auto;">
   <h3 style="margin:0; color:#2c3e50;">📅 10年間の収益予測（退会率10%/年）</h3>
@@ -185,13 +205,14 @@ function calc() {
     infoEl.textContent = '';
   }
 
-  // 100人超でアルバイト1名（8万円/月）が自動加算
-  var laborAuto  = members > 100 ? 80000 : 0;
+  // 100人超でアルバイト（20人ごとに1名・8万円/月）が自動加算
+  var autoStaff  = members > 100 ? Math.ceil((members - 100) / 20) : 0;
+  var laborAuto  = autoStaff * 80000;
   var labor      = laborManual + laborAuto;
   var alertEl    = document.getElementById('labor_alert');
   if (members > 100) {
     alertEl.style.display = 'block';
-    alertEl.textContent   = '⚠️ 会員数が100人を超えたため、アルバイト代 80,000円/月 が自動加算されています。';
+    alertEl.textContent   = '⚠️ 会員数が100人を超えたため、アルバイト' + autoStaff + '名（' + (laborAuto/10000).toFixed(0) + '万円/月）が自動加算されています。（20人ごとに1名）';
   } else {
     alertEl.style.display = 'none';
   }
@@ -263,7 +284,8 @@ function calc() {
   for (var yr = 1; yr <= 10; yr++) {
     var churn      = Math.round(members * 0.1 * yr);
     curMembers     = Math.max(0, members - churn);
-    var yrLaborAuto= curMembers > 100 ? 80000 : 0;
+    var yrStaff    = curMembers > 100 ? Math.ceil((curMembers - 100) / 20) : 0;
+  var yrLaborAuto= yrStaff * 80000;
     var yrCost     = rent + royalty + utilities + glovesM + consumables + laborManual + yrLaborAuto;
     var yrRevenue  = fee * curMembers;
     var yrProfit   = yrRevenue - yrCost;
@@ -302,6 +324,29 @@ function calc() {
     else if (roi >= 5)   roiComment.textContent = '⚠️ 利回りはやや低めです。コスト削減か会員増加を検討しましょう。';
     else                 roiComment.textContent = '🔴 利回りが低い状態です。家賃や初期費用の見直しを。';
   }
+
+  // 月会費シナリオ比較テーブル
+  var feeScenarios = [6000, 7000, 8000, 9000, 10000];
+  var scenarioBody = document.getElementById('fee_scenario_body');
+  scenarioBody.innerHTML = '';
+  feeScenarios.forEach(function(sf) {
+    var sRevenue = sf * members;
+    var sStaff   = members > 100 ? Math.ceil((members - 100) / 20) : 0;
+    var sCost    = rent + royalty + utilities + glovesM + consumables + laborManual + sStaff * 80000;
+    var sProfit  = sRevenue - sCost;
+    var sAnnual  = sProfit * 12;
+    var isActive = sf === fee;
+    var color    = sAnnual >= 0 ? '#27ae60' : '#e74c3c';
+    var tr = document.createElement('tr');
+    tr.style.background = isActive ? '#eafaf1' : '';
+    tr.style.fontWeight = isActive ? 'bold' : '';
+    tr.innerHTML =
+      '<td style="padding:0.35rem 0.6rem;">' + sf.toLocaleString() + '円' + (isActive ? ' ◀ 現在' : '') + '</td>' +
+      '<td style="padding:0.35rem 0.6rem; text-align:right;">' + fmt(sRevenue) + '</td>' +
+      '<td style="padding:0.35rem 0.6rem; text-align:right; color:' + color + ';">' + fmt(sProfit) + '</td>' +
+      '<td style="padding:0.35rem 0.6rem; text-align:right; color:' + color + '; font-weight:bold;">' + fmt(sAnnual) + '</td>';
+    scenarioBody.appendChild(tr);
+  });
 
   drawChart(fee, cost, members);
 }
