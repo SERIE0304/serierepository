@@ -1,3 +1,4 @@
+import env_loader
 import os, json, anthropic
 from datetime import datetime
 
