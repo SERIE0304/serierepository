@@ -194,6 +194,12 @@
         <div class="form-group">
           <label>メモ</label>
           <textarea id="taskMemo" rows="2" placeholder="補足情報など"></textarea>
+          <div class="quick-phrases">
+            <button type="button" class="phrase-btn" onclick="insertPhrase('taskMemo', '対応中')">対応中</button>
+            <button type="button" class="phrase-btn" onclick="insertPhrase('taskMemo', '確認待ち')">確認待ち</button>
+            <button type="button" class="phrase-btn" onclick="insertPhrase('taskMemo', '保留')">保留</button>
+            <button type="button" class="phrase-btn" onclick="insertPhrase('taskMemo', '要確認')">要確認</button>
+          </div>
         </div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" id="deleteTaskBtn" style="display:none">削除</button>
@@ -250,6 +256,13 @@
         <div class="form-group">
           <label>メモ</label>
           <input type="text" id="timeMemo" placeholder="例：午前のみ、早退など">
+          <div class="quick-phrases">
+            <button type="button" class="phrase-btn" onclick="insertPhrase('timeMemo', '午前のみ')">午前のみ</button>
+            <button type="button" class="phrase-btn" onclick="insertPhrase('timeMemo', '早退')">早退</button>
+            <button type="button" class="phrase-btn" onclick="insertPhrase('timeMemo', '遅刻')">遅刻</button>
+            <button type="button" class="phrase-btn" onclick="insertPhrase('timeMemo', '直行')">直行</button>
+            <button type="button" class="phrase-btn" onclick="insertPhrase('timeMemo', '直帰')">直帰</button>
+          </div>
         </div>
         <div class="form-actions">
           <button type="button" class="btn-secondary" id="deleteTimeBtn" style="display:none">削除</button>

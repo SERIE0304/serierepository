@@ -377,6 +377,13 @@ function selectHours(h) {
   document.querySelectorAll('.hour-btn').forEach(b => b.classList.toggle('selected', parseFloat(b.textContent) === h));
 }
 
+function insertPhrase(fieldId, phrase) {
+  const el = document.getElementById(fieldId);
+  const cur = el.value;
+  el.value = cur ? cur + '、' + phrase : phrase;
+  el.focus();
+}
+
 function selectLock(val) {
   document.getElementById('timeLock').value = val ? 'yes' : 'no';
   document.getElementById('lockYes').className = 'lock-btn' + (val ? ' selected-yes' : '');

@@ -434,6 +434,21 @@ main { max-width: 1000px; margin: 0 auto; padding: 16px; position: relative; z-i
 .lock-btn.selected-yes { background: #004400; border-color: #00ff00; color: #00ff00; }
 .lock-btn.selected-no { background: #440000; border-color: #ff4444; color: #ff4444; }
 
+/* 定型文ボタン */
+.quick-phrases { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.phrase-btn {
+  background: transparent;
+  border: 1px solid #556;
+  color: #aab;
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.phrase-btn:hover { border-color: #8af; color: #8af; }
+
 /* スタッフ登録画面 */
 .staff-page { max-width: 600px; margin: 0 auto; padding: 16px; }
 .staff-list-box {
