@@ -94,3 +94,21 @@ button:hover { background: #1f6391; }
 .data-table th { background: #ecf0f1; }
 .flashes { list-style: none; padding: 0; }
 .flashes li { background: #fce4e4; color: #a33; padding: 0.5rem 1rem; border-radius: 4px; margin-bottom: 1rem; }
+
+/* スマホ対応 */
+@media (max-width: 480px) {
+  .topbar { padding: 0.7rem 1rem; }
+  .topbar .logo { font-size: 0.95rem; }
+  .container { margin: 1rem auto; padding: 0 0.6rem; }
+  .card { padding: 1rem; }
+  h1 { font-size: 1.3rem; }
+  h2 { font-size: 1.1rem; }
+  h3 { font-size: 1rem; }
+  input[type="number"] { font-size: 0.9rem; padding: 0.4rem; }
+  button { font-size: 0.9rem; padding: 0.6rem 0.8rem; width: 100%; }
+  table { font-size: 0.82rem; }
+  .score { font-size: 1.1rem; }
+  #r_monthly_profit { font-size: 1.4rem !important; }
+  #r_annual_income { font-size: 1.7rem !important; }
+  #r_payback, #r_roi { font-size: 1.5rem !important; }
+}
