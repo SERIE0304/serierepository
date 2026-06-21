@@ -136,9 +136,12 @@ def quiz_answer():
         "timed_out": timed_out,
     })
 
-    sheets.record_response(
-        quiz["staff_name"], quiz["track"], qid, quiz["category"], selected_index, correct,
-    )
+    try:
+        sheets.record_response(
+            quiz["staff_name"], quiz["track"], qid, quiz["category"], selected_index, correct,
+        )
+    except Exception:
+        pass  # Sheets書き込み失敗はクイズフローに影響させない
 
     quiz["current"] += 1
     session["quiz"] = quiz
