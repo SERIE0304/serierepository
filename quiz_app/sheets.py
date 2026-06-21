@@ -10,6 +10,10 @@ _questions_cache = None
 _questions_cache_time = 0
 _CACHE_TTL = 300  # 5分間キャッシュ
 
+_gc_client = None
+_gc_client_time = 0
+_CLIENT_TTL = 3500  # OAuthトークンの有効期限(1時間)より少し短くリフレッシュ
+
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 CREDENTIALS_PATH = os.environ.get("GOOGLE_CREDENTIALS_PATH", "credentials.json")
 CREDENTIALS_JSON = os.environ.get("GOOGLE_CREDENTIALS_JSON")
@@ -36,12 +40,16 @@ PAGEVIEWS_HEADER = [
 
 
 def _client():
-    if CREDENTIALS_JSON:
-        info = json.loads(CREDENTIALS_JSON)
-        creds = Credentials.from_service_account_info(info, scopes=SCOPES)
-    else:
-        creds = Credentials.from_service_account_file(CREDENTIALS_PATH, scopes=SCOPES)
-    return gspread.authorize(creds)
+    global _gc_client, _gc_client_time
+    if _gc_client is None or (time.time() - _gc_client_time) > _CLIENT_TTL:
+        if CREDENTIALS_JSON:
+            info = json.loads(CREDENTIALS_JSON)
+            creds = Credentials.from_service_account_info(info, scopes=SCOPES)
+        else:
+            creds = Credentials.from_service_account_file(CREDENTIALS_PATH, scopes=SCOPES)
+        _gc_client = gspread.authorize(creds)
+        _gc_client_time = time.time()
+    return _gc_client
 
 
 def _spreadsheet():
