@@ -128,14 +128,12 @@ def quiz_answer():
 
     if correct:
         quiz["score"] += 1
+    # セッションサイズ超過を防ぐため最小限のデータのみ保存
     quiz["results"].append({
-        "question_text": question["question_text"] if question else "",
+        "qid": str(qid),
         "selected_index": selected_index,
-        "correct_index": int(question["correct_index"]) if question else None,
         "correct": correct,
         "timed_out": timed_out,
-        "explanation": question.get("explanation", "") if question else "",
-        "choices": [question[c] for c in ["choice1", "choice2", "choice3", "choice4"] if question.get(c)] if question else [],
     })
 
     sheets.record_response(
@@ -155,7 +153,24 @@ def quiz_result():
     total = len(quiz["question_ids"])
     score = quiz["score"]
     percentage = round(100 * score / total) if total else 0
-    results = quiz["results"]
+
+    # セッションに保存した最小データから問題詳細を復元
+    all_q = sheets.list_questions()
+    q_map = {str(q["id"]): q for q in all_q}
+    results = []
+    for r in quiz["results"]:
+        q = q_map.get(str(r["qid"]))
+        choices = [q[c] for c in ["choice1", "choice2", "choice3", "choice4"] if q and q.get(c)] if q else []
+        results.append({
+            "question_text": q["question_text"] if q else "",
+            "selected_index": r["selected_index"],
+            "correct_index": int(q["correct_index"]) if q else None,
+            "correct": r["correct"],
+            "timed_out": r["timed_out"],
+            "explanation": q.get("explanation", "") if q else "",
+            "choices": choices,
+        })
+
     session.pop("quiz", None)
     return render_template(
         "result.html", score=score, total=total, percentage=percentage,
