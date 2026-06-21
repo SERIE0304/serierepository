@@ -1,11 +1,15 @@
 import os
 import re
+import json
+import urllib.request
 from datetime import datetime, timedelta, timezone
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+
+from get_line_token import get_line_token
 
 # --- 設定 ---
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
@@ -18,10 +22,20 @@ CALENDAR_IDS = [
     "hebjlm5srhlikpgiu4hslgok97hh4iec@import.calendar.google.com",
 ]
 
+LINE_CHANNEL_TOKEN = get_line_token()
+LINE_USER_ID = "U206a030c1759f1ed8f4c684d03d11915"
+
 OTA_PATTERNS = {
     "Booking.com": [r"booking\.com", r"booking\.com経由", r"booking"],
     "Airbnb":      [r"airbnb", r"エアビー"],
     "VRBO":        [r"vrbo", r"homeaway", r"ホームアウェイ"],
+}
+
+OTA_EMOJI = {
+    "Booking.com": "🔵",
+    "Airbnb":      "🔴",
+    "VRBO":        "🟢",
+    "Direct":      "⚪",
 }
 
 BOLD   = "\033[1m"
@@ -34,6 +48,15 @@ COLOR_MAP = {
     "VRBO":        "\033[32m",
     "Direct":      "\033[37m",
 }
+
+def send_line_message(message):
+    data = json.dumps({"to": LINE_USER_ID, "messages": [{"type": "text", "text": message}]}).encode("utf-8")
+    req = urllib.request.Request(
+        "https://api.line.me/v2/bot/message/push",
+        data=data,
+        headers={"Content-Type": "application/json", "Authorization": "Bearer " + LINE_CHANNEL_TOKEN}
+    )
+    urllib.request.urlopen(req)
 
 def get_calendar_service():
     creds = None
@@ -145,6 +168,19 @@ def print_bookings(bookings: list[dict]):
         print(f"  OTA          : {color}{ota}{RESET}")
         print()
 
+def format_bookings_for_line(bookings: list[dict]) -> str:
+    today = datetime.now().strftime("%Y/%m/%d")
+    if not bookings:
+        return f"【SERIE予約確認】{today}\n\n今後7日間の予約はありません。"
+    msg = f"【SERIE予約確認】{today}\n今後7日間：{len(bookings)}件\n\n"
+    for b in bookings:
+        emoji = OTA_EMOJI.get(b["ota"], "⚪")
+        nights = f"{b['nights']}泊" if b["nights"] is not None else "不明"
+        msg += f"{emoji}{b['ota']}\n"
+        msg += f"　{b['title']}\n"
+        msg += f"　{fmt_date(b['checkin'])} 〜 {fmt_date(b['checkout'])}（{nights}）\n\n"
+    return msg.strip()
+
 def main():
     print("Google Calendar に接続中 ...")
     service = get_calendar_service()
@@ -152,6 +188,9 @@ def main():
     events = fetch_events(service, days=7)
     bookings = [parse_booking(e) for e in events]
     print_bookings(bookings)
+    line_msg = format_bookings_for_line(bookings)
+    send_line_message(line_msg)
+    print("LINE送信完了！")
 
 if __name__ == "__main__":
     main()
