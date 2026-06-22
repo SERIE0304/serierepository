@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); PROMPT=$(echo \"$INPUT\" | jq -r '.prompt // \"\"' 2>/dev/null); if echo \"$PROMPT\" | grep -qE '補助金|助成金|申請書|申請書類|申請書を|書類作成|補助を|助成を|hojyokin|grants|subsidies'; then echo '{\"hookSpecificOutput\": {\"hookEventName\": \"UserPromptSubmit\", \"additionalContext\": \"[補助金申請コンテキスト検出] ユーザーが補助金申請に関連する話題を入力しました。以下を自動的に判断・提案してください:\\n- ~/lodgers/agents/hojyokin_last_report.json にキャッシュがあれば申請書類の下書き作成を提案する\\n- キャッシュがない場合は補助金エージェント(hojyokin_agent.py)の実行を先に勧める\\n- 特定の補助金名が言及されていれば、その補助金に絞った事業概要・必要性・期待効果・経費内訳の下書きを生成する\\n- 芹江コンチェルト（SERIE・パンダカステラ・Honey LaRva）の情報を活かした文章にする\"}}'; else echo '{}'; fi",
+            "timeout": 5,
+            "statusMessage": "補助金コンテキストを確認中..."
+          }
+        ]
+      }
+    ]
+  }
+}
