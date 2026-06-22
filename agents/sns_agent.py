@@ -13,6 +13,33 @@ def send_line_message(message):
         headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ' + LINE_CHANNEL_TOKEN})
     urllib.request.urlopen(req)
 
+def generate_x_post(news):
+    prompt = (
+        'あなたは元プロボクシング日本スーパーバンタム級35代チャンピオン・芹江匡晋本人です。'
+        '以下のボクシング・格闘技ニュースについて、あなた自身のX（Twitter）投稿文を書いてください。\n\n'
+        '【文体・スタイルのルール】\n'
+        '- 「だ・だよ・なんだ」調で断定的に書く（です・ます調は問いかけ投稿のみ）\n'
+        '- 絵文字は一切使わない\n'
+        '- 短い文を積み重ねるリズム感\n'
+        '- 元チャンプとしての専門家目線・事実として言い切る\n'
+        '- 比喩やアナロジーを使って本質を突く\n'
+        '- 批判ではなく分析・事実の指摘として書く\n'
+        '- 遠回しにしない・本音直球\n'
+        '- 140字以内に収める（Xの文字数制限）\n\n'
+        '【投稿タイプの選択】\n'
+        '- 計量オーバー・不正・問題行為のニュース → 断定型（だ・だよ調）\n'
+        '- 試合結果・選手評価 → 断定型（だ・だよ調）\n'
+        '- 戦術・トレーニング論 → 問いかけ型または断定型\n\n'
+        '投稿文のみを出力してください。説明や前置きは不要です。\n\n'
+        'ニュース：\n' + news
+    )
+    response = client.messages.create(
+        model='claude-haiku-4-5-20251001',
+        max_tokens=300,
+        messages=[{'role': 'user', 'content': prompt}]
+    )
+    return response.content[0].text
+
 def generate_script(news):
     prompt = (
         'あなたはYouTubeチャンネル【芹江案件チャンネル】の台本ライターです。'
@@ -62,6 +89,11 @@ def main():
         return
     send_line_message(result)
     print('LINEニュース送信完了！')
+    print('X投稿文生成中...')
+    x_post = generate_x_post(result)
+    x_message = '\n【X投稿文（確認用）】\n' + '-'*20 + '\n' + x_post + '\n' + '-'*20
+    send_line_message(x_message)
+    print('LINE X投稿文送信完了！')
     print('YouTube台本生成中...')
     script = generate_script(result)
     script_message = '\n📝【YouTube台本】\n' + '='*20 + '\n' + script
