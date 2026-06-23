@@ -69,11 +69,14 @@ def main():
     elif hour < 17: time_label = 'Afternoon'
     else: time_label = 'Evening'
     prompt = (
-        'Today is ' + today + '. Search the web for the latest boxing and martial arts news in Japanese. '
-        'PRIORITY: Weight/weigh-in issues - missed weight, overweight, weight cut failures, dehydration. '
-        'Also include: recent fight results (last 48hrs), Japanese fighters, world title matches. '
-        'IMPORTANT: If there is NO news about weight/weigh-in issues in the last 48 hours, '
-        'reply with exactly: NO_NEWS_TODAY '
+        'Today is ' + today + '. Search the web for the latest news in Japanese about the following topics ONLY:\n'
+        '- 計量オーバー・体重超過・計量失敗\n'
+        '- 減量・水抜き・脱水\n'
+        '- ボクシングのトレーニング方法・練習論\n'
+        '- サウナスーツ・減量グッズ\n'
+        'Do NOT include: fight results, Japanese fighter rankings, world title match results.\n'
+        'IMPORTANT: If there is NO news matching the above topics in the last 48 hours, '
+        'reply with exactly: NO_NEWS_TODAY\n'
         'If there IS news, format in Japanese starting with [boxing news] ' + today + '. Emojis, max 3 lines each, 600 chars total.'
     )
     print('Boxing news agent running (' + time_label + ')...')
