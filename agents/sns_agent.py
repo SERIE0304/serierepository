@@ -1,5 +1,8 @@
 import os, json, anthropic
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
 client = anthropic.Anthropic()
 
