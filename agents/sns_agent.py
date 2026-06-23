@@ -2,6 +2,17 @@ import os, json, anthropic
 from datetime import datetime
 
 client = anthropic.Anthropic()
+
+def post_to_x(text):
+    import tweepy
+    x_client = tweepy.Client(
+        consumer_key=os.environ['X_API_KEY'],
+        consumer_secret=os.environ['X_API_SECRET'],
+        access_token=os.environ['X_ACCESS_TOKEN'],
+        access_token_secret=os.environ['X_ACCESS_TOKEN_SECRET']
+    )
+    response = x_client.create_tweet(text=text)
+    return response.data['id']
 from get_line_token import get_line_token
 LINE_CHANNEL_TOKEN = get_line_token()
 LINE_USER_ID = 'U206a030c1759f1ed8f4c684d03d11915'
@@ -91,7 +102,17 @@ def main():
     print('LINEニュース送信完了！')
     print('X投稿文生成中...')
     x_post = generate_x_post(result)
-    x_message = '\n【X投稿文（確認用）】\n' + '-'*20 + '\n' + x_post + '\n' + '-'*20
+    if os.environ.get('X_API_KEY'):
+        try:
+            tweet_id = post_to_x(x_post)
+            x_message = '\nX自動投稿完了\n' + '-'*20 + '\n' + x_post + '\n' + '-'*20
+            print('X投稿完了！ tweet_id=' + str(tweet_id))
+        except Exception as e:
+            x_message = '\nX投稿失敗(' + str(e) + ')\n【手動投稿用】\n' + '-'*20 + '\n' + x_post + '\n' + '-'*20
+            print('X投稿エラー: ' + str(e))
+    else:
+        x_message = '\n【X投稿文（確認用）】\n' + '-'*20 + '\n' + x_post + '\n' + '-'*20
+        print('X_API_KEY未設定。手動投稿モード。')
     send_line_message(x_message)
     print('LINE X投稿文送信完了！')
     print('YouTube台本生成中...')
