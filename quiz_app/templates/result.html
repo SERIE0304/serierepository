@@ -4,6 +4,57 @@
 <p class="track-label">{{ track }}</p>
 <p class="score">{{ score }} / {{ total }} 点 ({{ percentage }}%)</p>
 
+{% if ranking %}
+<div class="card" style="margin-top:1.5rem; margin-bottom:1.5rem;">
+  <h2 style="margin-top:0; font-size:1.1rem; color:#2c3e50;">🏆 {{ track }} 参加者ランキング</h2>
+  {% if my_rank %}
+  <p style="font-size:1rem; margin-bottom:1rem;">
+    あなたの総合順位：<strong style="font-size:1.3rem; color:{% if my_rank.rank == 1 %}#f39c12{% elif my_rank.rank <= 3 %}#e67e22{% else %}#2980b9{% endif %};">
+      {{ my_rank.rank }}位
+    </strong> / {{ ranking | length }}人中
+    （正答率 {{ my_rank.rate }}%・{{ my_rank.correct }}/{{ my_rank.total }}問正解）
+  </p>
+  {% endif %}
+  <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+    <thead>
+      <tr style="background:#ecf0f1; text-align:left;">
+        <th style="padding:6px 8px;">順位</th>
+        <th style="padding:6px 8px;">名前</th>
+        <th style="padding:6px 8px;">正答率</th>
+        <th style="padding:6px 8px;">正解数</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in ranking[:10] %}
+      <tr style="{% if entry.staff_name == staff_name %}background:#fef9e7; font-weight:bold;{% elif loop.index is odd %}background:#fafafa;{% endif %}border-bottom:1px solid #e0e0e0;">
+        <td style="padding:6px 8px; text-align:center;">
+          {% if entry.rank == 1 %}🥇
+          {% elif entry.rank == 2 %}🥈
+          {% elif entry.rank == 3 %}🥉
+          {% else %}{{ entry.rank }}
+          {% endif %}
+        </td>
+        <td style="padding:6px 8px;">{{ entry.staff_name }}{% if entry.staff_name == staff_name %} 👈{% endif %}</td>
+        <td style="padding:6px 8px;">{{ entry.rate }}%</td>
+        <td style="padding:6px 8px;">{{ entry.correct }}/{{ entry.total }}</td>
+      </tr>
+      {% endfor %}
+      {% if my_rank and my_rank.rank > 10 %}
+      <tr style="background:#fef9e7; font-weight:bold; border-top:2px solid #bdc3c7;">
+        <td style="padding:6px 8px; text-align:center;">{{ my_rank.rank }}</td>
+        <td style="padding:6px 8px;">{{ staff_name }} 👈</td>
+        <td style="padding:6px 8px;">{{ my_rank.rate }}%</td>
+        <td style="padding:6px 8px;">{{ my_rank.correct }}/{{ my_rank.total }}</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  {% if ranking | length > 10 %}
+  <p style="font-size:0.8rem; color:#999; margin-top:0.5rem; margin-bottom:0;">※ 上位10名を表示（全{{ ranking | length }}名参加）</p>
+  {% endif %}
+</div>
+{% endif %}
+
 {% set wrong = results | selectattr('correct', 'equalto', false) | list %}
 {% set correct_list = results | selectattr('correct', 'equalto', true) | list %}
 

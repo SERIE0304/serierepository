@@ -174,10 +174,25 @@ def quiz_result():
             "choices": choices,
         })
 
+    # ランキングを取得（失敗してもクイズ結果表示には影響させない）
+    ranking = []
+    my_rank = None
+    staff_name = quiz["staff_name"]
+    track = quiz["track"]
+    try:
+        ranking = sheets.get_track_ranking(track)
+        for entry in ranking:
+            if entry["staff_name"] == staff_name:
+                my_rank = entry
+                break
+    except Exception:
+        pass
+
     session.pop("quiz", None)
     return render_template(
         "result.html", score=score, total=total, percentage=percentage,
-        results=results, staff_name=quiz["staff_name"], track=quiz["track"],
+        results=results, staff_name=staff_name, track=track,
+        ranking=ranking, my_rank=my_rank,
     )
 
 
