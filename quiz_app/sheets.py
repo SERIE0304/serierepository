@@ -154,6 +154,38 @@ def all_responses():
     return responses_sheet().get_all_records()
 
 
+def get_track_ranking(track):
+    """指定トラックの全参加者を正答率順にランキングして返す"""
+    responses = all_responses()
+    stats = {}
+    for r in responses:
+        if r.get("track") != track:
+            continue
+        name = str(r.get("staff_name", "")).strip()
+        if not name:
+            continue
+        if name not in stats:
+            stats[name] = {"correct": 0, "total": 0}
+        stats[name]["total"] += 1
+        if str(r.get("correct", "")).strip().lower() in ("true", "1"):
+            stats[name]["correct"] += 1
+    ranking = sorted(
+        [
+            {
+                "staff_name": name,
+                "correct": s["correct"],
+                "total": s["total"],
+                "rate": round(100 * s["correct"] / s["total"]) if s["total"] else 0,
+            }
+            for name, s in stats.items()
+        ],
+        key=lambda x: (-x["rate"], -x["total"]),
+    )
+    for i, entry in enumerate(ranking):
+        entry["rank"] = i + 1
+    return ranking
+
+
 def inquiries_sheet():
     return _get_or_create_sheet("Inquiries", INQUIRIES_HEADER)
 
