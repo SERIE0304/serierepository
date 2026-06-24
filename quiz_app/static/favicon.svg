@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="20" fill="#fff5f0"/>
+  <path d="M30,10 Q20,15 19,36 Q18,57 21,82 Q26,94 50,95 Q74,94 79,82 Q82,57 81,36 Q80,15 70,10 Q60,7 50,7 Q40,7 30,10 Z" fill="none" stroke="#333" stroke-width="2"/>
+  <ellipse cx="39" cy="37" rx="11" ry="16" fill="#ffb3c6" stroke="#c0607a" stroke-width="1.5"/>
+  <ellipse cx="61" cy="37" rx="11" ry="16" fill="#ffb3c6" stroke="#c0607a" stroke-width="1.5"/>
+  <path d="M50,33 C48,30 42,30 42,35 C42,39 50,44 50,44 C50,44 58,39 58,35 C58,30 52,30 50,33 Z" fill="#ff6b8a" stroke="#c0304a" stroke-width="1.5"/>
+  <ellipse cx="46" cy="55" rx="11" ry="8" fill="#ff9eb5" stroke="#c0607a" stroke-width="1.5"/>
+  <ellipse cx="60" cy="53" rx="10" ry="7" fill="#f0c040" stroke="#b08000" stroke-width="1.5"/>
+  <path d="M37,65 Q31,68 34,73 Q37,78 43,77 Q47,74 46,70 Q45,65 50,64 Q55,63 56,68 Q57,74 52,76 Q47,78 48,83" fill="none" stroke="#7ec8e3" stroke-width="3" stroke-linecap="round"/>
+  <path d="M28,78 Q26,83 31,87 Q42,92 50,92 Q58,92 69,87 Q74,83 72,78 Q68,72 62,74 Q59,75 58,78 Q56,83 50,84 Q44,83 42,78 Q40,75 37,74 Q31,72 28,78 Z" fill="#ffb347" stroke="#c07820" stroke-width="1.5"/>
+</svg>

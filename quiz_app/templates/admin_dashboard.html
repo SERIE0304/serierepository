@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>管理者ダッシュボード</h1>
+<p><a href="{{ url_for('admin_questions') }}">問題を管理する</a> | <a href="{{ url_for('admin_logout') }}">ログアウト</a></p>
+
+<!-- アクセス数 -->
+<div class="card" style="margin-bottom:1.5rem; border-left:4px solid #2980b9;">
+  <h2 style="margin-top:0; color:#2980b9;">📊 アクセス数</h2>
+  <div style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+    <div style="text-align:center; background:#eaf4fb; border-radius:8px; padding:1rem 1.5rem;">
+      <p style="font-size:2rem; font-weight:bold; margin:0; color:#2980b9;">{{ pv_total }}</p>
+      <p style="margin:0; color:#555; font-size:0.85rem;">総アクセス数</p>
+    </div>
+    {% for page, cnt in pv_by_page.most_common() %}
+    <div style="text-align:center; background:#f4f4f4; border-radius:8px; padding:1rem 1.2rem;">
+      <p style="font-size:1.5rem; font-weight:bold; margin:0; color:#333;">{{ cnt }}</p>
+      <p style="margin:0; color:#555; font-size:0.82rem;">{{ page }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  <h3 style="margin:0.5rem 0 0.3rem;">直近7日間のアクセス推移</h3>
+  <div style="display:flex; align-items:flex-end; gap:4px; height:80px;">
+    {% set max_day = pv_daily.values() | max if pv_daily.values() | max > 0 else 1 %}
+    {% for day, cnt in pv_daily.items() %}
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <span style="font-size:0.7rem; color:#888;">{{ cnt }}</span>
+      <div style="width:100%; background:#2980b9; border-radius:3px 3px 0 0; height:{{ (cnt / max_day * 60) | int }}px; min-height:{{ 2 if cnt > 0 else 0 }}px;"></div>
+      <span style="font-size:0.65rem; color:#888;">{{ day[5:] }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% for track in tracks %}
+  <h2 class="track-heading">{{ track }}</h2>
+
+  <h3>スタッフ別ランキング</h3>
+  <table class="data-table">
+    <thead><tr><th>順位</th><th>名前</th><th>正解数</th><th>回答数</th><th>正答率</th></tr></thead>
+    <tbody>
+      {% for r in ranking_by_track[track] %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ r.staff_name }}</td>
+          <td>{{ r.correct }}</td>
+          <td>{{ r.total }}</td>
+          <td>{{ r.rate }}%</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5">まだ回答がありません</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3>カテゴリ別正答率</h3>
+  <table class="data-table">
+    <thead><tr><th>カテゴリ</th><th>正解数</th><th>回答数</th><th>正答率</th></tr></thead>
+    <tbody>
+      {% for c in category_stats_by_track[track] %}
+        <tr>
+          <td>{{ c.category }}</td>
+          <td>{{ c.correct }}</td>
+          <td>{{ c.total }}</td>
+          <td>{{ c.rate }}%</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4">データがありません</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endfor %}
+{% endblock %}
