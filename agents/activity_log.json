@@ -11,6 +11,12 @@
       "user": "不明（確認中）",
       "action": "セッション開始",
       "detail": "Claude Code起動 2026/06/25 02:23"
+    },
+    {
+      "timestamp": "2026/06/25 02:58:01",
+      "user": "不明（確認中）",
+      "action": "セッション開始",
+      "detail": "Claude Code起動"
     }
   ]
 }
