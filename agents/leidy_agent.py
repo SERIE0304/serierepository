@@ -111,13 +111,15 @@ def leidy_webhook():
 
         role, detected_name, body = detect_role(text)
 
-        role_label = {'president': '👑 社長モード', 'employee': '👤 社員モード', 'default': '💬 通常モード'}[role]
+        role_label = {'president': '👑 社長モード', 'employee': '👤 社員モード', 'default': '❓ 確認中'}[role]
         print(f"[Leidy] ロール: {role_label} | 名前: {detected_name or '検出なし'} | 本文: {body[:30]}...")
 
-        reply = ask_leidy(role, detected_name, body)
+        if role == 'default':
+            reply_line(reply_token, 'こんにちは、Leidyです。\nどなたが使用していますか？\n\n例：「芹江 〇〇について教えて」のようにメッセージの冒頭にお名前を入れていただくと、より適切にサポートできます。')
+            return jsonify({'status': 'ok'})
 
-        # ロールインジケータを先頭に付与
-        prefix = f"[{role_label}]\n" if role != 'default' else ''
+        reply = ask_leidy(role, detected_name, body)
+        prefix = f"[{role_label}]\n"
         reply_line(reply_token, prefix + reply)
 
     return jsonify({'status': 'ok'})
