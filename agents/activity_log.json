@@ -41,6 +41,30 @@
       "user": "不明（確認中）",
       "action": "セッション開始",
       "detail": "Claude Code起動"
+    },
+    {
+      "timestamp": "2026/06/25 04:25:02",
+      "user": "不明（確認中）",
+      "action": "セッション開始",
+      "detail": "Claude Code起動 2026/06/25 04:25"
+    },
+    {
+      "timestamp": "2026/06/25 04:25:02",
+      "user": "不明（確認中）",
+      "action": "セッション開始",
+      "detail": "Claude Code起動"
+    },
+    {
+      "timestamp": "2026/06/25 06:15:07",
+      "user": "不明（確認中）",
+      "action": "セッション開始",
+      "detail": "Claude Code起動 2026/06/25 06:15"
+    },
+    {
+      "timestamp": "2026/06/25 06:15:07",
+      "user": "不明（確認中）",
+      "action": "セッション開始",
+      "detail": "Claude Code起動"
     }
   ]
 }
