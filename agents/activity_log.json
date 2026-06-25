@@ -1,0 +1,16 @@
+{
+  "activities": [
+    {
+      "timestamp": "2026/06/25 02:16:16",
+      "user": "不明（確認中）",
+      "action": "セッション開始",
+      "detail": "Claude Code起動 2026/06/25 02:16"
+    },
+    {
+      "timestamp": "2026/06/25 02:23:46",
+      "user": "不明（確認中）",
+      "action": "セッション開始",
+      "detail": "Claude Code起動 2026/06/25 02:23"
+    }
+  ]
+}
