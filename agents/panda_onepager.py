@@ -342,7 +342,7 @@ body {{
   <div class="contact">
     TEL：＿＿＿＿＿＿＿＿＿＿<br>
     MAIL：＿＿＿＿＿＿＿＿＿＿<br>
-    担当：小筆
+    担当：芹江匡晋
   </div>
 </div>
 
