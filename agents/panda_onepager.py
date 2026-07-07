@@ -134,20 +134,38 @@ body {
 .tag-blue   { background: #e3f2fd; border: 1px solid #90caf9; color: #0d47a1; }
 
 /* ── 出店条件 ── */
-.spec-table { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 10px; }
-.spec-table th {
+.spec-wrap {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    font-size: 0;
+}
+.spec-item {
+    display: inline-block;
+    width: 33%;
+    padding: 2px 3px;
+    font-size: 7.5pt;
+    vertical-align: top;
+}
+.spec-inner {
+    border: 1px solid #c8e6c9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.spec-label {
     background: #2d5a1b;
     color: #fff;
-    padding: 4px 8px;
-    text-align: left;
+    padding: 2px 7px;
     font-weight: bold;
-    width: 28%;
+    font-size: 7pt;
+    letter-spacing: 0.3px;
 }
-.spec-table td {
-    background: #f3e5f5;
-    border: 1px solid #ce93d8;
-    padding: 4px 8px;
+.spec-val {
+    background: #f9fbe7;
     color: #1a1a1a;
+    padding: 3px 7px;
+    line-height: 1.4;
 }
 
 /* ── フッター ── */
@@ -243,18 +261,32 @@ body {
 
   <!-- 出店条件 -->
   <div class="sec-title">🚐 出店条件（キッチンカー）</div>
-  <table class="spec-table"><tbody>
-    <tr>
-      <th>スペース</th><td>約3m × 6m（キッチンカー1台分）</td>
-      <th>電源</th><td>100V・15A以上（延長コード持参可）</td>
-      <th>水道</th><td>タンク持参で対応可</td>
-    </tr>
-    <tr>
-      <th>費用形態</th><td>売上歩合制 または 固定出店料（要相談）</td>
-      <th>営業時間</th><td>10:00〜17:00（応相談）</td>
-      <th>許認可</th><td>食品営業許可取得済み</td>
-    </tr>
-  </tbody></table>
+  <div class="spec-wrap">
+    <div class="spec-item"><div class="spec-inner">
+      <div class="spec-label">スペース</div>
+      <div class="spec-val">約3m × 6m（1台分）</div>
+    </div></div>
+    <div class="spec-item"><div class="spec-inner">
+      <div class="spec-label">電源</div>
+      <div class="spec-val">100V・15A以上<br>延長コード持参可</div>
+    </div></div>
+    <div class="spec-item"><div class="spec-inner">
+      <div class="spec-label">水道</div>
+      <div class="spec-val">タンク持参で対応可</div>
+    </div></div>
+    <div class="spec-item"><div class="spec-inner">
+      <div class="spec-label">費用形態</div>
+      <div class="spec-val">売上歩合制 or<br>固定出店料（要相談）</div>
+    </div></div>
+    <div class="spec-item"><div class="spec-inner">
+      <div class="spec-label">営業時間</div>
+      <div class="spec-val">10:00〜17:00<br>（応相談）</div>
+    </div></div>
+    <div class="spec-item"><div class="spec-inner">
+      <div class="spec-label">許認可</div>
+      <div class="spec-val">食品営業許可<br>取得済み</div>
+    </div></div>
+  </div>
 
 </div>
 
