@@ -201,8 +201,8 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
       所在地：栃木県大田原市山の手1丁目7-7
     </td>
     <td class="ct">
-      TEL：＿＿＿＿＿＿＿＿＿＿<br>
-      MAIL：＿＿＿＿＿＿＿＿＿＿<br>
+      TEL：0287-33-9217<br>
+      MAIL：masaaki.serie@serieconcerto.co.jp<br>
       担当：芹江匡晋
     </td>
   </tr></tbody></table>
