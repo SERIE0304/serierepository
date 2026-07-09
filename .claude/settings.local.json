@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp \"/root/.claude/uploads/c98dde5e-72e7-5fae-b4e2-60d8ac2f5404/c1abd725-8A20396769FF476E8653578E338970F5.jpeg\" /home/user/serierepository/task-app/logo.jpeg)"
+    ]
+  }
+}
