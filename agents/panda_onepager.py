@@ -198,8 +198,7 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
   <table><tbody><tr>
     <td class="co">
       <strong>株式会社 芹江コンチェルト</strong><br>
-      所在地：栃木県那須塩原市（JR黒磯駅近く）<br>
-      事業：旅館業 Lodgers Bldg SERIE ／ Honey LaRva フィットネスボクシングジム（大田原市・那須塩原市）
+      所在地：栃木県大田原市山の手1丁目7-7
     </td>
     <td class="ct">
       TEL：＿＿＿＿＿＿＿＿＿＿<br>
