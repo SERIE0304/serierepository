@@ -148,7 +148,7 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
     <div style="margin-top:10px;">
       <div class="sec">📍 出店実績</div>
       <div class="tag-area">
-        <span class="tag tg">大田原東武百貨店</span><span class="tag tg">宇都宮東武百貨店</span>
+        <span class="tag tg">宇都宮東武百貨店</span>
         <span class="tag tg">東京ソラマチ</span><span class="tag tg">渋谷キャストガーデン</span>
         <span class="tag tg">東京江東区民祭り</span><span class="tag tg">高輪ゲートウェイ</span>
       </div>
@@ -159,6 +159,9 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
         <span class="tag tb">トコトコ大田原</span>
         <span class="tag tb">道の駅・那須の与一の郷</span>
         <span class="tag tb">道の駅・明治の森黒磯</span>
+        <span class="tag tb">大田原東武百貨店</span>
+        <span class="tag tb">千本松牧場</span>
+        <span class="tag tb">栃木県内各マルシェ</span>
       </div>
     </div>
   </td>
