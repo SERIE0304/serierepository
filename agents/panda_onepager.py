@@ -28,72 +28,74 @@ HTML_CONTENT = """<!DOCTYPE html>
 }
 @page { size: A4; margin: 0; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'JP', sans-serif; font-size: 9pt; color: #1a1a1a; width: 210mm; }
+body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 210mm; }
 
-/* ───── HEADER ───── */
+/* ── ヘッダー ── */
 .hdr { background: #2d5a1b; width: 100%; }
 .hdr table { width: 100%; border-collapse: collapse; }
 .hdr td { border: none; background: none; padding: 0; vertical-align: middle; }
-.hdr-logo { padding: 10px 10px 10px 18px; width: 68px; }
-.hdr-logo img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; border: 2px solid #a5d6a7; background: #fff; }
-.hdr-text { padding: 10px 10px 10px 6px; }
-.hdr-text h1 { font-size: 20pt; color: #fff; letter-spacing: 1px; line-height: 1.15; }
-.hdr-text .sub { font-size: 8pt; color: #a5d6a7; margin-top: 3px; letter-spacing: 0.4px; }
-.hdr-badge { padding: 10px 18px 10px 0; text-align: right; width: 130px; }
-.hdr-badge .badge { background: #4a8f2a; border-radius: 4px; padding: 5px 10px; display: inline-block; }
-.hdr-badge .badge-num { font-size: 7pt; color: #c8e6c9; }
-.hdr-badge .badge-name { font-size: 9pt; color: #fff; font-weight: bold; }
+.hdr-logo { padding: 13px 10px 13px 20px; width: 74px; }
+.hdr-logo img { width: 62px; height: 62px; border-radius: 50%; object-fit: cover; border: 2px solid #a5d6a7; background: #fff; }
+.hdr-text { padding: 13px 10px 13px 8px; }
+.hdr-text h1 { font-size: 22pt; color: #fff; letter-spacing: 1px; line-height: 1.15; }
+.hdr-text .sub { font-size: 9.5pt; color: #a5d6a7; margin-top: 4px; letter-spacing: 0.5px; }
+.hdr-badge { padding: 13px 20px 13px 0; text-align: right; width: 138px; }
+.hdr-badge .badge { background: #4a8f2a; border-radius: 5px; padding: 7px 12px; display: inline-block; }
+.hdr-badge .badge-num { font-size: 8pt; color: #c8e6c9; }
+.hdr-badge .badge-name { font-size: 10pt; color: #fff; font-weight: bold; }
 
-/* ───── BRAND STORY ───── */
-.story { background: #f0f7e6; border-left: 5px solid #4a8f2a; padding: 8px 16px; font-size: 8.5pt; line-height: 1.8; color: #2e3b1e; }
+/* ── ブランドストーリー ── */
+.story { background: #f0f7e6; border-left: 6px solid #4a8f2a; padding: 11px 18px; font-size: 10pt; line-height: 1.85; color: #2e3b1e; }
 .story strong { color: #2d5a1b; }
 
-/* ───── SECTION TITLE ───── */
-.sec { font-size: 8.5pt; font-weight: bold; color: #fff; background: #2d5a1b; padding: 3px 10px; margin-bottom: 5px; letter-spacing: 0.5px; }
+/* ── セクションタイトル ── */
+.sec { font-size: 10pt; font-weight: bold; color: #fff; background: #2d5a1b; padding: 4px 12px; margin-bottom: 6px; letter-spacing: 0.5px; }
 
-/* ───── CONTENT: 2 COLUMNS ───── */
+/* ── 2カラム ── */
 .cols { width: 100%; border-collapse: collapse; }
 .cols > tbody > tr > td { vertical-align: top; border: none; background: none; padding: 0; width: 50%; }
-.cols > tbody > tr > td:first-child { padding: 10px 6px 8px 16px; }
-.cols > tbody > tr > td:last-child  { padding: 10px 16px 8px 6px; }
+.cols > tbody > tr > td:first-child { padding: 11px 7px 8px 18px; }
+.cols > tbody > tr > td:last-child  { padding: 11px 18px 8px 7px; }
 
-/* ── Feature rows ── */
-.feat { background: #f1f8e9; border: 1px solid #c8e6c9; margin-bottom: 5px; padding: 6px 9px; font-size: 8.5pt; line-height: 1.5; }
-.feat strong { color: #2d5a1b; display: block; font-size: 8pt; margin-bottom: 1px; }
+/* ── 商品写真（左カラム） ── */
+.feat-photo { margin-bottom: 7px; }
+.feat-photo img { width: 100%; height: 148px; object-fit: cover; object-position: center 15%; border-radius: 5px; border: 1px solid #c8e6c9; display: block; }
 
-/* ── Ingredient cards ── */
-.ing { background: #fff8e1; border: 1px solid #ffe082; padding: 5px 9px; margin-bottom: 5px; }
-.ing-label { font-size: 7pt; color: #e65100; font-weight: bold; }
-.ing-name { font-size: 9pt; font-weight: bold; color: #1a1a1a; }
-.ing-note { font-size: 7.5pt; color: #666; line-height: 1.35; }
+/* ── 商品特徴 ── */
+.feat { background: #f1f8e9; border: 1px solid #c8e6c9; margin-bottom: 5px; padding: 7px 10px; font-size: 10pt; line-height: 1.5; }
+.feat strong { color: #2d5a1b; display: block; font-size: 9.5pt; font-weight: bold; margin-bottom: 2px; }
 
-/* ── Tags ── */
-.tag-area { margin-bottom: 6px; line-height: 1.9; }
-.tag { display: inline-block; border-radius: 20px; padding: 1px 8px; font-size: 7.5pt; margin: 1px 2px 1px 0; }
+/* ── 素材カード ── */
+.ing { background: #fff8e1; border: 1px solid #ffe082; padding: 7px 10px; margin-bottom: 6px; }
+.ing-label { font-size: 8pt; color: #e65100; font-weight: bold; }
+.ing-name { font-size: 11pt; font-weight: bold; color: #1a1a1a; margin: 1px 0; }
+.ing-note { font-size: 9pt; color: #555; line-height: 1.4; }
+
+/* ── タグ ── */
+.tag-area { margin-bottom: 7px; line-height: 2.0; }
+.tag { display: inline-block; border-radius: 20px; padding: 2px 9px; font-size: 8.5pt; margin: 2px 2px 2px 0; }
 .tg { background: #e8f5e9; border: 1px solid #a5d6a7; color: #1b5e20; }
 .tb { background: #e3f2fd; border: 1px solid #90caf9; color: #0d47a1; }
 
-/* ───── SPEC SECTION ───── */
-.spec-area { padding: 0 16px 8px; }
+/* ── 出店条件 ── */
+.spec-area { padding: 0 18px 10px; }
 .spec-tbl { width: 100%; border-collapse: collapse; }
 .spec-tbl td { border: none; background: none; padding: 0; vertical-align: middle; }
-.spec-car-td { width: 128px; padding-left: 10px; }
-.spec-car-td img { width: 123px; height: 82px; object-fit: cover; object-position: center; border-radius: 5px; border: 1px solid #c8e6c9; display: block; }
-.spec-cone-td { width: 90px; padding-left: 10px; }
-.spec-cone-td img { width: 85px; height: 82px; object-fit: cover; object-position: center 10%; border-radius: 5px; border: 1px solid #c8e6c9; display: block; }
+.spec-car-td { width: 140px; padding-left: 12px; }
+.spec-car-td img { width: 135px; height: 92px; object-fit: cover; object-position: center; border-radius: 5px; border: 1px solid #c8e6c9; display: block; }
 .spec-wrap { display: table; width: 100%; font-size: 0; }
-.spec-item { display: inline-block; width: 33.3%; padding: 2px; font-size: 7.5pt; vertical-align: top; }
+.spec-item { display: inline-block; width: 33.3%; padding: 2px 3px; font-size: 8.5pt; vertical-align: top; }
 .spec-inner { border: 1px solid #c8e6c9; border-radius: 4px; overflow: hidden; }
-.spec-lbl { background: #2d5a1b; color: #fff; padding: 2px 7px; font-size: 7pt; font-weight: bold; }
-.spec-val { background: #f9fbe7; padding: 3px 7px; line-height: 1.4; }
+.spec-lbl { background: #2d5a1b; color: #fff; padding: 3px 8px; font-size: 8pt; font-weight: bold; }
+.spec-val { background: #f9fbe7; padding: 4px 8px; line-height: 1.5; }
 
-/* ───── FOOTER ───── */
-.ftr { background: #2d5a1b; padding: 9px 18px; width: 100%; }
+/* ── フッター ── */
+.ftr { background: #2d5a1b; padding: 11px 20px; width: 100%; }
 .ftr table { width: 100%; border-collapse: collapse; }
 .ftr td { border: none; background: none; padding: 0; vertical-align: middle; }
-.ftr .co { color: #c8e6c9; font-size: 7.5pt; line-height: 1.6; }
-.ftr .co strong { color: #fff; font-size: 8.5pt; }
-.ftr .ct { text-align: right; color: #c8e6c9; font-size: 7.5pt; line-height: 1.7; }
+.ftr .co { color: #c8e6c9; font-size: 8.5pt; line-height: 1.65; }
+.ftr .co strong { color: #fff; font-size: 10pt; }
+.ftr .ct { text-align: right; color: #c8e6c9; font-size: 8.5pt; line-height: 1.75; }
 </style>
 </head>
 <body>
@@ -129,9 +131,10 @@ body { font-family: 'JP', sans-serif; font-size: 9pt; color: #1a1a1a; width: 210
   <!-- 左：商品の特徴 -->
   <td>
     <div class="sec">🎯 商品の特徴</div>
+    <div class="feat-photo"><img src="{IMG2}" alt="パンダカステラ コーン＆袋"></div>
     <div class="feat"><strong>🐼 パンダ型</strong>見た目のかわいさでSNS映え抜群。子どもから大人まで思わず写真を撮りたくなる形。</div>
-    <div class="feat"><strong>✨ モチっとカリっとする独特の食感</strong>100%米粉だからこそ生まれる、外はサクッ・中はもっちりの食感。焼きたてだから味わえる格別の一口。</div>
-    <div class="feat"><strong>🌾 栃木産米粉 100%使用</strong>小麦粉不使用。グルテンフリー対応で幅広い方に食べていただけます。</div>
+    <div class="feat"><strong>✨ モチっとカリっとする独特の食感</strong>100%米粉だからこそ生まれる、外はサクッ・中はもっちりの食感。</div>
+    <div class="feat"><strong>🌾 栃木産米粉 100%使用</strong>小麦粉不使用。グルテンフリー対応で幅広い方にお召し上がりいただけます。</div>
     <div class="feat"><strong>🔥 賞味期限：当日限り</strong>保存料・添加物なし。「ここでしか食べられない」が最大の価値です。</div>
   </td>
 
@@ -151,9 +154,9 @@ body { font-family: 'JP', sans-serif; font-size: 9pt; color: #1a1a1a; width: 210
     <div class="ing">
       <div class="ing-label">🌾 米粉</div>
       <div class="ing-name">栃木産米粉（100%）</div>
-      <div class="ing-note">地元栃木のお米のみ。小麦粉不使用。</div>
+      <div class="ing-note">地元栃木のお米のみ使用。小麦粉不使用。</div>
     </div>
-    <div style="margin-top:7px;">
+    <div style="margin-top:9px;">
       <div class="sec">📍 出店実績</div>
       <div class="tag-area">
         <span class="tag tg">大田原東武百貨店</span><span class="tag tg">宇都宮東武百貨店</span>
@@ -199,7 +202,6 @@ body { font-family: 'JP', sans-serif; font-size: 9pt; color: #1a1a1a; width: 210
         </div></div>
       </div>
     </td>
-    <td class="spec-cone-td"><img src="{IMG2}" alt="商品コーン"></td>
     <td class="spec-car-td"><img src="{IMG0}" alt="キッチンカー外観"></td>
   </tr></tbody></table>
 </div>
