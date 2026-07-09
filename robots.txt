@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://serie0304.github.io/serierepository/sitemap.xml
