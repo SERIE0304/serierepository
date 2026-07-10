@@ -78,7 +78,7 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
 .feat-photos td { border: none; background: none; padding: 0; width: 50%; }
 .feat-photos td:first-child { padding-right: 4px; }
 .feat-photos td:last-child  { padding-left: 4px; }
-.feat-photos img { width: 100%; height: 90px; object-fit: cover; border-radius: 5px; border: 1px solid #c8e6c9; display: block; }
+.feat-photos img { width: 100%; height: auto; object-fit: contain; border-radius: 5px; border: 1px solid #c8e6c9; display: block; background: #f9f9f9; }
 
 /* ── 出店条件 ── */
 .spec-area { padding: 0 20px 12px; }
