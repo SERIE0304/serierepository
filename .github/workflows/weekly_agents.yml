@@ -16,7 +16,7 @@ jobs:
   monday-weekly:
     name: 毎週月曜エージェント
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 23 * * 0'
+    if: github.event.schedule == '0 23 * * 0' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -48,7 +48,7 @@ jobs:
   monday-biweekly-fudosan:
     name: 隔週月曜・不動産調査
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 0 * * 1'
+    if: github.event.schedule == '0 0 * * 1' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -71,7 +71,7 @@ jobs:
   monday-monthly:
     name: 月1回・補助金＆FC化調査
     runs-on: ubuntu-latest
-    if: github.event.schedule == '30 0 * * 1'
+    if: github.event.schedule == '30 0 * * 1' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -95,7 +95,7 @@ jobs:
   friday-review:
     name: 毎週金曜・タスク振り返り
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 9 * * 5'
+    if: github.event.schedule == '0 9 * * 5' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
