@@ -67,6 +67,7 @@ def main():
 
     print(report)
     save_report('pricing', report)
+    send_line_message(report)
 
     task = client.messages.create(model='claude-haiku-4-5-20251001', max_tokens=100,
         messages=[{'role': 'user', 'content': '以下から今週やるべきアクションを1行で抽出：' + report}]).content[0].text.strip()
