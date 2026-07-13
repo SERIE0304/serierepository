@@ -200,6 +200,34 @@ section { padding: 80px 5vw; }
   font-size: 0.82rem; font-weight: 500;
 }
 
+/* ── FRANCHISE ── */
+.franchise-bg { background: var(--black); color: var(--white); }
+.franchise-bg .section-label { color: var(--gold); }
+.franchise-bg .section-title { color: var(--white); }
+.franchise-bg .divider { background: var(--gold); }
+.franchise-bg .section-desc { color: #ccc; max-width: 680px; }
+.franchise-points {
+  display: flex; flex-wrap: wrap; gap: 12px; margin: 32px 0 36px;
+}
+.franchise-points .badge-pill {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(212,160,23,0.4);
+  color: #f0dba0;
+}
+.franchise-note {
+  background: rgba(255,255,255,0.06);
+  border-left: 3px solid var(--gold);
+  border-radius: 4px;
+  padding: 16px 20px;
+  font-size: 0.85rem;
+  color: #ccc;
+  line-height: 1.9;
+  max-width: 680px;
+  margin-bottom: 32px;
+}
+.franchise-bg .btn-primary { background: var(--gold); }
+.franchise-bg .btn-primary:hover { background: #e0b52e; }
+
 /* ── FEATURES ── */
 .features-grid {
   display: grid;
@@ -400,6 +428,7 @@ footer {
     <li><a href="#product">商品</a></li>
     <li><a href="#record">実績</a></li>
     <li><a href="#venue">出店条件</a></li>
+    <li><a href="#franchise">FC募集</a></li>
     <li><a href="#contact">お問い合わせ</a></li>
   </ul>
 </nav>
@@ -644,6 +673,24 @@ footer {
       <div class="spec-card-val">菓子製造業許可<br>食品営業許可<br>取得済み</div>
     </div>
   </div>
+</section>
+
+<!-- FRANCHISE -->
+<section class="franchise-bg" id="franchise">
+  <p class="section-label">Franchise</p>
+  <h2 class="section-title">フランチャイズ加盟店 募集</h2>
+  <div class="divider"></div>
+  <p class="section-desc">大田原ブランド認定第25号取得の「なんだパンダベビーカステラ」を、あなたの地域でも。キッチンカーで一緒に展開してくださる加盟店様を募集しています。</p>
+  <div class="franchise-points">
+    <span class="badge-pill">🐼 レシピ・製法の伝授</span>
+    <span class="badge-pill">🏷️ ブランド・ロゴ使用</span>
+    <span class="badge-pill">🚚 出店ノウハウ・仕入れサポート</span>
+    <span class="badge-pill">🏆 実績あるブランドで開業</span>
+  </div>
+  <div class="franchise-note">
+    加盟金・ロイヤリティ・募集エリアなどの詳細条件は現在準備中です。条件が決まり次第、このページでご案内します。先行してご興味をお持ちの方は、下記よりお気軽にお問い合わせください。
+  </div>
+  <a href="#contact" class="btn-primary">フランチャイズについて問い合わせる</a>
 </section>
 
 <!-- FOOTER / CONTACT -->
