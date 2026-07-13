@@ -1,7 +1,8 @@
 import os, json, anthropic
 from datetime import datetime
 
-client = anthropic.Anthropic()
+from get_api_key import get_api_key
+client = anthropic.Anthropic(api_key=get_api_key())
 from get_line_token import get_line_token
 LINE_CHANNEL_TOKEN = get_line_token()
 LINE_USER_ID = 'U206a030c1759f1ed8f4c684d03d11915'

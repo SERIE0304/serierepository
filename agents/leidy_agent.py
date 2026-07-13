@@ -1,9 +1,10 @@
 import os, json, re, anthropic
 from flask import Flask, request, jsonify
 from get_line_token import get_line_token
+from get_api_key import get_api_key
 
 app = Flask(__name__)
-client = anthropic.Anthropic()
+client = anthropic.Anthropic(api_key=get_api_key())
 
 # 社長（芹江）として認識するキーワード
 PRESIDENT_NAMES = ['芹江', '社長', 'serie', 'masaaki']

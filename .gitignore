@@ -3,3 +3,4 @@ token.json
 *.env
 *.pyc
 __pycache__/
+anthropic_key.txt
