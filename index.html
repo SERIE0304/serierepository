@@ -227,6 +227,23 @@ section { padding: 80px 5vw; }
 }
 .franchise-bg .btn-primary { background: var(--gold); }
 .franchise-bg .btn-primary:hover { background: #e0b52e; }
+.franchise-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  margin-top: 12px;
+}
+.franchise-photo {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.franchise-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 800px) {
+  .franchise-grid { grid-template-columns: 1fr; }
+  .franchise-photo { order: -1; }
+}
 
 /* ── FEATURES ── */
 .features-grid {
@@ -680,17 +697,24 @@ footer {
   <p class="section-label">Franchise</p>
   <h2 class="section-title">フランチャイズ加盟店 募集</h2>
   <div class="divider"></div>
-  <p class="section-desc">大田原ブランド認定第25号取得の「なんだパンダベビーカステラ」を、あなたの地域でも。キッチンカーで一緒に展開してくださる加盟店様を募集しています。</p>
-  <div class="franchise-points">
-    <span class="badge-pill">🐼 レシピ・製法の伝授</span>
-    <span class="badge-pill">🏷️ ブランド・ロゴ使用</span>
-    <span class="badge-pill">🚚 出店ノウハウ・仕入れサポート</span>
-    <span class="badge-pill">🏆 実績あるブランドで開業</span>
+  <div class="franchise-grid">
+    <div class="franchise-photo">
+      <img src="images/kitchen-car.jpg" alt="なんだパンダ キッチンカー">
+    </div>
+    <div>
+      <p class="section-desc">大田原ブランド認定第25号取得の「なんだパンダベビーカステラ」を、あなたの地域でも。このキッチンカー1台から、一緒に展開してくださる加盟店様を募集しています。</p>
+      <div class="franchise-points">
+        <span class="badge-pill">🐼 レシピ・製法の伝授</span>
+        <span class="badge-pill">🏷️ ブランド・ロゴ使用</span>
+        <span class="badge-pill">🚚 出店ノウハウ・仕入れサポート</span>
+        <span class="badge-pill">🏆 実績あるブランドで開業</span>
+      </div>
+      <div class="franchise-note">
+        加盟金・ロイヤリティ・募集エリアなどの詳細条件は現在準備中です。条件が決まり次第、このページでご案内します。先行してご興味をお持ちの方は、下記よりお気軽にお問い合わせください。
+      </div>
+      <a href="#contact" class="btn-primary">フランチャイズについて問い合わせる</a>
+    </div>
   </div>
-  <div class="franchise-note">
-    加盟金・ロイヤリティ・募集エリアなどの詳細条件は現在準備中です。条件が決まり次第、このページでご案内します。先行してご興味をお持ちの方は、下記よりお気軽にお問い合わせください。
-  </div>
-  <a href="#contact" class="btn-primary">フランチャイズについて問い合わせる</a>
 </section>
 
 <!-- FOOTER / CONTACT -->
