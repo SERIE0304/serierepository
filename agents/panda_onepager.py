@@ -189,7 +189,7 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
       <div class="spec-lbl">スペース</div><div class="spec-val">約1.5m × 3.4m（1台分）</div>
     </div></div>
     <div class="spec-item"><div class="spec-inner">
-      <div class="spec-lbl">電源</div><div class="spec-val">100V・15A以上<br>延長コード持参可</div>
+      <div class="spec-lbl">電源</div><div class="spec-val">100V・1,200W<br>延長コード持参可</div>
     </div></div>
     <div class="spec-item"><div class="spec-inner">
       <div class="spec-lbl">水道</div><div class="spec-val">タンク持参で対応可</div>
