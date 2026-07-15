@@ -186,7 +186,7 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
   <div class="sec">🚐 出店条件（キッチンカー）</div>
   <div class="spec-wrap">
     <div class="spec-item"><div class="spec-inner">
-      <div class="spec-lbl">スペース</div><div class="spec-val">約1.5m × 3m（1台分）</div>
+      <div class="spec-lbl">スペース</div><div class="spec-val">約1.5m × 3.4m（1台分）</div>
     </div></div>
     <div class="spec-item"><div class="spec-inner">
       <div class="spec-lbl">電源</div><div class="spec-val">100V・15A以上<br>延長コード持参可</div>
