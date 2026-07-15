@@ -183,7 +183,8 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
 
 <!-- 出店条件 -->
 <div class="spec-area">
-  <div class="sec">🚐 出店条件（キッチンカー）</div>
+  <div class="sec">🚐 出店・納品について</div>
+  <div style="font-size:9pt; color:#555; margin-bottom:5px;">キッチンカーでの出店のほか、施設・店舗への納品（卸）にも対応しています。お気軽にご相談ください。</div>
   <div class="spec-wrap">
     <div class="spec-item"><div class="spec-inner">
       <div class="spec-lbl">スペース</div><div class="spec-val">約1.5m × 3.4m（1台分）</div>
