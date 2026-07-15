@@ -83,7 +83,7 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
 /* ── 出店条件 ── */
 .spec-area { padding: 0 20px 12px; }
 .spec-wrap { display: table; width: 100%; font-size: 0; }
-.spec-item { display: inline-block; width: 33.3%; padding: 3px 3px; font-size: 9pt; vertical-align: top; }
+.spec-item { display: inline-block; width: 25%; padding: 3px 3px; font-size: 9pt; vertical-align: top; }
 .spec-inner { border: 1px solid #c8e6c9; border-radius: 4px; overflow: hidden; }
 .spec-lbl { background: #2d5a1b; color: #fff; padding: 4px 9px; font-size: 8.5pt; font-weight: bold; }
 .spec-val { background: #f9fbe7; padding: 5px 9px; line-height: 1.55; }
@@ -195,13 +195,7 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
       <div class="spec-lbl">水道</div><div class="spec-val">タンク持参で対応可</div>
     </div></div>
     <div class="spec-item"><div class="spec-inner">
-      <div class="spec-lbl">費用形態</div><div class="spec-val">売上歩合制 or<br>固定出店料（要相談）</div>
-    </div></div>
-    <div class="spec-item"><div class="spec-inner">
-      <div class="spec-lbl">営業時間</div><div class="spec-val">10:00〜17:00<br>（応相談）</div>
-    </div></div>
-    <div class="spec-item"><div class="spec-inner">
-      <div class="spec-lbl">許認可</div><div class="spec-val">食品営業許可<br>取得済み</div>
+      <div class="spec-lbl">許認可</div><div class="spec-val">菓子製造業許可<br>食品衛生責任者</div>
     </div></div>
   </div>
 </div>
