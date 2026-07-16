@@ -55,6 +55,15 @@ def main():
     for block in REMOVE_BLOCKS:
         html = html.replace(block, '')
 
+    # 出店実績・取引先を除いた分の余白を素材カードで均等に埋める
+    extra_css = (
+        '<style>'
+        '.ing { background: #fff8e1; border: 1px solid #ffe082;'
+        ' padding: 22px 12px; margin-bottom: 14px; }'
+        '</style>'
+    )
+    html = html.replace('</style>', '</style>' + extra_css, 1)
+
     out_path = os.path.join(DIR, 'panda_onepager_noresult.pdf')
     print('1ページPDF（実績・取引先なし）生成中...')
     HTML(string=html).write_pdf(out_path)
