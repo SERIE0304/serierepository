@@ -68,9 +68,9 @@ OLD_COLS = (
 )
 
 NEW_COLS = '''<!-- 商品の特徴：フルwidth 2列グリッド -->
-<div style="padding: 10px 20px 0;">
+<div style="padding: 18px 20px 0;">
   <div class="sec">🎯 商品の特徴</div>
-  <table style="width:100%; border-collapse:collapse;"><tbody><tr>
+  <table style="width:100%; border-collapse:collapse; margin-top:2px;"><tbody><tr>
     <td style="width:50%; vertical-align:top; padding-right:8px;">
       <div class="feat"><strong>🐼 パンダ型</strong>見た目のかわいさでSNS映え抜群。子どもから大人まで思わず写真を撮りたくなる形。</div>
       <div class="feat"><strong>🌾 栃木産米粉 100%使用</strong>小麦粉不使用。グルテンフリー対応で幅広い方にお召し上がりいただけます。</div>
@@ -82,26 +82,26 @@ NEW_COLS = '''<!-- 商品の特徴：フルwidth 2列グリッド -->
   </tr></tbody></table>
 </div>
 
-<!-- 写真：フルwidth 2枚横並び -->
-<div style="padding: 8px 20px 8px;">
-  <table class="feat-photos"><tbody><tr>
-    <td><img src="{IMG1}" alt="パンダカステラ"></td>
-    <td><img src="{IMG0}" alt="キッチンカー"></td>
+<!-- 写真：フルwidth 2枚横並び（高さを大きめに） -->
+<div style="padding: 14px 20px 14px;">
+  <table class="feat-photos" style="width:100%;"><tbody><tr>
+    <td style="padding-right:4px;"><img src="{IMG1}" alt="パンダカステラ" style="width:100%; height:190px; object-fit:contain; border-radius:5px; border:1px solid #c8e6c9; display:block; background:#f9f9f9;"></td>
+    <td style="padding-left:4px;"><img src="{IMG0}" alt="キッチンカー" style="width:100%; height:190px; object-fit:contain; border-radius:5px; border:1px solid #c8e6c9; display:block; background:#f9f9f9;"></td>
   </tr></tbody></table>
 </div>
 
 <!-- 素材：3カラム横並び -->
-<div style="padding: 0 20px 10px;">
+<div style="padding: 0 20px 16px;">
   <div class="sec">🌿 使用素材（すべて那須・栃木産）</div>
-  <table style="width:100%; border-collapse:collapse; margin-top:6px;"><tbody><tr>
+  <table style="width:100%; border-collapse:collapse; margin-top:8px;"><tbody><tr>
     <td style="width:33.3%; padding-right:6px; vertical-align:top;">
-      <div class="ing"><div class="ing-label">🥚 卵</div><div class="ing-name">那須御養卵</div><div class="ing-note">那須高原で大切に育てられた鶏の卵。コクと甘みが豊か。</div></div>
+      <div class="ing" style="padding:16px 12px;"><div class="ing-label">🥚 卵</div><div class="ing-name">那須御養卵</div><div class="ing-note">那須高原で大切に育てられた鶏の卵。コクと甘みが豊か。</div></div>
     </td>
     <td style="width:33.3%; padding:0 3px; vertical-align:top;">
-      <div class="ing"><div class="ing-label">🥛 牛乳</div><div class="ing-name">千本松牧場の牛乳</div><div class="ing-note">那須塩原の老舗牧場。濃厚でまろやかな味わい。</div></div>
+      <div class="ing" style="padding:16px 12px;"><div class="ing-label">🥛 牛乳</div><div class="ing-name">千本松牧場の牛乳</div><div class="ing-note">那須塩原の老舗牧場。濃厚でまろやかな味わい。</div></div>
     </td>
     <td style="width:33.3%; padding-left:6px; vertical-align:top;">
-      <div class="ing"><div class="ing-label">🌾 米粉</div><div class="ing-name">栃木産米粉（100%）</div><div class="ing-note">地元栃木のお米のみ使用。小麦粉不使用。</div></div>
+      <div class="ing" style="padding:16px 12px;"><div class="ing-label">🌾 米粉</div><div class="ing-name">栃木産米粉（100%）</div><div class="ing-note">地元栃木のお米のみ使用。小麦粉不使用。</div></div>
     </td>
   </tr></tbody></table>
 </div>'''
@@ -124,6 +124,17 @@ def main():
 
     # 2カラムテーブルをフルwidth縦積みレイアウトに置き換え
     html = html.replace(OLD_COLS, NEW_COLS)
+
+    # 全体の余白を広げてA4いっぱいに伸ばす
+    extra_css = (
+        '<style>'
+        '.story { padding: 18px 20px; }'
+        '.feat { padding: 8px 10px; margin-bottom: 7px; line-height: 1.75; }'
+        '.spec-area { padding: 16px 20px 16px; }'
+        '.spec-inner { padding: 8px 10px; }'
+        '</style>'
+    )
+    html = html.replace('</style>', '</style>' + extra_css, 1)
 
     out_path = os.path.join(DIR, 'panda_onepager_noresult.pdf')
     print('1ページPDF（実績・取引先なし）生成中...')
