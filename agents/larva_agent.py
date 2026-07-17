@@ -6,7 +6,7 @@ from get_api_key import get_api_key
 client = anthropic.Anthropic(api_key=get_api_key())
 from get_line_token import get_line_token
 LINE_CHANNEL_TOKEN = get_line_token()
-LINE_USER_ID = 'U206a030c1759f1ed8f4c684d03d11915'
+LINE_USER_ID = 'Ud31d803ed53ed4c8f7af94acf4e5a5d4'
 TASKS_FILE = os.path.join(os.path.dirname(__file__), 'tasks.json')
 
 def send_line_message(message):
