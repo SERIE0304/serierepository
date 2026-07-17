@@ -121,7 +121,7 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
   2018年、東京（妻：上野稲荷町 / 夫：門前仲町）から栃木県大田原市へ移住。
   妻が子供たちと通い続けた<strong>上野動物園のパンダ</strong>への思い出と、
   <strong>那須地方への恩返し</strong>の気持ちから、このパンダ型ベビーカステラは生まれました。
-  那須・栃木産素材で作る焼きたての味を、「ここでしか食べられない体験」としてお届けします。
+  那須産素材と国産米粉で作る焼きたての味を、「ここでしか食べられない体験」としてお届けします。
 </div>
 
 <!-- 2カラム -->
@@ -132,7 +132,7 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
     <div class="sec">🎯 商品の特徴</div>
     <div class="feat"><strong>🐼 パンダ型</strong>見た目のかわいさでSNS映え抜群。子どもから大人まで思わず写真を撮りたくなる形。</div>
     <div class="feat"><strong>✨ モチっとカリっとする独特の食感</strong>100%米粉だからこそ生まれる、外はサクッ・中はもっちりの食感。</div>
-    <div class="feat"><strong>🌾 栃木産米粉 100%使用</strong>小麦粉不使用。グルテンフリー対応で幅広い方にお召し上がりいただけます。</div>
+    <div class="feat"><strong>🌾 国産米粉 100%使用</strong>小麦粉不使用。グルテンフリー対応で幅広い方にお召し上がりいただけます。</div>
     <div class="feat"><strong>🔥 賞味期限：当日限り</strong>保存料・添加物なし。「ここでしか食べられない」が最大の価値です。</div>
     <table class="feat-photos"><tbody><tr>
       <td><img src="{IMG1}" alt="パンダカステラ"></td>
@@ -142,7 +142,7 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
 
   <!-- 右：素材・実績 -->
   <td>
-    <div class="sec">🌿 使用素材（すべて那須・栃木産）</div>
+    <div class="sec">🌿 使用素材（那須産素材 ＋ 国産米粉）</div>
     <div class="ing">
       <div class="ing-label">🥚 卵</div>
       <div class="ing-name">那須御養卵</div>
@@ -155,8 +155,8 @@ body { font-family: 'JP', sans-serif; font-size: 11pt; color: #1a1a1a; width: 21
     </div>
     <div class="ing">
       <div class="ing-label">🌾 米粉</div>
-      <div class="ing-name">栃木産米粉（100%）</div>
-      <div class="ing-note">地元栃木のお米のみ使用。小麦粉不使用。</div>
+      <div class="ing-name">国産米粉（100%）</div>
+      <div class="ing-note">国産のお米のみ使用。小麦粉不使用。</div>
     </div>
     <div style="margin-top:10px;">
       <div class="sec">📍 出店実績</div>
