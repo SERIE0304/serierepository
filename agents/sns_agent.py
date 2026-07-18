@@ -5,14 +5,24 @@ from get_api_key import get_api_key
 client = anthropic.Anthropic(api_key=get_api_key())
 from get_line_token import get_line_token
 LINE_CHANNEL_TOKEN = get_line_token()
-LINE_USER_ID = 'Ud31d803ed53ed4c8f7af94acf4e5a5d4'
+LINE_USER_ID = 'U206a030c1759f1ed8f4c684d03d11915'
 
-def send_line_message(message):
-    import urllib.request
+def send_line_message(message, retries=2):
+    import urllib.request, urllib.error, time
     data = json.dumps({'to': LINE_USER_ID, 'messages': [{'type': 'text', 'text': message}]}).encode('utf-8')
-    req = urllib.request.Request('https://api.line.me/v2/bot/message/push', data=data,
-        headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ' + LINE_CHANNEL_TOKEN})
-    urllib.request.urlopen(req)
+    for attempt in range(retries + 1):
+        req = urllib.request.Request('https://api.line.me/v2/bot/message/push', data=data,
+            headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ' + LINE_CHANNEL_TOKEN})
+        try:
+            urllib.request.urlopen(req)
+            return
+        except urllib.error.HTTPError as e:
+            body = e.read().decode(errors='replace')
+            print(f'LINE送信失敗（{attempt + 1}回目）: HTTP {e.code} {body}')
+            if attempt < retries:
+                time.sleep(2)
+            else:
+                raise
 
 def generate_script(news):
     prompt = (
