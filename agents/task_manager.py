@@ -8,14 +8,18 @@ LINE_CHANNEL_TOKEN = get_line_token()
 LINE_USER_ID = "Ud31d803ed53ed4c8f7af94acf4e5a5d4"
 
 def send_line_message(message):
-    import urllib.request
+    import urllib.request, urllib.error
     data = json.dumps({"to": LINE_USER_ID, "messages": [{"type": "text", "text": message}]}).encode("utf-8")
     req = urllib.request.Request(
         "https://api.line.me/v2/bot/message/push",
         data=data,
         headers={"Content-Type": "application/json", "Authorization": "Bearer " + LINE_CHANNEL_TOKEN}
     )
-    urllib.request.urlopen(req)
+    try:
+        urllib.request.urlopen(req)
+    except urllib.error.HTTPError as e:
+        print("LINE API error body: " + e.read().decode("utf-8"))
+        raise
 
 def load_tasks():
     if os.path.exists(TASKS_FILE):
