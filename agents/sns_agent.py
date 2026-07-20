@@ -83,13 +83,13 @@ def search_scandal_news():
     now = datetime.now()
     today = now.strftime('%Y/%m/%d %H:%M')
     prompt = (
-        'Today is ' + today + '. Search the web (Japanese and English sources) for news from the last 7 days about:\n'
+        'Today is ' + today + '. Search the web (Japanese and English sources) for news from the last 12 hours about:\n'
         '- ボクシングの計量オーバー・計量失敗（missed weight, overweight at weigh-in）\n'
         '- 減量失敗・過酷な減量によるトラブル・脱水・入院など（weight cut failures/health issues）\n'
         '- ボクシング界の不都合な真実・スキャンダル・疑惑（judging controversies, doping, unfair matchmaking, '
         'promoter/団体側の問題など）\n'
         '- 格闘技界（MMA・キックボクシング等）における同様の不都合・スキャンダル\n'
-        'IMPORTANT: If there is no relevant news in the last 7 days, reply with exactly: NO_NEWS_TODAY\n'
+        'IMPORTANT: If there is no relevant news in the last 12 hours, reply with exactly: NO_NEWS_TODAY\n'
         'If there is news, list each item briefly in Japanese: [出来事の概要] / [情報源・媒体] / [日付]。'
         '複数件あれば箇条書きで。合計800文字以内。'
     )

@@ -1,0 +1,26 @@
+name: Xポスト下書き（1日2回）
+
+on:
+  schedule:
+    # 毎日 6:00 JST (UTC 21:00 前日)
+    - cron: '0 21 * * *'
+    # 毎日 18:00 JST (UTC 9:00)
+    - cron: '0 9 * * *'
+  workflow_dispatch:  # 手動実行ボタンも有効化
+
+jobs:
+  x-draft:
+    name: 計量オーバー・減量失敗・格闘技界の不都合ニュース調査
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 依存パッケージインストール
+        run: pip install anthropic
+      - name: Xポスト下書き生成・LINE送信
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: cd agents && python sns_agent.py x
