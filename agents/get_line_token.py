@@ -1,5 +1,6 @@
 import os
 import time
+import uuid
 import json
 import urllib.request
 import urllib.parse
@@ -21,24 +22,27 @@ def get_line_token():
     if not private_key or not kid:
         raise RuntimeError('LINE_JWT_PRIVATE_KEY / LINE_JWT_KID 環境変数が設定されていません（GitHub Secretsを確認してください）')
 
-    now = int(time.time())
-    payload = {
-        "iss": CHANNEL_ID,
-        "sub": CHANNEL_ID,
-        "aud": "https://api.line.me/",
-        "exp": now + 60 * 30,
-        "token_exp": 60 * 60 * 24 * 30,
-    }
-    assertion = jwt.encode(payload, private_key, algorithm="RS256", headers={"alg": "RS256", "typ": "JWT", "kid": kid})
-
-    data = urllib.parse.urlencode({
-        "grant_type": "client_credentials",
-        "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-        "client_assertion": assertion,
-    }).encode()
-
     last_error = None
     for attempt in range(3):
+        # jtiを含め毎回アサーションを作り直す。GitHub Actionsの並列ジョブが
+        # 同一秒にリクエストすると、jtiなしでは複数ジョブが完全に同一の
+        # JWTアサーションを送ることになり、LINE側で衝突して404になる事象を確認したため。
+        now = int(time.time())
+        payload = {
+            "iss": CHANNEL_ID,
+            "sub": CHANNEL_ID,
+            "aud": "https://api.line.me/",
+            "exp": now + 60 * 30,
+            "token_exp": 60 * 60 * 24 * 30,
+            "jti": str(uuid.uuid4()),
+        }
+        assertion = jwt.encode(payload, private_key, algorithm="RS256", headers={"alg": "RS256", "typ": "JWT", "kid": kid})
+        data = urllib.parse.urlencode({
+            "grant_type": "client_credentials",
+            "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+            "client_assertion": assertion,
+        }).encode()
+
         try:
             req = urllib.request.Request("https://api.line.me/oauth2/v2.1/token", data=data)
             with urllib.request.urlopen(req) as res:
