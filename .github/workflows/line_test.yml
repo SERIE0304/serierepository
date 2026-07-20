@@ -12,7 +12,11 @@ jobs:
         env:
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: |
-          curl -sf -X POST https://api.line.me/v2/bot/message/push \
+          http_code=$(curl -s -o response.json -w "%{http_code}" -X POST https://api.line.me/v2/bot/message/push \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $LINE_CHANNEL_TOKEN" \
-            -d '{"to":"U206a030c1759f1ed8f4c684d03d11915","messages":[{"type":"text","text":"【確認】LINE通知の不具合修正が完了しました。このメッセージが届いていれば正常です。"}]}'
+            -d '{"to":"U206a030c1759f1ed8f4c684d03d11915","messages":[{"type":"text","text":"【確認】LINE通知の不具合修正が完了しました。このメッセージが届いていれば正常です。"}]}')
+          echo "HTTP status: $http_code"
+          echo "Response body:"
+          cat response.json
+          if [ "$http_code" -ge 400 ]; then exit 1; fi
