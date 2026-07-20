@@ -79,4 +79,73 @@ def main():
     send_line_message(script_message)
     print('LINE台本送信完了！')
 
-if __name__ == '__main__': main()
+def search_scandal_news():
+    now = datetime.now()
+    today = now.strftime('%Y/%m/%d %H:%M')
+    prompt = (
+        'Today is ' + today + '. Search the web (Japanese and English sources) for news from the last 7 days about:\n'
+        '- ボクシングの計量オーバー・計量失敗（missed weight, overweight at weigh-in）\n'
+        '- 減量失敗・過酷な減量によるトラブル・脱水・入院など（weight cut failures/health issues）\n'
+        '- ボクシング界の不都合な真実・スキャンダル・疑惑（judging controversies, doping, unfair matchmaking, '
+        'promoter/団体側の問題など）\n'
+        '- 格闘技界（MMA・キックボクシング等）における同様の不都合・スキャンダル\n'
+        'IMPORTANT: If there is no relevant news in the last 7 days, reply with exactly: NO_NEWS_TODAY\n'
+        'If there is news, list each item briefly in Japanese: [出来事の概要] / [情報源・媒体] / [日付]。'
+        '複数件あれば箇条書きで。合計800文字以内。'
+    )
+    report = client.messages.create(
+        model='claude-opus-4-5',
+        max_tokens=1500,
+        tools=[{'type': 'web_search_20250305', 'name': 'web_search'}],
+        messages=[{'role': 'user', 'content': prompt}]
+    )
+    result = ''
+    for block in report.content:
+        if hasattr(block, 'text'): result += block.text
+    return result
+
+def generate_x_drafts(news):
+    prompt = (
+        'あなたは元プロボクシング日本スーパーバンタム級35代チャンピオン・芹江匡晋（せりえまさあき）本人になりきって、'
+        'X（旧Twitter）の投稿文の下書きを作成してください。\n'
+        '文体：本音・強気・歯に衣着せぬ・元チャンプ目線での説得力・多少煽り気味だが下品にはならない。'
+        '断定調で言い切る（例：「〜だろ」「〜だよ」「〜だと思うね」）。\n'
+        'ルール：\n'
+        '- 1投稿あたり全角120文字以内（絵文字・ハッシュタグ含む）\n'
+        '- ハッシュタグは1〜2個まで\n'
+        '- 事実の断定はせず、あくまで芹江さん個人の意見・感想として書く（名誉毀損・断定的な非難を避ける）\n'
+        '- 2〜3案作成し、【案1】【案2】【案3】の形式で分ける\n\n'
+        '以下のニュースを元に投稿ドラフトを作成してください。\n\n' + news
+    )
+    response = client.messages.create(
+        model='claude-opus-4-5',
+        max_tokens=1500,
+        messages=[{'role': 'user', 'content': prompt}]
+    )
+    return response.content[0].text
+
+def run_x_drafts():
+    print('Xポスト下書きエージェント running...')
+    news = search_scandal_news()
+    print(news)
+    if 'NO_NEWS_TODAY' in news:
+        print('該当ニュースなし。送信スキップ。')
+        return
+    drafts = generate_x_drafts(news)
+    message = (
+        '🥊【Xポスト下書き】計量オーバー／減量失敗／ボクシング界・格闘技界の不都合\n'
+        + '='*20 + '\n'
+        + '元ネタ：\n' + news + '\n\n'
+        + '-'*20 + '\n'
+        + drafts + '\n\n'
+        + '※内容を確認のうえ、そのまま投稿するか編集してからXへ投稿してください。'
+    )
+    send_line_message(message)
+    print('LINE送信完了！')
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == 'x':
+        run_x_drafts()
+    else:
+        main()
