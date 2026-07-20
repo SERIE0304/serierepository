@@ -23,26 +23,30 @@ jobs:
         with:
           python-version: '3.11'
       - name: 依存パッケージインストール
-        run: pip install anthropic
+        run: pip install anthropic pyjwt cryptography
       - name: パンダカステラ販路調査
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_JWT_PRIVATE_KEY: ${{ secrets.LINE_JWT_PRIVATE_KEY }}
+          LINE_JWT_KID: ${{ secrets.LINE_JWT_KID }}
         run: cd agents && python panda_agent.py
       - name: SERIE料金提案
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_JWT_PRIVATE_KEY: ${{ secrets.LINE_JWT_PRIVATE_KEY }}
+          LINE_JWT_KID: ${{ secrets.LINE_JWT_KID }}
         run: cd agents && python pricing_agent.py
       - name: SNS・YouTube台本生成
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_JWT_PRIVATE_KEY: ${{ secrets.LINE_JWT_PRIVATE_KEY }}
+          LINE_JWT_KID: ${{ secrets.LINE_JWT_KID }}
         run: cd agents && python sns_agent.py
       - name: Honey LaRva集客調査
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_JWT_PRIVATE_KEY: ${{ secrets.LINE_JWT_PRIVATE_KEY }}
+          LINE_JWT_KID: ${{ secrets.LINE_JWT_KID }}
         run: cd agents && python larva_agent.py
 
   monday-biweekly-fudosan:
@@ -55,11 +59,12 @@ jobs:
         with:
           python-version: '3.11'
       - name: 依存パッケージインストール
-        run: pip install anthropic
+        run: pip install anthropic pyjwt cryptography
       - name: 不動産調査（第1・第3週のみ）
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_JWT_PRIVATE_KEY: ${{ secrets.LINE_JWT_PRIVATE_KEY }}
+          LINE_JWT_KID: ${{ secrets.LINE_JWT_KID }}
         run: |
           DAY=$(date +%d)
           if [ "$DAY" -le 14 ] || ( [ "$DAY" -ge 15 ] && [ "$DAY" -le 21 ] ); then
@@ -78,11 +83,12 @@ jobs:
         with:
           python-version: '3.11'
       - name: 依存パッケージインストール
-        run: pip install anthropic
+        run: pip install anthropic pyjwt cryptography
       - name: 補助金調査（第1週のみ）
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_JWT_PRIVATE_KEY: ${{ secrets.LINE_JWT_PRIVATE_KEY }}
+          LINE_JWT_KID: ${{ secrets.LINE_JWT_KID }}
         run: |
           DAY=$(date +%d)
           if [ "$DAY" -le 7 ]; then
@@ -102,8 +108,9 @@ jobs:
         with:
           python-version: '3.11'
       - name: 依存パッケージインストール
-        run: pip install anthropic
+        run: pip install anthropic pyjwt cryptography
       - name: 週次タスク振り返りLINE送信
         env:
-          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_JWT_PRIVATE_KEY: ${{ secrets.LINE_JWT_PRIVATE_KEY }}
+          LINE_JWT_KID: ${{ secrets.LINE_JWT_KID }}
         run: cd agents && python task_manager.py
