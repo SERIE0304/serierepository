@@ -7,7 +7,7 @@ app.secret_key = 'leidy-serie-concerto'
 client = anthropic.Anthropic()
 
 PRESIDENT_NAMES = ['芹江', '社長', 'serie', 'masaaki']
-EMPLOYEE_NAMES = ['スタッフ', '社員', 'staff']
+EMPLOYEE_NAMES = ['スタッフ', '社員', 'staff', '小筆']
 
 SYSTEM_PRESIDENT = """あなたはLeidy（レイディ）です。株式会社芹江コンチェルトの社長・芹江匡晋さん専属のAIアシスタントです。
 芹江さんは元プロボクシング日本スーパーバンタム級35代チャンピオンで、現在は以下の事業を経営しています：
