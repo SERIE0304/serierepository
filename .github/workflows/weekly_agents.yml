@@ -1,0 +1,109 @@
+name: 週次エージェント自動実行
+
+on:
+  schedule:
+    # 毎週月曜 朝8:00 JST (UTC 23:00 日曜)
+    - cron: '0 23 * * 0'
+    # 隔週月曜 9:00 JST (UTC 0:00 月曜) - 不動産（日付で制御）
+    - cron: '0 0 * * 1'
+    # 毎月第1月曜 9:30 JST (UTC 0:30 月曜) - 補助金・FC化（日付で制御）
+    - cron: '30 0 * * 1'
+    # 毎週金曜 18:00 JST (UTC 9:00 金曜) - タスク振り返り
+    - cron: '0 9 * * 5'
+  workflow_dispatch:  # 手動実行ボタンも有効化
+
+jobs:
+  monday-weekly:
+    name: 毎週月曜エージェント
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 23 * * 0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 依存パッケージインストール
+        run: pip install anthropic
+      - name: パンダカステラ販路調査
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: cd agents && python panda_agent.py
+      - name: SERIE料金提案
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: cd agents && python pricing_agent.py
+      - name: SNS・YouTube台本生成
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: cd agents && python sns_agent.py
+      - name: Honey LaRva集客調査
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: cd agents && python larva_agent.py
+
+  monday-biweekly-fudosan:
+    name: 隔週月曜・不動産調査
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 0 * * 1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 依存パッケージインストール
+        run: pip install anthropic
+      - name: 不動産調査（第1・第3週のみ）
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: |
+          DAY=$(date +%d)
+          if [ "$DAY" -le 14 ] || ( [ "$DAY" -ge 15 ] && [ "$DAY" -le 21 ] ); then
+            cd agents && python fudosan_agent.py
+          else
+            echo "今週は不動産調査をスキップします"
+          fi
+
+  monday-monthly:
+    name: 月1回・補助金＆FC化調査
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '30 0 * * 1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 依存パッケージインストール
+        run: pip install anthropic
+      - name: 補助金調査（第1週のみ）
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: |
+          DAY=$(date +%d)
+          if [ "$DAY" -le 7 ]; then
+            cd agents && python hojyokin_agent.py
+            cd agents && python fc_agent.py
+          else
+            echo "今週は月次調査をスキップします"
+          fi
+
+  friday-review:
+    name: 毎週金曜・タスク振り返り
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 9 * * 5'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 依存パッケージインストール
+        run: pip install anthropic
+      - name: 週次タスク振り返りLINE送信
+        env:
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: cd agents && python task_manager.py
