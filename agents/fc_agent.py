@@ -2,9 +2,11 @@ import env_loader
 import os, anthropic
 from datetime import datetime
 from activity_logger import save_report
+from get_api_key import get_api_key
+from get_line_token import get_line_token
 
-client = anthropic.Anthropic()
-LINE_CHANNEL_TOKEN = open(os.path.expanduser('~/lodgers/agents/line_token.txt')).read().strip()
+client = anthropic.Anthropic(api_key=get_api_key())
+LINE_CHANNEL_TOKEN = get_line_token()
 LINE_USER_ID = 'U206a030c1759f1ed8f4c684d03d11915'
 
 def send_line_message(message):

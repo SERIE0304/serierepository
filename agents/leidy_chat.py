@@ -1,6 +1,7 @@
 import anthropic, re, os
 from flask import Flask, request, jsonify, render_template_string, session
 from activity_logger import log_chat
+from get_api_key import get_api_key
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
 
@@ -15,7 +16,7 @@ AGENT_LABELS = {
 
 app = Flask(__name__)
 app.secret_key = 'leidy-serie-concerto'
-client = anthropic.Anthropic()
+client = anthropic.Anthropic(api_key=get_api_key())
 
 PRESIDENT_NAMES = ['芹江', '社長', 'serie', 'masaaki']
 EMPLOYEE_NAMES = ['スタッフ', '社員', 'staff', '小筆']

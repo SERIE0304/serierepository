@@ -1,9 +1,10 @@
 import os
 import json
 from datetime import datetime
+from get_line_token import get_line_token
 
-TASKS_FILE = os.path.expanduser("~/lodgers/agents/tasks.json")
-LINE_CHANNEL_TOKEN = open(os.path.expanduser("~/lodgers/agents/line_token.txt")).read().strip()
+TASKS_FILE = os.path.join(os.path.dirname(__file__), "tasks.json")
+LINE_CHANNEL_TOKEN = get_line_token()
 LINE_USER_ID = "U206a030c1759f1ed8f4c684d03d11915"
 
 def send_line_message(message):

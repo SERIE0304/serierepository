@@ -29,8 +29,10 @@ def load_log():
     return {'activities': []}
 
 def save_log(data):
-    with open(LOG_FILE, 'w', encoding='utf-8') as f:
+    tmp_path = LOG_FILE + '.tmp'
+    with open(tmp_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_path, LOG_FILE)
 
 def log_activity(user: str, action: str, detail: str = ''):
     """誰が・何を・いつ行ったかを記録する"""
