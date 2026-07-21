@@ -58,4 +58,13 @@ def print_summary():
     print()
 
 if __name__ == '__main__':
-    print_summary()
+    import sys
+    # コマンドライン: python activity_logger.py log "名前" "アクション" "詳細"
+    if len(sys.argv) >= 4 and sys.argv[1] == 'log':
+        user = sys.argv[2]
+        action = sys.argv[3]
+        detail = sys.argv[4] if len(sys.argv) >= 5 else ''
+        log_activity(user, action, detail)
+        print(f'記録しました: [{user}] {action} {detail}')
+    else:
+        print_summary()
