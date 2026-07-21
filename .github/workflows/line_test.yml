@@ -14,18 +14,38 @@ jobs:
           python-version: '3.11'
       - name: 依存パッケージインストール
         run: pip install pyjwt cryptography
-      - name: 確認メッセージ送信
+      - name: トークン取得診断（生レスポンス確認）
         env:
           LINE_JWT_PRIVATE_KEY: ${{ secrets.LINE_JWT_PRIVATE_KEY }}
           LINE_JWT_KID: ${{ secrets.LINE_JWT_KID }}
         run: |
           cd agents && python -c "
-          from get_line_token import get_line_token
-          import urllib.request, json
-          token = get_line_token()
-          data = json.dumps({'to':'U206a030c1759f1ed8f4c684d03d11915','messages':[{'type':'text','text':'【確認】v2.1トークン方式への切替が完了しました。このメッセージが届いていれば正常です。'}]}).encode('utf-8')
-          req = urllib.request.Request('https://api.line.me/v2/bot/message/push', data=data,
-              headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token})
-          urllib.request.urlopen(req)
-          print('sent OK')
+          import os, time, uuid, json, urllib.request, urllib.parse, urllib.error
+          import jwt
+
+          CHANNEL_ID = '2010176953'
+          private_key = os.environ['LINE_JWT_PRIVATE_KEY']
+          kid = os.environ['LINE_JWT_KID']
+
+          for i in range(3):
+              now = int(time.time())
+              payload = {
+                  'iss': CHANNEL_ID, 'sub': CHANNEL_ID, 'aud': 'https://api.line.me/',
+                  'exp': now + 1800, 'token_exp': 2592000, 'jti': str(uuid.uuid4()),
+              }
+              assertion = jwt.encode(payload, private_key, algorithm='RS256', headers={'alg':'RS256','typ':'JWT','kid':kid})
+              data = urllib.parse.urlencode({
+                  'grant_type': 'client_credentials',
+                  'client_assertion_type': 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+                  'client_assertion': assertion,
+              }).encode()
+              req = urllib.request.Request('https://api.line.me/oauth2/v2.1/token', data=data)
+              print(f'--- attempt {i+1} at {time.time()} ---')
+              try:
+                  with urllib.request.urlopen(req) as res:
+                      print('SUCCESS', res.status, res.read()[:200])
+              except urllib.error.HTTPError as e:
+                  print('FAILED', e.code, e.read().decode(errors='replace'))
+              except Exception as e:
+                  print('EXCEPTION', repr(e))
           "
