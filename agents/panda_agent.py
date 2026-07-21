@@ -1,7 +1,7 @@
 import env_loader
 import os, json, anthropic
 from datetime import datetime
-from activity_logger import log_activity
+from activity_logger import log_activity, save_report
 
 client = anthropic.Anthropic()
 from get_line_token import get_line_token
@@ -59,8 +59,7 @@ def main():
             full_text += block.text
     report = full_text
     print(report)
-    send_line_message(report)
-    print('LINE送信完了！')
+    save_report('panda', report)
     task = client.messages.create(model='claude-haiku-4-5-20251001', max_tokens=100,
         messages=[{'role': 'user', 'content': '以下から今週やるべきアクションを1行で抽出:' + report}])
     full_text = ''

@@ -1,6 +1,15 @@
-import anthropic, re
+import anthropic, re, os
 from flask import Flask, request, jsonify, render_template_string, session
 from activity_logger import log_chat
+
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
+
+AGENT_LABELS = {
+    'panda':    'パンダカステラ 販路レポート',
+    'hojyokin': '補助金レポート',
+    'fudosan':  '不動産レポート',
+    'larva':    'Honey LaRva 集客レポート',
+}
 
 app = Flask(__name__)
 app.secret_key = 'leidy-serie-concerto'
@@ -46,7 +55,8 @@ HTML = """<!DOCTYPE html>
   body { font-family: 'Hiragino Sans', 'Meiryo', sans-serif; background: #f0f2f5; height: 100vh; display: flex; flex-direction: column; }
   header { background: #1a1a2e; color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
   header h1 { font-size: 19px; font-weight: bold; }
-  header a { margin-left: auto; color: #aaa; font-size: 13px; text-decoration: none; border: 1px solid #555; padding: 4px 10px; border-radius: 12px; }
+  header a { color: #aaa; font-size: 13px; text-decoration: none; border: 1px solid #555; padding: 4px 10px; border-radius: 12px; }
+  header .nav { margin-left: auto; display: flex; gap: 8px; }
   header a:hover { color: white; border-color: #aaa; }
   #role-badge { padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; background: #444; color: #ccc; }
   #role-badge.president { background: #c9a84c; color: #1a1a2e; }
@@ -85,7 +95,10 @@ HTML = """<!DOCTYPE html>
     <h1>Leidy</h1>
   </div>
   <div id="role-badge">未設定</div>
-  <a href="/history">履歴</a>
+  <div class="nav">
+    <a href="/reports">📄 資料</a>
+    <a href="/history">📋 履歴</a>
+  </div>
 </header>
 <div id="chat">
   <div class="msg system">「芹江です」または「スタッフです」と話しかけてください</div>
@@ -268,6 +281,102 @@ def chat():
     reply = response.content[0].text
     log_chat(user_name, role, body, reply)
     return jsonify({'role': role, 'user_name': user_name, 'reply': reply})
+
+REPORTS_HTML = """<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>資料一覧 - Leidy</title>
+<style>
+  body { font-family: 'Hiragino Sans','Meiryo',sans-serif; background:#f0f2f5; }
+  .wrap { max-width:700px; margin:30px auto; padding:0 20px; }
+  a.back { display:inline-block; margin-bottom:20px; color:#1a1a2e; text-decoration:none; font-size:14px; }
+  h2 { margin-bottom:20px; color:#1a1a2e; }
+  .card { background:white; border-radius:12px; padding:20px 24px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,0.08); display:flex; align-items:center; justify-content:space-between; }
+  .card-info h3 { font-size:16px; color:#1a1a2e; margin-bottom:4px; }
+  .card-info .meta { font-size:12px; color:#999; }
+  .btn { padding:10px 20px; background:#1a1a2e; color:white; border:none; border-radius:20px; font-size:14px; cursor:pointer; text-decoration:none; }
+  .btn:hover { background:#2d2d4e; }
+  .empty { color:#999; text-align:center; padding:40px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← チャットに戻る</a>
+  <h2>📄 資料一覧</h2>
+  <p style="font-size:13px;color:#666;margin-bottom:20px;">社長が作ったエージェントのレポートです。クリックして印刷できます。</p>
+  {% if not reports %}
+  <p class="empty">まだ資料がありません。<br>エージェントを実行するとここに表示されます。</p>
+  {% else %}
+  {% for r in reports %}
+  <div class="card">
+    <div class="card-info">
+      <h3>{{ r.label }}</h3>
+      <div class="meta">最終更新: {{ r.updated }}</div>
+    </div>
+    <a class="btn" href="/report/{{ r.name }}">開く・印刷</a>
+  </div>
+  {% endfor %}
+  {% endif %}
+</div>
+</body>
+</html>
+"""
+
+REPORT_DETAIL_HTML = """<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>{{ label }} - 印刷</title>
+<style>
+  body { font-family: 'Hiragino Sans','Meiryo',sans-serif; max-width:700px; margin:30px auto; padding:0 20px; }
+  .noprint { margin-bottom:20px; display:flex; gap:10px; }
+  .noprint a { color:#1a1a2e; text-decoration:none; font-size:14px; border:1px solid #ccc; padding:6px 14px; border-radius:20px; }
+  .print-btn { padding:8px 20px; background:#1a1a2e; color:white; border:none; border-radius:20px; font-size:14px; cursor:pointer; }
+  h1 { font-size:20px; color:#1a1a2e; margin-bottom:4px; }
+  .meta { font-size:12px; color:#999; margin-bottom:20px; }
+  .content { white-space:pre-wrap; line-height:1.8; font-size:15px; color:#333; border-top:2px solid #1a1a2e; padding-top:16px; }
+  @media print { .noprint { display:none; } body { margin:0; } }
+</style>
+</head>
+<body>
+<div class="noprint">
+  <a href="/reports">← 資料一覧</a>
+  <button class="print-btn" onclick="window.print()">🖨️ 印刷する</button>
+</div>
+<h1>{{ label }}</h1>
+<div class="meta">{{ updated }}</div>
+<div class="content">{{ content }}</div>
+</body>
+</html>
+"""
+
+@app.route('/reports')
+def reports():
+    items = []
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    for name, label in AGENT_LABELS.items():
+        path = os.path.join(OUTPUT_DIR, f'{name}_latest.txt')
+        if os.path.exists(path):
+            mtime = os.path.getmtime(path)
+            from datetime import datetime as dt
+            updated = dt.fromtimestamp(mtime).strftime('%Y/%m/%d %H:%M')
+            items.append({'name': name, 'label': label, 'updated': updated})
+    return render_template_string(REPORTS_HTML, reports=items)
+
+@app.route('/report/<name>')
+def report_detail(name):
+    if name not in AGENT_LABELS:
+        return '資料が見つかりません', 404
+    path = os.path.join(OUTPUT_DIR, f'{name}_latest.txt')
+    if not os.path.exists(path):
+        return '資料がまだありません。エージェントを実行してください。', 404
+    with open(path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    updated = lines[0].replace('生成日時: ', '').strip() if lines else ''
+    content = ''.join(lines[2:]) if len(lines) > 2 else ''
+    return render_template_string(REPORT_DETAIL_HTML,
+        label=AGENT_LABELS[name], updated=updated, content=content)
 
 @app.route('/history')
 def history():
