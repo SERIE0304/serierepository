@@ -8,15 +8,24 @@ jobs:
     name: LINE確認メッセージ送信
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 依存パッケージインストール
+        run: pip install pyjwt cryptography
       - name: 確認メッセージ送信
         env:
-          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+          LINE_JWT_PRIVATE_KEY: ${{ secrets.LINE_JWT_PRIVATE_KEY }}
+          LINE_JWT_KID: ${{ secrets.LINE_JWT_KID }}
         run: |
-          http_code=$(curl -s -o response.json -w "%{http_code}" -X POST https://api.line.me/v2/bot/message/push \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $LINE_CHANNEL_TOKEN" \
-            -d '{"to":"U206a030c1759f1ed8f4c684d03d11915","messages":[{"type":"text","text":"【確認】LINE通知の不具合修正が完了しました。このメッセージが届いていれば正常です。"}]}')
-          echo "HTTP status: $http_code"
-          echo "Response body:"
-          cat response.json
-          if [ "$http_code" -ge 400 ]; then exit 1; fi
+          cd agents && python -c "
+          from get_line_token import get_line_token
+          import urllib.request, json
+          token = get_line_token()
+          data = json.dumps({'to':'U206a030c1759f1ed8f4c684d03d11915','messages':[{'type':'text','text':'【確認】v2.1トークン方式への切替が完了しました。このメッセージが届いていれば正常です。'}]}).encode('utf-8')
+          req = urllib.request.Request('https://api.line.me/v2/bot/message/push', data=data,
+              headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token})
+          urllib.request.urlopen(req)
+          print('sent OK')
+          "
