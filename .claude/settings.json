@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /home/user/serierepository/agents && python -c \"from activity_logger import log_activity; import datetime; log_activity('不明（確認中）', 'セッション開始', 'Claude Code起動 ' + datetime.datetime.now().strftime('%Y/%m/%d %H:%M'))\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
