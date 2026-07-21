@@ -3,6 +3,7 @@ import time
 import json
 import urllib.request
 import urllib.parse
+import urllib.error
 
 import jwt
 
@@ -35,9 +36,19 @@ def get_line_token():
         "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
         "client_assertion": assertion,
     }).encode()
-    req = urllib.request.Request("https://api.line.me/oauth2/v2.1/token", data=data)
-    with urllib.request.urlopen(req) as res:
-        return json.loads(res.read())["access_token"]
+
+    last_error = None
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request("https://api.line.me/oauth2/v2.1/token", data=data)
+            with urllib.request.urlopen(req) as res:
+                return json.loads(res.read())["access_token"]
+        except urllib.error.URLError as e:
+            last_error = e
+            print(f'トークン取得失敗（{attempt + 1}回目）: {e}')
+            if attempt < 2:
+                time.sleep(2)
+    raise last_error
 
 
 if __name__ == "__main__":
