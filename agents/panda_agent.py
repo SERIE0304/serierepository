@@ -8,7 +8,7 @@ client = anthropic.Anthropic(api_key=get_api_key())
 from get_line_token import get_line_token
 LINE_CHANNEL_TOKEN = get_line_token()
 LINE_USER_ID = 'U206a030c1759f1ed8f4c684d03d11915'
-TASKS_FILE = os.path.expanduser('~/lodgers/agents/tasks.json')
+TASKS_FILE = os.path.join(os.path.dirname(__file__), 'tasks.json')
 
 def send_line_message(message):
     import urllib.request
