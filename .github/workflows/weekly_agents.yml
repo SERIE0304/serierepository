@@ -25,21 +25,25 @@ jobs:
       - name: 依存パッケージインストール
         run: pip install anthropic
       - name: パンダカステラ販路調査
+        continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: cd agents && python panda_agent.py
       - name: SERIE料金提案
+        continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: cd agents && python pricing_agent.py
       - name: SNS・YouTube台本生成
+        continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: cd agents && python sns_agent.py
       - name: Honey LaRva集客調査
+        continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
@@ -57,6 +61,7 @@ jobs:
       - name: 依存パッケージインストール
         run: pip install anthropic
       - name: 不動産調査（第1・第3週のみ）
+        continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
@@ -80,14 +85,15 @@ jobs:
       - name: 依存パッケージインストール
         run: pip install anthropic
       - name: 補助金調査（第1週のみ）
+        continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: |
           DAY=$(date +%d)
           if [ "$DAY" -le 7 ]; then
-            cd agents && python hojyokin_agent.py
-            cd agents && python fc_agent.py
+            cd agents && python hojyokin_agent.py || echo "hojyokin_agent失敗（続行）"
+            python fc_agent.py || echo "fc_agent失敗（続行）"
           else
             echo "今週は月次調査をスキップします"
           fi
