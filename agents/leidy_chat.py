@@ -9,6 +9,8 @@ AGENT_LABELS = {
     'hojyokin': '補助金レポート',
     'fudosan':  '不動産レポート',
     'larva':    'Honey LaRva 集客レポート',
+    'pricing':  'SERIE 料金提案レポート',
+    'fc':       'Honey LaRva FC化調査レポート',
 }
 
 app = Flask(__name__)

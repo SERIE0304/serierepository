@@ -1,6 +1,7 @@
 import env_loader
 import os, anthropic
 from datetime import datetime
+from activity_logger import save_report
 
 client = anthropic.Anthropic()
 LINE_CHANNEL_TOKEN = open(os.path.expanduser('~/lodgers/agents/line_token.txt')).read().strip()
@@ -22,7 +23,6 @@ def main():
     report = client.messages.create(model='claude-haiku-4-5-20251001', max_tokens=2000,
         messages=[{'role': 'user', 'content': p}]).content[0].text
     print(report)
-    send_line_message(report)
-    print('LINE送信完了！')
+    save_report('fc', report)
 
 if __name__ == '__main__': main()
