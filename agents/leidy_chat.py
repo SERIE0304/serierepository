@@ -1,7 +1,9 @@
-import anthropic
-from flask import Flask, request, jsonify, render_template_string
+import anthropic, re
+from flask import Flask, request, jsonify, render_template_string, session
+from activity_logger import log_chat
 
 app = Flask(__name__)
+app.secret_key = 'leidy-serie-concerto'
 client = anthropic.Anthropic()
 
 PRESIDENT_NAMES = ['芹江', '社長', 'serie', 'masaaki']
@@ -18,7 +20,6 @@ SYSTEM_PRESIDENT = """あなたはLeidy（レイディ）です。株式会社�
 - 戦略・数字・ROIを重視した提案
 - 直接的・簡潔に要点を伝える
 - 忙しい経営者の時間を尊重し、結論から述べる
-- 補助金・FC化・不動産・SNS戦略など経営全般に精通している
 """
 
 SYSTEM_EMPLOYEE = """あなたはLeidy（レイディ）です。株式会社芹江コンチェルトのスタッフ向けAIアシスタントです。
@@ -32,7 +33,6 @@ SYSTEM_EMPLOYEE = """あなたはLeidy（レイディ）です。株式会社芹
 - 手順・マニュアル・チェックリスト形式で伝える
 - わかりやすく・丁寧に・ステップを明確に
 - 現場で即実行できる具体的なアドバイスを優先
-- 社長への報告・相談事項がある場合は明示する
 """
 
 HTML = """<!DOCTYPE html>
@@ -40,14 +40,15 @@ HTML = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Leidy - 芹江コンチェルト AIアシスタント</title>
+<title>Leidy - 芹江コンチェルト</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Hiragino Sans', 'Meiryo', sans-serif; background: #f0f2f5; height: 100vh; display: flex; flex-direction: column; }
-  header { background: #1a1a2e; color: white; padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
-  header h1 { font-size: 20px; font-weight: bold; }
-  header span { font-size: 13px; color: #aaa; }
-  #role-badge { padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; background: #444; color: #ccc; margin-left: auto; }
+  header { background: #1a1a2e; color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 19px; font-weight: bold; }
+  header a { margin-left: auto; color: #aaa; font-size: 13px; text-decoration: none; border: 1px solid #555; padding: 4px 10px; border-radius: 12px; }
+  header a:hover { color: white; border-color: #aaa; }
+  #role-badge { padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; background: #444; color: #ccc; }
   #role-badge.president { background: #c9a84c; color: #1a1a2e; }
   #role-badge.employee { background: #4a9eff; color: white; }
   #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
@@ -55,30 +56,44 @@ HTML = """<!DOCTYPE html>
   .msg.user { align-self: flex-end; background: #1a1a2e; color: white; border-bottom-right-radius: 4px; }
   .msg.leidy { align-self: flex-start; background: white; color: #333; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
   .msg.system { align-self: center; background: #e8e8e8; color: #666; font-size: 13px; padding: 8px 16px; border-radius: 20px; }
-  #input-area { padding: 16px 20px; background: white; border-top: 1px solid #e0e0e0; display: flex; gap: 10px; }
+  #input-area { padding: 14px 18px; background: white; border-top: 1px solid #e0e0e0; display: flex; gap: 10px; }
   #msg-input { flex: 1; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 24px; font-size: 15px; font-family: inherit; outline: none; resize: none; max-height: 120px; }
   #msg-input:focus { border-color: #1a1a2e; }
-  #send-btn { padding: 12px 24px; background: #1a1a2e; color: white; border: none; border-radius: 24px; font-size: 15px; cursor: pointer; font-family: inherit; }
-  #send-btn:hover { background: #2d2d4e; }
+  #send-btn { padding: 12px 22px; background: #1a1a2e; color: white; border: none; border-radius: 24px; font-size: 15px; cursor: pointer; }
   #send-btn:disabled { background: #ccc; cursor: not-allowed; }
-  .hint { font-size: 12px; color: #999; text-align: center; padding: 6px; }
+  .hint { font-size: 12px; color: #999; text-align: center; padding: 5px; }
+
+  /* 履歴ページ */
+  .history-wrap { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+  .history-wrap h2 { margin-bottom: 20px; color: #1a1a2e; }
+  .log-item { background: white; border-radius: 12px; padding: 14px 18px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .log-item .meta { font-size: 12px; color: #999; margin-bottom: 6px; }
+  .log-item .user-tag { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; margin-right: 8px; }
+  .tag-president { background: #c9a84c; color: #1a1a2e; }
+  .tag-employee { background: #4a9eff; color: white; }
+  .tag-agent { background: #6c757d; color: white; }
+  .log-item .q { color: #333; margin-bottom: 4px; }
+  .log-item .a { color: #666; font-size: 14px; border-left: 3px solid #e0e0e0; padding-left: 10px; margin-top: 6px; }
+  .filter-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-btn { padding: 6px 16px; border: 2px solid #ddd; border-radius: 20px; background: white; cursor: pointer; font-size: 13px; }
+  .filter-btn.active { border-color: #1a1a2e; background: #1a1a2e; color: white; }
 </style>
 </head>
 <body>
 <header>
   <div>
     <h1>Leidy</h1>
-    <span>芹江コンチェルト AIアシスタント</span>
   </div>
-  <div id="role-badge">モード未設定</div>
+  <div id="role-badge">未設定</div>
+  <a href="/history">履歴</a>
 </header>
 <div id="chat">
-  <div class="msg system">冒頭にお名前を入力するとモードが切り替わります</div>
-  <div class="msg leidy">こんにちは、Leidyです。どなたが使用していますか？\n\nメッセージの冒頭にお名前を入れてください。\n例：「芹江 今日の予約状況は？」\n例：「スタッフ チェックイン手順を教えて」</div>
+  <div class="msg system">「芹江です」または「スタッフです」と話しかけてください</div>
+  <div class="msg leidy">こんにちは、Leidyです。どなたが使用していますか？\n\n「芹江です」→ 社長モードに切り替わります\n「スタッフです」→ 社員モードに切り替わります</div>
 </div>
-<p class="hint">冒頭に「芹江」→ 社長モード ／ 「スタッフ」→ 社員モード</p>
+<p class="hint">一度名乗るとセッション中はモードが維持されます</p>
 <div id="input-area">
-  <textarea id="msg-input" placeholder="メッセージを入力（例：芹江 補助金の状況は？）" rows="1"></textarea>
+  <textarea id="msg-input" placeholder="例：芹江です　または　補助金の状況は？" rows="1"></textarea>
   <button id="send-btn" onclick="sendMessage()">送信</button>
 </div>
 <script>
@@ -103,11 +118,11 @@ function addMsg(text, cls) {
   return div;
 }
 
-function updateBadge(role) {
+function updateBadge(role, userName) {
   badge.className = '';
-  if (role === 'president') { badge.className = 'president'; badge.textContent = '👑 社長モード'; }
-  else if (role === 'employee') { badge.className = 'employee'; badge.textContent = '👤 社員モード'; }
-  else { badge.className = ''; badge.textContent = 'モード未設定'; }
+  if (role === 'president') { badge.className = 'president'; badge.textContent = '👑 ' + (userName || '社長') + ' モード'; }
+  else if (role === 'employee') { badge.className = 'employee'; badge.textContent = '👤 ' + (userName || 'スタッフ') + ' モード'; }
+  else { badge.textContent = '未設定'; }
 }
 
 async function sendMessage() {
@@ -121,11 +136,15 @@ async function sendMessage() {
   const thinking = addMsg('入力中...', 'leidy');
   thinking.style.color = '#999';
   try {
-    const res = await fetch('/chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: text}) });
+    const res = await fetch('/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: text})
+    });
     const data = await res.json();
     thinking.remove();
     addMsg(data.reply, 'leidy');
-    updateBadge(data.role);
+    updateBadge(data.role, data.user_name);
   } catch(e) {
     thinking.textContent = 'エラーが発生しました。';
   }
@@ -137,18 +156,79 @@ async function sendMessage() {
 </html>
 """
 
-def detect_role(text):
-    first_word = text.split()[0] if text.split() else ''
-    import re
+HISTORY_HTML = """<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Leidy 活動履歴</title>
+<style>
+  body { font-family: 'Hiragino Sans','Meiryo',sans-serif; background:#f0f2f5; }
+  .history-wrap { max-width:800px; margin:30px auto; padding:0 20px; }
+  h2 { margin-bottom:20px; color:#1a1a2e; }
+  a.back { display:inline-block; margin-bottom:20px; color:#1a1a2e; text-decoration:none; font-size:14px; }
+  .filter-bar { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+  .filter-btn { padding:6px 16px; border:2px solid #ddd; border-radius:20px; background:white; cursor:pointer; font-size:13px; }
+  .log-item { background:white; border-radius:12px; padding:14px 18px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+  .meta { font-size:12px; color:#999; margin-bottom:6px; }
+  .user-tag { display:inline-block; padding:2px 10px; border-radius:10px; font-size:12px; font-weight:bold; margin-right:8px; }
+  .tag-president { background:#c9a84c; color:#1a1a2e; }
+  .tag-employee { background:#4a9eff; color:white; }
+  .tag-agent { background:#6c757d; color:white; }
+  .q { color:#333; margin-bottom:4px; }
+  .a { color:#666; font-size:14px; border-left:3px solid #e0e0e0; padding-left:10px; margin-top:6px; white-space:pre-wrap; }
+  .empty { color:#999; text-align:center; padding:40px; }
+</style>
+</head>
+<body>
+<div class="history-wrap">
+  <a class="back" href="/">← チャットに戻る</a>
+  <h2>活動履歴</h2>
+  {% if not activities %}
+  <p class="empty">まだ履歴がありません</p>
+  {% else %}
+  {% for a in activities %}
+  <div class="log-item">
+    <div class="meta">
+      {% if a.role == 'president' or a.user == '芹江' %}
+      <span class="user-tag tag-president">👑 {{ a.user }}</span>
+      {% elif a.action == 'agent' %}
+      <span class="user-tag tag-agent">🤖 自動実行</span>
+      {% else %}
+      <span class="user-tag tag-employee">👤 {{ a.user }}</span>
+      {% endif %}
+      {{ a.timestamp }}
+      {% if a.action != 'leidy_chat' %} ／ {{ a.action }}{% endif %}
+    </div>
+    {% if a.action == 'leidy_chat' %}
+    <div class="q">Q: {{ a.question }}</div>
+    <div class="a">{{ a.answer[:300] }}{% if a.answer|length > 300 %}...{% endif %}</div>
+    {% else %}
+    <div class="q">{{ a.detail }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+</div>
+</body>
+</html>
+"""
+
+def detect_role(text, current_role, current_user):
+    """名乗り検出（セッション継続も考慮）"""
+    t = text.strip()
+    # 名乗りパターン：「芹江です」「スタッフです」など
     for name in PRESIDENT_NAMES:
-        if first_word.lower().startswith(name.lower()):
-            body = re.sub(r'^\S+\s*', '', text, count=1).strip()
-            return 'president', first_word, body or text
+        if re.match(rf'^{name}', t, re.IGNORECASE):
+            body = re.sub(rf'^{name}(です|だ|。|　|\s)*', '', t, flags=re.IGNORECASE).strip()
+            return 'president', name, body or t
     for name in EMPLOYEE_NAMES:
-        if first_word.lower().startswith(name.lower()):
-            body = re.sub(r'^\S+\s*', '', text, count=1).strip()
-            return 'employee', first_word, body or text
-    return 'default', '', text
+        if re.match(rf'^{name}', t, re.IGNORECASE):
+            body = re.sub(rf'^{name}(です|だ|。|　|\s)*', '', t, flags=re.IGNORECASE).strip()
+            return 'employee', name, body or t
+    # セッションで既に名乗っていればそのモード継続
+    if current_role in ('president', 'employee'):
+        return current_role, current_user, t
+    return 'default', '', t
 
 @app.route('/')
 def index():
@@ -158,10 +238,25 @@ def index():
 def chat():
     data = request.json
     text = data.get('message', '').strip()
-    role, detected_name, body = detect_role(text)
+
+    current_role = session.get('role', 'default')
+    current_user = session.get('user_name', '')
+
+    role, user_name, body = detect_role(text, current_role, current_user)
 
     if role == 'default':
-        return jsonify({'role': 'default', 'reply': 'どなたが使用していますか？\n\nメッセージの冒頭にお名前を入れていただくと、その方に合った対応ができます。\n例：「芹江 〇〇について教えて」\n例：「スタッフ 〇〇の手順は？」'})
+        return jsonify({'role': 'default', 'user_name': '', 'reply': 'どなたが使用していますか？\n\n「芹江です」または「スタッフです」と最初に教えていただくと、その方に合った対応ができます。'})
+
+    # セッションに記憶
+    session['role'] = role
+    session['user_name'] = user_name
+
+    # 名乗りだけで本文がない場合
+    if not body or body == text:
+        label = '社長' if role == 'president' else 'スタッフ'
+        reply = f'了解しました、{user_name}さん（{label}モード）。何でもお聞きください！'
+        log_chat(user_name, role, text, reply)
+        return jsonify({'role': role, 'user_name': user_name, 'reply': reply})
 
     system = SYSTEM_PRESIDENT if role == 'president' else SYSTEM_EMPLOYEE
     response = client.messages.create(
@@ -170,7 +265,16 @@ def chat():
         system=system,
         messages=[{'role': 'user', 'content': body}]
     )
-    return jsonify({'role': role, 'reply': response.content[0].text})
+    reply = response.content[0].text
+    log_chat(user_name, role, body, reply)
+    return jsonify({'role': role, 'user_name': user_name, 'reply': reply})
+
+@app.route('/history')
+def history():
+    from activity_logger import load_log
+    data = load_log()
+    acts = list(reversed(data.get('activities', [])))
+    return render_template_string(HISTORY_HTML, activities=acts)
 
 if __name__ == '__main__':
     print('Leidy 起動中... http://localhost:5000 をブラウザで開いてください')

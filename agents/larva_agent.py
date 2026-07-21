@@ -1,6 +1,7 @@
 import env_loader
 import os, json, anthropic
 from datetime import datetime
+from activity_logger import log_activity
 
 client = anthropic.Anthropic()
 from get_line_token import get_line_token
@@ -28,6 +29,7 @@ CATEGORY = 'HoneyLaRva'
 
 def main():
     today = datetime.now().strftime('%Y/%m/%d')
+    log_activity('システム自動実行', 'agent', 'Honey LaRvaエージェント')
     print('Honey LaRvaエージェント実行中...')
     p = PROMPT.replace('{today}', today)
     report_raw = client.messages.create(tools=[{"type":"web_search_20250305","name":"web_search"}], model='claude-sonnet-4-5', max_tokens=1500,
