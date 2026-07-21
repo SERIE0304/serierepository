@@ -7,7 +7,7 @@ from get_line_token import get_line_token
 
 client = anthropic.Anthropic(api_key=get_api_key())
 LINE_CHANNEL_TOKEN = get_line_token()
-LINE_USER_ID = 'U206a030c1759f1ed8f4c684d03d11915'
+LINE_USER_ID = 'Ud31d803ed53ed4c8f7af94acf4e5a5d4'
 
 def send_line_message(message):
     import urllib.request, json
