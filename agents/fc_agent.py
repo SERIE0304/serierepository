@@ -26,5 +26,6 @@ def main():
         messages=[{'role': 'user', 'content': p}]).content[0].text
     print(report)
     save_report('fc', report)
+    send_line_message(report)
 
 if __name__ == '__main__': main()
