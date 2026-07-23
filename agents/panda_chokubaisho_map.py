@@ -7,9 +7,6 @@ from weasyprint import HTML
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 
-# 地図座標計算
-# lon: 139.86〜140.22 (span 0.36), lat: 36.80〜37.10 (span 0.30)
-# viewBox 0 0 200 220
 W, H = 200, 220
 LON_MIN, LON_MAX = 139.86, 140.22
 LAT_MIN, LAT_MAX = 36.80, 37.10
@@ -17,21 +14,19 @@ LAT_MIN, LAT_MAX = 36.80, 37.10
 def x(lon): return round((lon - LON_MIN) / (LON_MAX - LON_MIN) * W, 1)
 def y(lat): return round((LAT_MAX - lat) / (LAT_MAX - LAT_MIN) * H, 1)
 
-# 施設マーカー座標
 M = {
-    1:  (x(140.019), y(36.947)),   # なすのマルシェ       → (88, 119)
-    2:  (x(140.013), y(36.895)),   # そすいの郷           → (85, 161)
-    3:  (x(140.007), y(36.930)),   # 高林産直会           → (81, 132)  ← 微調整
-    4:  (x(140.048), y(36.990)),   # 那須の駅             → (104, 88)
-    5:  (x(139.970), y(36.975)),   # アグリパル塩原       → (61, 100)
-    6:  (x(140.015), y(36.869)),   # あさか直売所         → (86, 181)
-    7:  (x(140.094), y(36.909)),   # きらり佐久山         → (129, 149)
-    8:  (x(140.057), y(37.030)),   # 友愛の森             → (109, 56)
-    9:  (x(140.163), y(37.038)),   # 東山道伊王野         → (168, 50)
+    1:  (x(140.019), y(36.947)),   # なすのマルシェ  (88.3, 112.2)
+    2:  (x(140.013), y(36.895)),   # そすいの郷      (85.0, 150.3)
+    3:  (x(140.007), y(36.923)),   # 高林産直会      (81.7, 129.8) ← ①との重なり回避で南調整
+    4:  (x(140.048), y(36.990)),   # 那須の駅        (104.4, 80.7)
+    5:  (x(139.970), y(36.975)),   # アグリパル塩原  (61.1, 91.7)
+    6:  (x(140.015), y(36.869)),   # あさか直売所    (86.1, 169.4)
+    7:  (x(140.094), y(36.909)),   # きらり佐久山    (130.0, 140.1)
+    8:  (x(140.057), y(37.030)),   # 友愛の森        (109.4, 51.3)
+    9:  (x(140.163), y(37.038)),   # 東山道伊王野    (168.3, 45.5)
 }
 
-# 参照座標
-KUR = (x(140.043), y(36.966))    # JR黒磯駅 (102, 107)
+KUR = (x(140.043), y(36.966))    # JR黒磯駅 (101.7, 98.1)
 
 HTML_CONTENT = f"""<!DOCTYPE html>
 <html lang="ja">
@@ -50,7 +45,6 @@ body {{ font-family: 'JP', sans-serif; font-size: 10pt; color: #1a1a1a; width: 2
 </head>
 <body>
 
-<!-- ヘッダー -->
 <div class="hdr">
   <table style="width:100%; border-collapse:collapse;"><tbody><tr>
     <td>
@@ -61,7 +55,6 @@ body {{ font-family: 'JP', sans-serif; font-size: 10pt; color: #1a1a1a; width: 2
   </tr></tbody></table>
 </div>
 
-<!-- 地図 -->
 <div style="padding: 6px 20px 0;">
 <svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg"
      style="width:100%; display:block; border:1.5px solid #b0c8a0; border-radius:4px;">
@@ -134,91 +127,93 @@ body {{ font-family: 'JP', sans-serif; font-size: 10pt; color: #1a1a1a; width: 2
   <text x="130" y="40" font-size="14" fill="#b08000" font-weight="bold" opacity="0.15">那須町</text>
 
   <!-- ==================== 施設マーカー ==================== -->
+  <!-- r=7、ラベル重なり回避済み -->
 
   <!-- ── 那須塩原市（緑） ── -->
 
-  <!-- ① なすのマルシェ -->
-  <line x1="{M[1][0]+9}" y1="{M[1][1]}" x2="{M[1][0]+22}" y2="{M[1][1]-6}"
+  <!-- ① なすのマルシェ：ラベル左上方向（黒磯駅ボックスとの重なり回避） -->
+  <line x1="{M[1][0]-5}" y1="{M[1][1]-5}" x2="75" y2="90"
         stroke="#2d5a1b" stroke-width="0.9"/>
-  <circle cx="{M[1][0]}" cy="{M[1][1]}" r="9" fill="#2d5a1b" stroke="#fff" stroke-width="1.5"/>
-  <text x="{M[1][0]}" y="{M[1][1]+4}" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
-  <text x="{M[1][0]+24}" y="{M[1][1]-9}" font-size="7" fill="#1a3a0a" font-weight="bold">なすのマルシェ</text>
-  <text x="{M[1][0]+24}" y="{M[1][1]-1}" font-size="6" fill="#555">☎ 0287-74-3715</text>
-  <text x="{M[1][0]+24}" y="{M[1][1]+7}" font-size="5.5" fill="#777">8:30〜16:00（火休）</text>
+  <circle cx="{M[1][0]}" cy="{M[1][1]}" r="7" fill="#2d5a1b" stroke="#fff" stroke-width="1.5"/>
+  <text x="{M[1][0]}" y="{M[1][1]+3}" font-size="8" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
+  <text x="73" y="82" font-size="6.5" fill="#1a3a0a" font-weight="bold" text-anchor="end">なすのマルシェ</text>
+  <text x="73" y="90" font-size="5.5" fill="#555" text-anchor="end">☎ 0287-74-3715</text>
+  <text x="73" y="97" font-size="5" fill="#777" text-anchor="end">8:30〜16:00（火休）</text>
 
-  <!-- ② そすいの郷 -->
-  <line x1="{M[2][0]+9}" y1="{M[2][1]}" x2="{M[2][0]+22}" y2="{M[2][1]-5}"
+  <!-- ② そすいの郷：ラベル右方向 -->
+  <line x1="{M[2][0]+7}" y1="{M[2][1]}" x2="{M[2][0]+20}" y2="{M[2][1]-5}"
         stroke="#2d5a1b" stroke-width="0.9"/>
-  <circle cx="{M[2][0]}" cy="{M[2][1]}" r="9" fill="#2d5a1b" stroke="#fff" stroke-width="1.5"/>
-  <text x="{M[2][0]}" y="{M[2][1]+4}" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
-  <text x="{M[2][0]+24}" y="{M[2][1]-8}" font-size="7" fill="#1a3a0a" font-weight="bold">そすいの郷 直売センター</text>
-  <text x="{M[2][0]+24}" y="{M[2][1]}" font-size="6" fill="#555">☎ 0287-37-7768</text>
-  <text x="{M[2][0]+24}" y="{M[2][1]+8}" font-size="5.5" fill="#777">9:00〜16:00（元旦のみ休）</text>
+  <circle cx="{M[2][0]}" cy="{M[2][1]}" r="7" fill="#2d5a1b" stroke="#fff" stroke-width="1.5"/>
+  <text x="{M[2][0]}" y="{M[2][1]+3}" font-size="8" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
+  <text x="{M[2][0]+22}" y="{M[2][1]-8}" font-size="6.5" fill="#1a3a0a" font-weight="bold">そすいの郷 直売センター</text>
+  <text x="{M[2][0]+22}" y="{M[2][1]}" font-size="5.5" fill="#555">☎ 0287-37-7768</text>
+  <text x="{M[2][0]+22}" y="{M[2][1]+8}" font-size="5" fill="#777">9:00〜16:00（元旦のみ休）</text>
 
-  <!-- ③ 高林産直会 (ラベル左) -->
-  <line x1="{M[3][0]-9}" y1="{M[3][1]}" x2="{M[3][0]-22}" y2="{M[3][1]-5}"
+  <!-- ③ 高林産直会：ラベル左方向（①との円重なり回避で南に調整済み） -->
+  <line x1="{M[3][0]-7}" y1="{M[3][1]}" x2="{M[3][0]-20}" y2="{M[3][1]-5}"
         stroke="#2d5a1b" stroke-width="0.9"/>
-  <circle cx="{M[3][0]}" cy="{M[3][1]}" r="9" fill="#2d5a1b" stroke="#fff" stroke-width="1.5"/>
-  <text x="{M[3][0]}" y="{M[3][1]+4}" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
-  <text x="{M[3][0]-24}" y="{M[3][1]-8}" font-size="7" fill="#1a3a0a" font-weight="bold" text-anchor="end">高林産直会</text>
-  <text x="{M[3][0]-24}" y="{M[3][1]}" font-size="6" fill="#555" text-anchor="end">☎ 0287-68-1092</text>
-  <text x="{M[3][0]-24}" y="{M[3][1]+8}" font-size="5.5" fill="#777" text-anchor="end">9:00〜16:00（木休）</text>
+  <circle cx="{M[3][0]}" cy="{M[3][1]}" r="7" fill="#2d5a1b" stroke="#fff" stroke-width="1.5"/>
+  <text x="{M[3][0]}" y="{M[3][1]+3}" font-size="8" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+  <text x="{M[3][0]-22}" y="{M[3][1]-8}" font-size="6.5" fill="#1a3a0a" font-weight="bold" text-anchor="end">高林産直会</text>
+  <text x="{M[3][0]-22}" y="{M[3][1]}" font-size="5.5" fill="#555" text-anchor="end">☎ 0287-68-1092</text>
+  <text x="{M[3][0]-22}" y="{M[3][1]+8}" font-size="5" fill="#777" text-anchor="end">9:00〜16:00（木休）</text>
 
-  <!-- ④ 那須の駅 -->
-  <line x1="{M[4][0]+9}" y1="{M[4][1]}" x2="{M[4][0]+22}" y2="{M[4][1]-5}"
+  <!-- ④ 那須の駅：ラベル右方向 -->
+  <line x1="{M[4][0]+7}" y1="{M[4][1]}" x2="{M[4][0]+20}" y2="{M[4][1]-5}"
         stroke="#2d5a1b" stroke-width="0.9"/>
-  <circle cx="{M[4][0]}" cy="{M[4][1]}" r="9" fill="#2d5a1b" stroke="#fff" stroke-width="1.5"/>
-  <text x="{M[4][0]}" y="{M[4][1]+4}" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
-  <text x="{M[4][0]+24}" y="{M[4][1]-8}" font-size="7" fill="#1a3a0a" font-weight="bold">那須の駅 農産物直売所</text>
-  <text x="{M[4][0]+24}" y="{M[4][1]}" font-size="6" fill="#555">☎ 0287-62-0034</text>
+  <circle cx="{M[4][0]}" cy="{M[4][1]}" r="7" fill="#2d5a1b" stroke="#fff" stroke-width="1.5"/>
+  <text x="{M[4][0]}" y="{M[4][1]+3}" font-size="8" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+  <text x="{M[4][0]+22}" y="{M[4][1]-8}" font-size="6.5" fill="#1a3a0a" font-weight="bold">那須の駅 農産物直売所</text>
+  <text x="{M[4][0]+22}" y="{M[4][1]}" font-size="5.5" fill="#555">☎ 0287-62-0034</text>
 
-  <!-- ⑤ アグリパル塩原 (ラベル左) -->
-  <line x1="{M[5][0]-9}" y1="{M[5][1]}" x2="{M[5][0]-18}" y2="{M[5][1]+10}"
+  <!-- ⑤ アグリパル塩原：ラベル左下方向 -->
+  <line x1="{M[5][0]-7}" y1="{M[5][1]}" x2="{M[5][0]-16}" y2="{M[5][1]+10}"
         stroke="#2d5a1b" stroke-width="0.9"/>
-  <circle cx="{M[5][0]}" cy="{M[5][1]}" r="9" fill="#2d5a1b" stroke="#fff" stroke-width="1.5"/>
-  <text x="{M[5][0]}" y="{M[5][1]+4}" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
-  <text x="{M[5][0]-20}" y="{M[5][1]+18}" font-size="7" fill="#1a3a0a" font-weight="bold" text-anchor="end">アグリパル塩原</text>
-  <text x="{M[5][0]-20}" y="{M[5][1]+26}" font-size="6" fill="#555" text-anchor="end">☎ 0287-35-4401</text>
-  <text x="{M[5][0]-20}" y="{M[5][1]+34}" font-size="6" fill="#c44000" font-weight="bold" text-anchor="end">★ 申込書提出中</text>
+  <circle cx="{M[5][0]}" cy="{M[5][1]}" r="7" fill="#2d5a1b" stroke="#fff" stroke-width="1.5"/>
+  <text x="{M[5][0]}" y="{M[5][1]+3}" font-size="8" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
+  <text x="{M[5][0]-18}" y="{M[5][1]+18}" font-size="6.5" fill="#1a3a0a" font-weight="bold" text-anchor="end">アグリパル塩原</text>
+  <text x="{M[5][0]-18}" y="{M[5][1]+26}" font-size="5.5" fill="#555" text-anchor="end">☎ 0287-35-4401</text>
+  <text x="{M[5][0]-18}" y="{M[5][1]+34}" font-size="5.5" fill="#c44000" font-weight="bold" text-anchor="end">★ 申込書提出中</text>
 
   <!-- ── 大田原市（青） ── -->
 
-  <!-- ⑥ あさか直売所 -->
-  <line x1="{M[6][0]+9}" y1="{M[6][1]}" x2="{M[6][0]+22}" y2="{M[6][1]-5}"
+  <!-- ⑥ あさか直売所：ラベル左方向（②との縦重なり回避） -->
+  <line x1="{M[6][0]-7}" y1="{M[6][1]}" x2="{M[6][0]-20}" y2="{M[6][1]-5}"
         stroke="#1565c0" stroke-width="0.9"/>
-  <circle cx="{M[6][0]}" cy="{M[6][1]}" r="9" fill="#1565c0" stroke="#fff" stroke-width="1.5"/>
-  <text x="{M[6][0]}" y="{M[6][1]+4}" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
-  <text x="{M[6][0]+24}" y="{M[6][1]-8}" font-size="7" fill="#0a2a60" font-weight="bold">あさか直売所</text>
-  <text x="{M[6][0]+24}" y="{M[6][1]}" font-size="6" fill="#555">☎ 0287-22-4621</text>
-  <text x="{M[6][0]+24}" y="{M[6][1]+8}" font-size="5.5" fill="#777">9:00〜17:30（無休）</text>
+  <circle cx="{M[6][0]}" cy="{M[6][1]}" r="7" fill="#1565c0" stroke="#fff" stroke-width="1.5"/>
+  <text x="{M[6][0]}" y="{M[6][1]+3}" font-size="8" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
+  <text x="{M[6][0]-22}" y="{M[6][1]-8}" font-size="6.5" fill="#0a2a60" font-weight="bold" text-anchor="end">あさか直売所</text>
+  <text x="{M[6][0]-22}" y="{M[6][1]}" font-size="5.5" fill="#555" text-anchor="end">☎ 0287-22-4621</text>
+  <text x="{M[6][0]-22}" y="{M[6][1]+8}" font-size="5" fill="#777" text-anchor="end">9:00〜17:30（無休）</text>
 
-  <!-- ⑦ きらり佐久山 -->
-  <line x1="{M[7][0]}" y1="{M[7][1]-9}" x2="{M[7][0]}" y2="{M[7][1]-22}"
+  <!-- ⑦ きらり佐久山：ラベル上方向 -->
+  <line x1="{M[7][0]}" y1="{M[7][1]-7}" x2="{M[7][0]}" y2="{M[7][1]-20}"
         stroke="#1565c0" stroke-width="0.9"/>
-  <circle cx="{M[7][0]}" cy="{M[7][1]}" r="9" fill="#1565c0" stroke="#fff" stroke-width="1.5"/>
-  <text x="{M[7][0]}" y="{M[7][1]+4}" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
-  <text x="{M[7][0]}" y="{M[7][1]-26}" font-size="7" fill="#0a2a60" font-weight="bold" text-anchor="middle">きらり佐久山農産物直売所</text>
-  <text x="{M[7][0]}" y="{M[7][1]-18}" font-size="6" fill="#555" text-anchor="middle">☎ 0287-28-1290</text>
+  <circle cx="{M[7][0]}" cy="{M[7][1]}" r="7" fill="#1565c0" stroke="#fff" stroke-width="1.5"/>
+  <text x="{M[7][0]}" y="{M[7][1]+3}" font-size="8" fill="#fff" text-anchor="middle" font-weight="bold">7</text>
+  <text x="{M[7][0]}" y="{M[7][1]-24}" font-size="6.5" fill="#0a2a60" font-weight="bold" text-anchor="middle">きらり佐久山農産物直売所</text>
+  <text x="{M[7][0]}" y="{M[7][1]-16}" font-size="5.5" fill="#555" text-anchor="middle">☎ 0287-28-1290</text>
 
   <!-- ── 那須町（オレンジ） ── -->
 
-  <!-- ⑧ 道の駅 那須高原友愛の森 -->
-  <line x1="{M[8][0]}" y1="{M[8][1]+9}" x2="{M[8][0]}" y2="{M[8][1]+22}"
+  <!-- ⑧ 道の駅 那須高原友愛の森：ラベル左方向（④との重なり回避） -->
+  <line x1="{M[8][0]-7}" y1="{M[8][1]}" x2="{M[8][0]-20}" y2="{M[8][1]}"
         stroke="#e65100" stroke-width="0.9"/>
-  <circle cx="{M[8][0]}" cy="{M[8][1]}" r="9" fill="#e65100" stroke="#fff" stroke-width="1.5"/>
-  <text x="{M[8][0]}" y="{M[8][1]+4}" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
-  <text x="{M[8][0]}" y="{M[8][1]+31}" font-size="7" fill="#7a2400" font-weight="bold" text-anchor="middle">道の駅 那須高原</text>
-  <text x="{M[8][0]}" y="{M[8][1]+39}" font-size="7" fill="#7a2400" font-weight="bold" text-anchor="middle">友愛の森</text>
-  <text x="{M[8][0]}" y="{M[8][1]+47}" font-size="6" fill="#555" text-anchor="middle">☎ 0287-78-0233</text>
+  <circle cx="{M[8][0]}" cy="{M[8][1]}" r="7" fill="#e65100" stroke="#fff" stroke-width="1.5"/>
+  <text x="{M[8][0]}" y="{M[8][1]+3}" font-size="8" fill="#fff" text-anchor="middle" font-weight="bold">8</text>
+  <text x="{M[8][0]-22}" y="{M[8][1]-8}" font-size="6.5" fill="#7a2400" font-weight="bold" text-anchor="end">道の駅 那須高原</text>
+  <text x="{M[8][0]-22}" y="{M[8][1]}" font-size="6.5" fill="#7a2400" font-weight="bold" text-anchor="end">友愛の森</text>
+  <text x="{M[8][0]-22}" y="{M[8][1]+8}" font-size="5.5" fill="#555" text-anchor="end">☎ 0287-78-0233</text>
+  <text x="{M[8][0]-22}" y="{M[8][1]+16}" font-size="5" fill="#777" text-anchor="end">9:00〜17:00</text>
 
-  <!-- ⑨ 道の駅 東山道伊王野 -->
-  <line x1="{M[9][0]-9}" y1="{M[9][1]}" x2="{M[9][0]-22}" y2="{M[9][1]}"
+  <!-- ⑨ 道の駅 東山道伊王野：ラベル上方向（⑧との重なり回避） -->
+  <line x1="{M[9][0]}" y1="{M[9][1]-7}" x2="{M[9][0]}" y2="24"
         stroke="#e65100" stroke-width="0.9"/>
-  <circle cx="{M[9][0]}" cy="{M[9][1]}" r="9" fill="#e65100" stroke="#fff" stroke-width="1.5"/>
-  <text x="{M[9][0]}" y="{M[9][1]+4}" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
-  <text x="{M[9][0]-24}" y="{M[9][1]-8}" font-size="7" fill="#7a2400" font-weight="bold" text-anchor="end">道の駅 東山道伊王野</text>
-  <text x="{M[9][0]-24}" y="{M[9][1]}" font-size="6" fill="#555" text-anchor="end">☎ 0287-75-0577</text>
-  <text x="{M[9][0]-24}" y="{M[9][1]+8}" font-size="5.5" fill="#777" text-anchor="end">8:30〜17:00</text>
+  <circle cx="{M[9][0]}" cy="{M[9][1]}" r="7" fill="#e65100" stroke="#fff" stroke-width="1.5"/>
+  <text x="{M[9][0]}" y="{M[9][1]+3}" font-size="8" fill="#fff" text-anchor="middle" font-weight="bold">9</text>
+  <text x="{M[9][0]}" y="15" font-size="6.5" fill="#7a2400" font-weight="bold" text-anchor="middle">道の駅 東山道伊王野</text>
+  <text x="{M[9][0]}" y="23" font-size="5.5" fill="#555" text-anchor="middle">☎ 0287-75-0577</text>
+  <text x="{M[9][0]}" y="31" font-size="5" fill="#777" text-anchor="middle">8:30〜17:00</text>
 
   <!-- ==================== 凡例・補足 ==================== -->
   <rect x="2" y="{H-28}" width="82" height="26" rx="3" fill="#fff" fill-opacity="0.85" stroke="#c8e6c9" stroke-width="0.8"/>
@@ -245,7 +240,6 @@ body {{ font-family: 'JP', sans-serif; font-size: 10pt; color: #1a1a1a; width: 2
 </svg>
 </div>
 
-<!-- フッター -->
 <div class="ftr" style="margin-top:6px;">
   <table style="width:100%; border-collapse:collapse;"><tbody><tr>
     <td style="color:#c8e6c9; font-size:8pt;"><strong style="color:#fff; font-size:9pt;">株式会社 芹江コンチェルト</strong>　栃木県大田原市山の手1丁目7-7</td>
