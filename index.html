@@ -425,7 +425,18 @@ section { padding: 80px 5vw; }
   line-height: 1.9;
   margin-bottom: 18px;
 }
-.media-bg .section-desc { color: #ccc; }
+.media-bg .section-desc { color: #ccc; margin-bottom: 20px; }
+.media-cta {
+  display: inline-block;
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 3px;
+  transition: opacity 0.2s;
+}
+.media-cta:hover { opacity: 0.75; }
 @media (max-width: 800px) {
   .media-grid { grid-template-columns: 1fr; }
   .media-photo { order: -1; }
@@ -499,10 +510,10 @@ footer {
     <span>なんだパンダ</span>
   </a>
   <ul class="nav-links">
+    <li><a href="#media">メディア</a></li>
     <li><a href="#story">ストーリー</a></li>
     <li><a href="#product">商品</a></li>
     <li><a href="#record">実績</a></li>
-    <li><a href="#media">メディア</a></li>
     <li><a href="#venue">出店条件</a></li>
     <li><a href="#franchise">FC募集</a></li>
     <li><a href="#contact">お問い合わせ</a></li>
@@ -522,6 +533,25 @@ footer {
     <span class="hero-tag">🏆 大田原ブランド認定 第25号</span>
   </div>
   <a href="#story" class="btn-primary">もっと見る</a>
+</section>
+
+<!-- MEDIA -->
+<section class="media-bg" id="media">
+  <p class="section-label">Media</p>
+  <h2 class="section-title">メディア掲載</h2>
+  <div class="divider"></div>
+  <div class="media-grid">
+    <div class="media-photo">
+      <img src="images/tv-feature.jpg" alt="「東野幸治は移住したい」収録の様子">
+    </div>
+    <div>
+      <span class="media-badge">📺 TV出演決定</span>
+      <h3 class="media-show-title">「東野幸治は移住したい」<br>〜栃木県大田原市編〜</h3>
+      <p class="media-detail">ABCテレビ系列（全国ネット）<br>2026年8月2日（日） 12:55〜13:55 放送</p>
+      <p class="section-desc">なんだパンダベビーカステラが、全国放送のテレビ番組で紹介されます。栃木県大田原市の魅力とあわせてご紹介いただきました。</p>
+      <a href="#franchise" class="media-cta">この実績を活かして一緒に広げませんか？フランチャイズ加盟店募集 →</a>
+    </div>
+  </div>
 </section>
 
 <!-- STATEMENT -->
@@ -685,24 +715,6 @@ footer {
           <li><span class="place" style="font-size:0.83rem;">手土産・観光土産にぴったり</span></li>
         </ul>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- MEDIA -->
-<section class="media-bg" id="media">
-  <p class="section-label">Media</p>
-  <h2 class="section-title">メディア掲載</h2>
-  <div class="divider"></div>
-  <div class="media-grid">
-    <div class="media-photo">
-      <img src="images/tv-feature.jpg" alt="「東野幸治は移住したい」収録の様子">
-    </div>
-    <div>
-      <span class="media-badge">📺 TV出演決定</span>
-      <h3 class="media-show-title">「東野幸治は移住したい」<br>〜栃木県大田原市編〜</h3>
-      <p class="media-detail">ABCテレビ系列（全国ネット）<br>2026年8月2日（日） 12:55〜13:55 放送</p>
-      <p class="section-desc">なんだパンダベビーカステラが、全国放送のテレビ番組で紹介されます。栃木県大田原市の魅力とあわせてご紹介いただきました。</p>
     </div>
   </div>
 </section>
