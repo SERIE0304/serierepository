@@ -33,7 +33,7 @@ def get_line_token():
             "sub": CHANNEL_ID,
             "aud": "https://api.line.me/",
             "exp": now + 60 * 30,
-            "token_exp": 60 * 60 * 24 * 30,
+            "token_exp": 60 * 30,
             "jti": str(uuid.uuid4()),
         }
         assertion = jwt.encode(payload, private_key, algorithm="RS256", headers={"alg": "RS256", "typ": "JWT", "kid": kid})

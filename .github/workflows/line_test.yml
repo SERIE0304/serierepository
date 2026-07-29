@@ -31,7 +31,7 @@ jobs:
           now = int(time.time())
           payload = {
               'iss': CHANNEL_ID, 'sub': CHANNEL_ID, 'aud': 'https://api.line.me/',
-              'exp': now + 1800, 'token_exp': 2592000, 'jti': str(uuid.uuid4()),
+              'exp': now + 1800, 'token_exp': 1800, 'jti': str(uuid.uuid4()),
           }
           assertion = jwt.encode(payload, private_key, algorithm='RS256', headers={'alg':'RS256','typ':'JWT','kid':kid})
           data = urllib.parse.urlencode({
