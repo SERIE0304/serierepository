@@ -383,6 +383,54 @@ section { padding: 80px 5vw; }
 .record-list .place { font-weight: 500; }
 .record-list .type { color: var(--gray); font-size: 0.78rem; }
 
+/* ── MEDIA ── */
+.media-bg { background: var(--black); color: var(--white); }
+.media-bg .section-label { color: var(--gold); }
+.media-bg .section-title { color: var(--white); }
+.media-bg .divider { background: var(--gold); }
+.media-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 48px;
+  align-items: center;
+  margin-top: 12px;
+}
+.media-photo {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.media-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.media-badge {
+  display: inline-block;
+  background: var(--gold);
+  color: #1a1a1a;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+.media-show-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.media-detail {
+  font-size: 0.9rem;
+  color: #f0dba0;
+  line-height: 1.9;
+  margin-bottom: 18px;
+}
+.media-bg .section-desc { color: #ccc; }
+@media (max-width: 800px) {
+  .media-grid { grid-template-columns: 1fr; }
+  .media-photo { order: -1; }
+}
+
 /* ── PARTNERS ── */
 .partners-bg { background: var(--gray-light); }
 .partner-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
@@ -454,6 +502,7 @@ footer {
     <li><a href="#story">ストーリー</a></li>
     <li><a href="#product">商品</a></li>
     <li><a href="#record">実績</a></li>
+    <li><a href="#media">メディア</a></li>
     <li><a href="#venue">出店条件</a></li>
     <li><a href="#franchise">FC募集</a></li>
     <li><a href="#contact">お問い合わせ</a></li>
@@ -636,6 +685,24 @@ footer {
           <li><span class="place" style="font-size:0.83rem;">手土産・観光土産にぴったり</span></li>
         </ul>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- MEDIA -->
+<section class="media-bg" id="media">
+  <p class="section-label">Media</p>
+  <h2 class="section-title">メディア掲載</h2>
+  <div class="divider"></div>
+  <div class="media-grid">
+    <div class="media-photo">
+      <img src="images/tv-feature.jpg" alt="「東野幸治は移住したい」収録の様子">
+    </div>
+    <div>
+      <span class="media-badge">📺 TV出演決定</span>
+      <h3 class="media-show-title">「東野幸治は移住したい」<br>〜栃木県大田原市編〜</h3>
+      <p class="media-detail">ABCテレビ系列（全国ネット）<br>2026年8月2日（日） 12:55〜13:55 放送</p>
+      <p class="section-desc">なんだパンダベビーカステラが、全国放送のテレビ番組で紹介されます。栃木県大田原市の魅力とあわせてご紹介いただきました。</p>
     </div>
   </div>
 </section>
