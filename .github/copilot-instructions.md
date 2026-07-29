@@ -16,6 +16,7 @@
 
 ### Firebase設定
 - プロジェクト: `serie-concerto`
+- コンソール: `https://console.firebase.google.com/project/serie-concerto`
 - DB URL: `https://serie-concerto-default-rtdb.asia-southeast1.firebasedatabase.app`
 - 設定ファイル: `task-app/firebase-config.js`
 
@@ -56,6 +57,7 @@ task-app/
 ## 2. なんだパンダベビーカステラ HP（ルート `/`）
 
 **URL**: `https://serie0304.github.io/serierepository/`
+**リポジトリ**: `https://github.com/SERIE0304/serierepository`
 
 - ファイル: `index.html`, `images/`, `robots.txt`, `sitemap.xml`
 - 別チャットで管理・更新中
