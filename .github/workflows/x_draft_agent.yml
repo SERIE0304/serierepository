@@ -22,6 +22,5 @@ jobs:
       - name: Xポスト下書き生成・LINE送信
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          LINE_JWT_PRIVATE_KEY: ${{ secrets.LINE_JWT_PRIVATE_KEY }}
-          LINE_JWT_KID: ${{ secrets.LINE_JWT_KID }}
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: cd agents && python sns_agent.py x
