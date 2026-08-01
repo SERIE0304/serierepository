@@ -20,8 +20,8 @@ jobs:
           import os, json, urllib.request, urllib.parse, urllib.error
 
           token = os.environ['LINE_CHANNEL_TOKEN']
-          data = urllib.parse.urlencode({'access_token': token}).encode()
-          req = urllib.request.Request('https://api.line.me/oauth2/v2.1/verify', data=data, method='POST')
+          qs = urllib.parse.urlencode({'access_token': token})
+          req = urllib.request.Request('https://api.line.me/oauth2/v2.1/verify?' + qs, method='GET')
           try:
               with urllib.request.urlopen(req) as res:
                   body = json.loads(res.read())
