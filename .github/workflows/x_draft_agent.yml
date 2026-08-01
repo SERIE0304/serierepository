@@ -24,3 +24,12 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: cd agents && python sns_agent.py x
+      - name: 失敗時にLINEへアラート
+        if: failure()
+        env:
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: |
+          curl -s -X POST https://api.line.me/v2/bot/message/push \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $LINE_CHANNEL_TOKEN" \
+            -d "{\"to\":\"U206a030c1759f1ed8f4c684d03d11915\",\"messages\":[{\"type\":\"text\",\"text\":\"⚠️Xポスト下書きエージェントでエラーが発生しました。\n詳細: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}]}"

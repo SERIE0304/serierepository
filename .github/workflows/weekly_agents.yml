@@ -44,6 +44,15 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: cd agents && python larva_agent.py
+      - name: 失敗時にLINEへアラート
+        if: failure()
+        env:
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: |
+          curl -s -X POST https://api.line.me/v2/bot/message/push \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $LINE_CHANNEL_TOKEN" \
+            -d "{\"to\":\"U206a030c1759f1ed8f4c684d03d11915\",\"messages\":[{\"type\":\"text\",\"text\":\"⚠️毎週月曜エージェント（パンダ/料金/SNS/LaRva）でエラーが発生しました。\n詳細: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}]}"
 
   monday-biweekly-fudosan:
     name: 隔週月曜・不動産調査
@@ -67,6 +76,15 @@ jobs:
           else
             echo "今週は不動産調査をスキップします"
           fi
+      - name: 失敗時にLINEへアラート
+        if: failure()
+        env:
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: |
+          curl -s -X POST https://api.line.me/v2/bot/message/push \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $LINE_CHANNEL_TOKEN" \
+            -d "{\"to\":\"U206a030c1759f1ed8f4c684d03d11915\",\"messages\":[{\"type\":\"text\",\"text\":\"⚠️不動産調査エージェントでエラーが発生しました。\n詳細: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}]}"
 
   monday-monthly:
     name: 月1回・補助金＆FC化調査
@@ -91,6 +109,15 @@ jobs:
           else
             echo "今週は月次調査をスキップします"
           fi
+      - name: 失敗時にLINEへアラート
+        if: failure()
+        env:
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: |
+          curl -s -X POST https://api.line.me/v2/bot/message/push \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $LINE_CHANNEL_TOKEN" \
+            -d "{\"to\":\"U206a030c1759f1ed8f4c684d03d11915\",\"messages\":[{\"type\":\"text\",\"text\":\"⚠️補助金＆FC化調査エージェントでエラーが発生しました。\n詳細: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}]}"
 
   friday-review:
     name: 毎週金曜・タスク振り返り
@@ -107,3 +134,12 @@ jobs:
         env:
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: cd agents && python task_manager.py
+      - name: 失敗時にLINEへアラート
+        if: failure()
+        env:
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: |
+          curl -s -X POST https://api.line.me/v2/bot/message/push \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $LINE_CHANNEL_TOKEN" \
+            -d "{\"to\":\"U206a030c1759f1ed8f4c684d03d11915\",\"messages\":[{\"type\":\"text\",\"text\":\"⚠️週次タスク振り返りエージェントでエラーが発生しました。\n詳細: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}]}"
