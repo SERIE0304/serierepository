@@ -1,5 +1,8 @@
 name: 週次エージェント自動実行
 
+permissions:
+  contents: write
+
 on:
   schedule:
     # 毎週月曜 朝8:00 JST (UTC 23:00 日曜)
@@ -44,6 +47,14 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: cd agents && python larva_agent.py
+      - name: レポートをコミット
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add agents/output/ agents/activity_log.json
+          git commit -m "chore: 週次エージェントのレポートを保存 [skip ci]" || echo "変更なし"
+          git pull --rebase || true
+          git push || echo "push失敗（権限を確認）"
       - name: 失敗時にLINEへアラート
         if: failure()
         env:
@@ -76,6 +87,14 @@ jobs:
           else
             echo "今週は不動産調査をスキップします"
           fi
+      - name: レポートをコミット
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add agents/output/ agents/activity_log.json
+          git commit -m "chore: 週次エージェントのレポートを保存 [skip ci]" || echo "変更なし"
+          git pull --rebase || true
+          git push || echo "push失敗（権限を確認）"
       - name: 失敗時にLINEへアラート
         if: failure()
         env:
@@ -109,6 +128,14 @@ jobs:
           else
             echo "今週は月次調査をスキップします"
           fi
+      - name: レポートをコミット
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add agents/output/ agents/activity_log.json
+          git commit -m "chore: 週次エージェントのレポートを保存 [skip ci]" || echo "変更なし"
+          git pull --rebase || true
+          git push || echo "push失敗（権限を確認）"
       - name: 失敗時にLINEへアラート
         if: failure()
         env:
@@ -132,6 +159,7 @@ jobs:
         run: pip install anthropic pyjwt cryptography
       - name: 週次タスク振り返りLINE送信
         env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: cd agents && python task_manager.py
       - name: 失敗時にLINEへアラート
