@@ -107,6 +107,12 @@
       "user": "芹江",
       "action": "セッション開始",
       "detail": "Claude Codeセッション"
+    },
+    {
+      "timestamp": "2026/08/07 14:38:00",
+      "user": "システム自動実行",
+      "action": "agent",
+      "detail": "不動産エージェント"
     }
   ]
 }
