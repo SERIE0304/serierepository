@@ -51,10 +51,21 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add agents/output/ agents/activity_log.json
+          git add -A
           git commit -m "chore: 週次エージェントのレポートを保存 [skip ci]" || echo "変更なし"
-          git pull --rebase || true
-          git push || echo "push失敗（権限を確認）"
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            if git rebase origin/main; then
+              if git push; then
+                echo "push成功"
+                break
+              fi
+            else
+              git rebase --abort || true
+            fi
+            echo "push/rebaseに失敗。再試行します（${i}回目）"
+            sleep $((RANDOM % 10 + 3))
+          done
       - name: 失敗時にLINEへアラート
         if: failure()
         env:
@@ -91,10 +102,21 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add agents/output/ agents/activity_log.json
+          git add -A
           git commit -m "chore: 週次エージェントのレポートを保存 [skip ci]" || echo "変更なし"
-          git pull --rebase || true
-          git push || echo "push失敗（権限を確認）"
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            if git rebase origin/main; then
+              if git push; then
+                echo "push成功"
+                break
+              fi
+            else
+              git rebase --abort || true
+            fi
+            echo "push/rebaseに失敗。再試行します（${i}回目）"
+            sleep $((RANDOM % 10 + 3))
+          done
       - name: 失敗時にLINEへアラート
         if: failure()
         env:
@@ -132,10 +154,21 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add agents/output/ agents/activity_log.json
+          git add -A
           git commit -m "chore: 週次エージェントのレポートを保存 [skip ci]" || echo "変更なし"
-          git pull --rebase || true
-          git push || echo "push失敗（権限を確認）"
+          for i in 1 2 3 4 5; do
+            git fetch origin main
+            if git rebase origin/main; then
+              if git push; then
+                echo "push成功"
+                break
+              fi
+            else
+              git rebase --abort || true
+            fi
+            echo "push/rebaseに失敗。再試行します（${i}回目）"
+            sleep $((RANDOM % 10 + 3))
+          done
       - name: 失敗時にLINEへアラート
         if: failure()
         env:
