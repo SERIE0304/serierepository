@@ -52,6 +52,8 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add -A
+          git restore --staged agents/activity_log.json 2>/dev/null || true
+          git checkout -- agents/activity_log.json 2>/dev/null || true
           git commit -m "chore: 週次エージェントのレポートを保存 [skip ci]" || echo "変更なし"
           for i in 1 2 3 4 5; do
             git fetch origin main
@@ -103,6 +105,8 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add -A
+          git restore --staged agents/activity_log.json 2>/dev/null || true
+          git checkout -- agents/activity_log.json 2>/dev/null || true
           git commit -m "chore: 週次エージェントのレポートを保存 [skip ci]" || echo "変更なし"
           for i in 1 2 3 4 5; do
             git fetch origin main
@@ -155,6 +159,8 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add -A
+          git restore --staged agents/activity_log.json 2>/dev/null || true
+          git checkout -- agents/activity_log.json 2>/dev/null || true
           git commit -m "chore: 週次エージェントのレポートを保存 [skip ci]" || echo "変更なし"
           for i in 1 2 3 4 5; do
             git fetch origin main
