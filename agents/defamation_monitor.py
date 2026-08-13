@@ -20,28 +20,38 @@ def send_line_message(message):
         headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ' + LINE_CHANNEL_TOKEN})
     urllib.request.urlopen(req)
 
-def save_evidence(account, content, timestamp):
+def save_evidence(account, content, reason, timestamp):
     with open(EVIDENCE_LOG, 'a', encoding='utf-8') as f:
-        f.write(f'[{timestamp}] @{account}\n{content}\n{"="*60}\n\n')
+        f.write(f'[{timestamp}] @{account} 【検知理由: {reason}】\n{content}\n{"="*60}\n\n')
 
 def check_account(account, now):
-    keywords = '・'.join(ALERT_KEYWORDS)
+    keywords_str = '・'.join(ALERT_KEYWORDS)
     prompt = (
         f'今日は{now}です。X（旧Twitter）のアカウント @{account} の直近24時間以内の投稿を検索してください。\n\n'
-        f'検索対象キーワード：{keywords}\n\n'
-        f'以下の方法で検索してください：\n'
-        f'- site:x.com/{account} を検索\n'
+        f'【検索方法】\n'
+        f'- site:x.com/{account} で検索\n'
         f'- x.com/{account} のページを確認\n\n'
-        f'該当する投稿が見つかった場合：\n'
+        f'【報告対象①：キーワード検知】\n'
+        f'以下のキーワードを含む投稿：{keywords_str}\n\n'
+        f'【報告対象②：AI判断による法的リスク投稿】\n'
+        f'キーワードに関係なく、以下に該当する可能性がある投稿をすべて報告：\n'
+        f'- 誹謗中傷・名誉毀損（特定の人物を傷つける内容）\n'
+        f'- 侮辱・罵倒（人格否定、差別的表現）\n'
+        f'- 脅迫・恫喝（「〜してやる」「〜させる」などの威圧）\n'
+        f'- 虚偽の事実の拡散（嘘の情報を事実として述べる）\n'
+        f'- プライバシー侵害（住所・電話番号・家族情報などの暴露）\n'
+        f'- ハラスメント（執拗な攻撃・嫌がらせ）\n\n'
+        f'【出力形式】\n'
+        f'該当投稿が見つかった場合、以下を報告：\n'
         f'- 投稿の全文\n'
         f'- 投稿日時\n'
         f'- URL（わかる場合）\n'
-        f'を日本語で報告してください。\n\n'
-        f'直近24時間以内に該当する投稿が見つからなかった場合は、正確に「NO_VIOLATION_FOUND」とだけ返してください。'
+        f'- 検知理由（キーワード検知 or AI判断：該当カテゴリ名）\n\n'
+        f'直近24時間以内に該当投稿が一切ない場合のみ「NO_VIOLATION_FOUND」と返してください。'
     )
     result = client.messages.create(
         model='claude-opus-4-5',
-        max_tokens=1000,
+        max_tokens=1500,
         tools=[{'type': 'web_search_20250305', 'name': 'web_search'}],
         messages=[{'role': 'user', 'content': prompt}]
     )
@@ -63,14 +73,14 @@ def main():
         print(result)
         if 'NO_VIOLATION_FOUND' not in result:
             violations.append((account, result))
-            save_evidence(account, result, now)
+            save_evidence(account, result, 'キーワード+AI判断', now)
             print(f'⚠️ @{account} で該当投稿を検知 → 証拠ログ保存済み')
 
     if violations:
-        alert = f'⚠️【誹謗中傷検知】{now}\n\n'
+        alert = f'⚠️【誹謗中傷検知アラート】{now}\n\n'
         for account, content in violations:
             alert += f'■ @{account}\n{content}\n\n'
-        alert += '※証拠は defamation_evidence.log に保存済み'
+        alert += '※証拠は defamation_evidence.log に自動保存済み'
         send_line_message(alert)
         print('LINEアラート送信完了')
     else:
