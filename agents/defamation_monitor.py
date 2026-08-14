@@ -71,10 +71,16 @@ def main():
         print(f'@{account} を監視中...')
         result = check_account(account, now)
         print(result)
-        if 'NO_VIOLATION_FOUND' not in result:
+        account_not_found = any(phrase in result for phrase in [
+            'アカウントが存在しない', '確認できませんでした', 'アカウントは見つかりません',
+            'not found', 'does not exist', 'account not found'
+        ])
+        if 'NO_VIOLATION_FOUND' not in result and not account_not_found:
             violations.append((account, result))
             save_evidence(account, result, 'キーワード+AI判断', now)
             print(f'⚠️ @{account} で該当投稿を検知 → 証拠ログ保存済み')
+        elif account_not_found:
+            print(f'⚠️ @{account} アカウントが見つかりません。アカウント名を確認してください。')
 
     if violations:
         alert = f'⚠️【誹謗中傷検知アラート】{now}\n\n'
