@@ -50,7 +50,7 @@ def check_account(account, now):
         f'直近24時間以内に該当投稿が一切ない場合のみ「NO_VIOLATION_FOUND」と返してください。'
     )
     result = client.messages.create(
-        model='claude-opus-4-5',
+        model='claude-haiku-4-5-20251001',
         max_tokens=1500,
         tools=[{'type': 'web_search_20250305', 'name': 'web_search'}],
         messages=[{'role': 'user', 'content': prompt}]
