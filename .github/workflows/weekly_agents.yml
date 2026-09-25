@@ -95,7 +95,7 @@ jobs:
           LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
         run: |
           DAY=$(date +%d)
-          if [ "$DAY" -le 14 ] || ( [ "$DAY" -ge 15 ] && [ "$DAY" -le 21 ] ); then
+          if [ "$DAY" -le 7 ] || ( [ "$DAY" -ge 15 ] && [ "$DAY" -le 21 ] ); then
             cd agents && python fudosan_agent.py
           else
             echo "今週は不動産調査をスキップします"
