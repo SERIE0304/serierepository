@@ -32,6 +32,7 @@ REVIEWER_CHANNEL_ID = os.environ.get("REVIEWER_CHANNEL_ID", "")
 GCS_BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME", "")
 
 from client_config import build_system_prompt
+from receipt_handler import handle_group_event
 
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
 LINE_PUSH_URL = "https://api.line.me/v2/bot/message/push"
@@ -370,6 +371,14 @@ def line_webhook(request):
 
         message_id = msg.get("id")
         if message_id and already_processed(message_id):
+            continue
+
+        # ひつじさんのグループ/ルームからのメッセージ（例: MEGUMIさんの領収書写真）は
+        # みさきちゃん向けの1:1チャット処理とは別に扱う。
+        # 1:1チャット（source.type == "user"）の経路は以下一切変更していない。
+        source_type = ev.get("source", {}).get("type")
+        if source_type in ("group", "room"):
+            handle_group_event(ev)
             continue
 
         if msg_type == "text":
