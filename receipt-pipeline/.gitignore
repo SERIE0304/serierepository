@@ -1,0 +1,7 @@
+# 会社の財務データ（金額・店名等）を含むため、リモートリポジトリには上げない
+ledger.jsonl
+synced_objects.txt
+run_log.txt
+verify_*.json
+__pycache__/
+*.pyc
