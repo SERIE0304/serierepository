@@ -1,0 +1,51 @@
+{
+  "client_name": "みさきちゃん",
+  "target_weight": 57.5,
+  "maintenance_periods": [
+    {
+      "start": "2026-06-17",
+      "end": "2026-06-22",
+      "label": "メンテ①"
+    },
+    {
+      "start": "2026-07-03",
+      "end": "2026-07-09",
+      "label": "メンテ②"
+    },
+    {
+      "start": "2026-07-21",
+      "end": "2026-07-27",
+      "label": "メンテ③"
+    }
+  ],
+  "records": [
+    {"date": "2026-05-28", "weight": 59.9, "body_fat": 34.3},
+    {"date": "2026-05-29", "weight": 60.3, "body_fat": null},
+    {"date": "2026-05-30", "weight": 59.7, "body_fat": null},
+    {"date": "2026-05-31", "weight": 60.2, "body_fat": null},
+    {"date": "2026-06-01", "weight": 60.9, "body_fat": null},
+    {"date": "2026-06-02", "weight": 61.1, "body_fat": null},
+    {"date": "2026-06-03", "weight": 60.5, "body_fat": null},
+    {"date": "2026-06-06", "weight": 60.3, "body_fat": 35.5},
+    {"date": "2026-06-08", "weight": 59.8, "body_fat": null},
+    {"date": "2026-06-10", "weight": 59.8, "body_fat": 34.8},
+    {"date": "2026-06-11", "weight": 59.2, "body_fat": 33.4},
+    {"date": "2026-06-13", "weight": 59.2, "body_fat": 32.7},
+    {"date": "2026-06-14", "weight": 58.9, "body_fat": 32.3},
+    {"date": "2026-06-15", "weight": 59.3, "body_fat": 33.6},
+    {"date": "2026-06-17", "weight": 58.6, "body_fat": 32.6},
+    {"date": "2026-06-18", "weight": 59.3, "body_fat": 33.4},
+    {"date": "2026-06-20", "weight": 59.8, "body_fat": 33.0},
+    {"date": "2026-06-21", "weight": 59.2, "body_fat": 33.2},
+    {"date": "2026-06-22", "weight": 59.8, "body_fat": 34.4},
+    {"date": "2026-06-25", "weight": 59.3, "body_fat": 34.1},
+    {"date": "2026-06-27", "weight": 59.1, "body_fat": 33.6},
+    {"date": "2026-06-28", "weight": 58.2, "body_fat": 33.0},
+    {"date": "2026-06-29", "weight": 58.5, "body_fat": 32.4},
+    {"date": "2026-07-02", "weight": 59.1, "body_fat": 33.6},
+    {"date": "2026-07-03", "weight": 58.1, "body_fat": 33.1},
+    {"date": "2026-07-04", "weight": 58.4, "body_fat": null},
+    {"date": "2026-07-14", "weight": 59.0, "body_fat": 33.5},
+    {"date": "2026-07-15", "weight": 59.0, "body_fat": 32.3}
+  ]
+}

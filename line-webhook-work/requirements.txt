@@ -1,0 +1,6 @@
+functions-framework==3.*
+matplotlib
+google-cloud-firestore
+google-cloud-storage
+PyJWT
+cryptography
