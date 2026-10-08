@@ -18,7 +18,11 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-LINE_CHANNEL_ACCESS_TOKEN = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
+# ひつじさんのチャネル（MEGUMIさんが画像を送るグループが所属するチャネル）専用の認証情報。
+# みさきちゃんの1:1チャット用チャネル（LINE_CHANNEL_SECRET/LINE_CHANNEL_ACCESS_TOKEN, main.py側）
+# とは別チャネルのため、画像取得・返信にはこちらを使う必要がある。
+RECEIPT_LINE_CHANNEL_SECRET = os.environ.get("RECEIPT_LINE_CHANNEL_SECRET", "")
+LINE_CHANNEL_ACCESS_TOKEN = os.environ.get("RECEIPT_LINE_CHANNEL_ACCESS_TOKEN", "")
 GCS_BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME", "")
 
 # 空文字列なら全員を対象（Phase B で送信者IDを特定するまでの暫定状態）。

@@ -49,10 +49,10 @@ MAINTENANCE_PERIODS = [
 ]
 
 
-def verify_line_signature(body: bytes, signature: str) -> bool:
-    if not LINE_CHANNEL_SECRET or not signature:
+def verify_line_signature(body: bytes, signature: str, secret: str) -> bool:
+    if not secret or not signature:
         return False
-    mac = hmac.new(LINE_CHANNEL_SECRET.encode("utf-8"), body, hashlib.sha256)
+    mac = hmac.new(secret.encode("utf-8"), body, hashlib.sha256)
     expected = base64.b64encode(mac.digest()).decode("utf-8")
     return hmac.compare_digest(expected, signature)
 
@@ -355,7 +355,13 @@ def line_webhook(request):
     body = request.get_data()
     signature = request.headers.get("X-Line-Signature", "")
 
-    if not verify_line_signature(body, signature):
+    # このWebhookは2つの別チャネルを受け付ける:
+    #   - LINE_CHANNEL_SECRET: みさきちゃんとの1:1チャット（Honey LaRva受信用チャネル）
+    #   - RECEIPT_LINE_CHANNEL_SECRET: ひつじさんのグループトーク（MEGUMIさんの領収書等）
+    # どちらの署名とも一致しなければ拒否する。
+    from receipt_handler import RECEIPT_LINE_CHANNEL_SECRET
+    if not verify_line_signature(body, signature, LINE_CHANNEL_SECRET) and \
+       not verify_line_signature(body, signature, RECEIPT_LINE_CHANNEL_SECRET):
         return ("signature verification failed", 403)
 
     try:
