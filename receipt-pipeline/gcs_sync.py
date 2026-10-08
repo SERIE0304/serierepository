@@ -12,6 +12,9 @@ GCS の receipts/ 配下から、まだ取り込んでいない画像だけを�
 import os
 
 GCS_BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME", "")
+# ユーザー認証のADC（サービスアカウントではない）にはデフォルトプロジェクトが
+# 紐づかないため、明示的に指定する必要がある。
+GCP_PROJECT = os.environ.get("GCP_PROJECT", "serie-concerto")
 LOCAL_RECEIPT_DIR = r"C:\Users\user\Desktop\領収書"
 GCS_PREFIX = "receipts/"
 MANIFEST_PATH = os.path.join(os.path.dirname(__file__), "synced_objects.txt")
@@ -36,7 +39,7 @@ def sync_new_images() -> list:
         raise RuntimeError("GCS_BUCKET_NAME が設定されていません")
 
     from google.cloud import storage
-    client = storage.Client()
+    client = storage.Client(project=GCP_PROJECT)
     bucket = client.bucket(GCS_BUCKET_NAME)
 
     os.makedirs(LOCAL_RECEIPT_DIR, exist_ok=True)
