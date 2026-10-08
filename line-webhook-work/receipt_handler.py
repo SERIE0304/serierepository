@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-ひつじさんのLINEグループ（トークルーム）宛の画像を領収書として扱い、
+ひつじさんチャネル（MEGUMIさん等が1:1チャットで送ってくる画像）を領収書として扱い、
 GCSへ保存するだけの軽量ハンドラ。
 
 読み取り（OCR）・現金出納帳への記帳は、意図的にここでは行わない。
@@ -36,6 +36,7 @@ RECEIPT_GROUP_ID = os.environ.get("RECEIPT_GROUP_ID", "")
 LINE_CONTENT_URL = "https://api-data.line.me/v2/bot/message/{}/content"
 LINE_REPLY_URL = "https://api.line.me/v2/bot/message/reply"
 LINE_GROUP_MEMBER_URL = "https://api.line.me/v2/bot/group/{}/member/{}"
+LINE_PROFILE_URL = "https://api.line.me/v2/bot/profile/{}"
 JST = timezone(timedelta(hours=9))
 
 
@@ -50,13 +51,12 @@ def fetch_line_image(message_id: str) -> bytes:
 
 
 def get_display_name(group_id: str, user_id: str) -> str:
-    """送信者の表示名を取得する。MEGUMIさん特定のためログに出すだけの用途。失敗時は空文字。"""
-    if not group_id or not user_id:
+    """送信者の表示名を取得する。MEGUMIさん特定のためログに出すだけの用途。失敗時は空文字。
+    グループ/ルーム内なら group member API、1:1チャットなら profile API を使う。"""
+    if not user_id:
         return ""
-    req = urllib.request.Request(
-        LINE_GROUP_MEMBER_URL.format(group_id, user_id),
-        headers={"Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}"},
-    )
+    url = LINE_GROUP_MEMBER_URL.format(group_id, user_id) if group_id else LINE_PROFILE_URL.format(user_id)
+    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}"})
     try:
         with urllib.request.urlopen(req, timeout=15) as res:
             data = json.loads(res.read().decode("utf-8"))
@@ -108,7 +108,8 @@ def reply_message(reply_token: str, text: str) -> None:
 
 
 def handle_group_event(ev: dict) -> None:
-    """グループ/ルームから届いたイベントを処理する。例外は内部で握りつぶし、呼び出し元は継続する。"""
+    """ひつじさんチャネルから届いたイベントを処理する（1:1チャット・グループ/ルームいずれも対象）。
+    例外は内部で握りつぶし、呼び出し元は継続する。"""
     try:
         msg = ev.get("message", {})
         if ev.get("type") != "message" or msg.get("type") != "image":
@@ -118,12 +119,12 @@ def handle_group_event(ev: dict) -> None:
         group_id = source.get("groupId") or source.get("roomId") or ""
         user_id = source.get("userId", "")
 
-        if RECEIPT_GROUP_ID and group_id != RECEIPT_GROUP_ID:
+        if RECEIPT_GROUP_ID and group_id and group_id != RECEIPT_GROUP_ID:
             print(f"[handle_group_event] 対象外のgroupId: {group_id}")
             return
 
         display_name = get_display_name(group_id, user_id)
-        print(f"[handle_group_event] 画像受信 userId={user_id} displayName={display_name!r} groupId={group_id}")
+        print(f"[handle_group_event] 画像受信 userId={user_id} displayName={display_name!r} groupId={group_id or '(1:1チャット)'}")
 
         if RECEIPT_ALLOWED_USER_IDS and user_id not in RECEIPT_ALLOWED_USER_IDS:
             print(f"[handle_group_event] 許可リスト外のため保存スキップ: userId={user_id}")

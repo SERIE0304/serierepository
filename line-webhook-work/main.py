@@ -357,11 +357,13 @@ def line_webhook(request):
 
     # このWebhookは2つの別チャネルを受け付ける:
     #   - LINE_CHANNEL_SECRET: みさきちゃんとの1:1チャット（Honey LaRva受信用チャネル）
-    #   - RECEIPT_LINE_CHANNEL_SECRET: ひつじさんのグループトーク（MEGUMIさんの領収書等）
-    # どちらの署名とも一致しなければ拒否する。
+    #   - RECEIPT_LINE_CHANNEL_SECRET: ひつじさんチャネル（MEGUMIさん等からの領収書）
+    # 実際には両方とも1:1チャット（source.type == "user"）でメッセージが届くため、
+    # グループ/ルームかどうかではなく「どちらのチャネルの署名か」で振り分ける。
     from receipt_handler import RECEIPT_LINE_CHANNEL_SECRET
-    if not verify_line_signature(body, signature, LINE_CHANNEL_SECRET) and \
-       not verify_line_signature(body, signature, RECEIPT_LINE_CHANNEL_SECRET):
+    is_receipt_channel = verify_line_signature(body, signature, RECEIPT_LINE_CHANNEL_SECRET)
+    is_coaching_channel = verify_line_signature(body, signature, LINE_CHANNEL_SECRET)
+    if not is_receipt_channel and not is_coaching_channel:
         return ("signature verification failed", 403)
 
     try:
@@ -379,11 +381,10 @@ def line_webhook(request):
         if message_id and already_processed(message_id):
             continue
 
-        # ひつじさんのグループ/ルームからのメッセージ（例: MEGUMIさんの領収書写真）は
+        # ひつじさんチャネルからのメッセージ（例: MEGUMIさんの領収書写真）は
         # みさきちゃん向けの1:1チャット処理とは別に扱う。
-        # 1:1チャット（source.type == "user"）の経路は以下一切変更していない。
-        source_type = ev.get("source", {}).get("type")
-        if source_type in ("group", "room"):
+        # みさきちゃん側（is_coaching_channel）の経路は以下一切変更していない。
+        if is_receipt_channel:
             handle_group_event(ev)
             continue
 
