@@ -137,6 +137,18 @@
       "user": "芹江",
       "action": "SERIEサイト GitHub連携完了",
       "detail": "NetlifyとGitHub(SERIE0304/serierepository, base=hp/deploy)を連携。今後はgit pushで自動デプロイされる体制に移行"
+    },
+    {
+      "timestamp": "2026/08/07 14:38:00",
+      "user": "システム自動実行",
+      "action": "agent",
+      "detail": "不動産エージェント"
+    },
+    {
+      "timestamp": "2026/08/07 14:52:48",
+      "user": "システム自動実行",
+      "action": "agent",
+      "detail": "不動産エージェント"
     }
   ]
 }
