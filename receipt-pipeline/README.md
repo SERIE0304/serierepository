@@ -13,58 +13,60 @@ MEGUMIさんがひつじさんのLINEグループに送った領収書の写真�
 
 ## セットアップ手順
 
-### 1. Cloud Function のデプロイ（Phase A）
+### 1. Cloud Function のデプロイ（Phase A）— 完了済み（2026-10-08）
 
-既存の関数名・リージョンを確認:
+実際の本番Webhookは以下だった:
+
+- GCPアカウント: `masaaki.serie@gmail.com`
+- プロジェクト: `serie-concerto`
+- サービス名: `line-webhook`（Cloud Run、`--source`からのビルドパックデプロイ）
+- リージョン: `asia-northeast1`
+- Webhook URL（変更なし）: `https://line-webhook-123048343625.asia-northeast1.run.app`
+- `GCS_BUCKET_NAME`: `serie-concerto-misaki-charts`（既存。`receipts/`プレフィックスを新規に追加利用）
+
+デプロイ済みコマンド（参考・再実行する場合）:
 
 ```
-gcloud functions list --project=<既存のGCPプロジェクトID>
-```
-
-同じ関数名・リージョンに対して上書きデプロイ（**新しい関数は作らない＝Webhook URLは変更不要**）:
-
-```
-gcloud functions deploy <既存の関数名> ^
-  --gen2 ^
-  --runtime=python312 ^
-  --region=<既存のリージョン> ^
+gcloud run deploy line-webhook ^
   --source=line-webhook-work ^
-  --entry-point=line_webhook ^
-  --trigger-http ^
-  --allow-unauthenticated ^
+  --region=asia-northeast1 ^
+  --function=line_webhook ^
   --update-env-vars=RECEIPT_ALLOWED_USER_IDS=,RECEIPT_GROUP_ID=
 ```
 
-（`--gen2`や既存の環境変数名は、実際の既存デプロイ設定に合わせて調整してください。`gcloud functions describe <関数名>` で現在の設定を確認できます。）
+`--update-env-vars` は指定した変数だけを更新し、既存のLINE_CHANNEL_SECRET等は保持される（デプロイ後に環境変数名一覧で9件→11件に増えたことを確認済み、値は変更なし）。
 
-### 2. MEGUMIさんのLINE userId特定（Phase B）
+gcloud CLIはこのPCに `winget install --id Google.CloudSDK` でインストール済み。パスが通っていない場合はフルパスで実行:
+`C:\Users\user\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd`
 
-1. 上記デプロイ後、MEGUMIさんにグループへ画像を1枚送ってもらう
+### 2. MEGUMIさんのLINE userId特定（Phase B）— 次のステップ
+
+1. MEGUMIさんにグループへ画像を1枚送ってもらう
 2. ログを確認:
    ```
-   gcloud functions logs read <関数名> --region=<リージョン> --limit=50
+   gcloud run services logs read line-webhook --region=asia-northeast1 --limit=50
    ```
-3. `displayName='MEGUMI'`（またはそれらしい名前）に対応する `userId` と `groupId` をログから見つける
+3. `displayName`にMEGUMIさんらしき名前が出ているログ行から `userId` と `groupId` を特定
 4. 環境変数だけ更新（コード再デプロイ不要）:
    ```
-   gcloud functions deploy <関数名> --update-env-vars RECEIPT_ALLOWED_USER_IDS=<userId>,RECEIPT_GROUP_ID=<groupId>
+   gcloud run services update line-webhook --region=asia-northeast1 --update-env-vars RECEIPT_ALLOWED_USER_IDS=<userId>,RECEIPT_GROUP_ID=<groupId>
    ```
 
 ### 3. ローカル環境のセットアップ
 
 ```
 pip install -r requirements.txt
-gcloud auth application-default login
+gcloud auth application-default login --account=masaaki.serie@gmail.com
 ```
 
 環境変数を設定（PowerShellの例。恒久化するにはシステム環境変数に設定）:
 
 ```
-setx GCS_BUCKET_NAME "<既存のGCSバケット名>"
+setx GCS_BUCKET_NAME "serie-concerto-misaki-charts"
 setx ANTHROPIC_API_KEY "<Anthropic APIキー>"
 ```
 
-バケットへの読み取り権限（`Storage Object Viewer`以上）が、ログインしているGoogleアカウントに必要です。
+バケットへの読み取り権限（`Storage Object Viewer`以上）が、ログインしているGoogleアカウント（`masaaki.serie@gmail.com`）に必要（既にプロジェクトのメンバーなので通常は問題ない）。
 
 ### 4. 動作確認（手動実行）
 
