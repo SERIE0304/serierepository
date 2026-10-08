@@ -107,6 +107,36 @@
       "user": "芹江",
       "action": "セッション開始",
       "detail": "Claude Codeセッション"
+    },
+    {
+      "timestamp": "2026/07/30 16:46:48",
+      "user": "芹江",
+      "action": "セッション開始",
+      "detail": "Claude Codeセッション：SERIEサイトのファビコン設定"
+    },
+    {
+      "timestamp": "2026/07/30 17:00:07",
+      "user": "芹江",
+      "action": "SERIEサイト ファビコン設定",
+      "detail": "hp/deploy/にfavicon一式を追加し、Netlify Deploy API経由で本番反映完了（deploy_id=6a6b043b1da38d08e6b19e7b）"
+    },
+    {
+      "timestamp": "2026/08/01 16:28:57",
+      "user": "芹江",
+      "action": "SERIEサイト 画像404を修正",
+      "detail": "ZIPのパス区切り文字(\\→/)が原因でimages配下が404だった不具合を修正し再デプロイ（deploy_id=6a6d9f4cc08a563767ef8861）。全画像200確認済み"
+    },
+    {
+      "timestamp": "2026/08/01 17:23:58",
+      "user": "芹江",
+      "action": "SERIEサイト 料金文言修正・お問い合わせ追加",
+      "detail": "「人数が増えるほどお得」の誤解を招く表現を削除し、共有設備の価値訴求に変更。電話090-5780-1349・メールinfo@serieconcerto.co.jpの問い合わせ先をContactセクションとフッターに追加、再デプロイ完了（deploy_id=6a6dacfee453262218d46c40）"
+    },
+    {
+      "timestamp": "2026/08/01 18:12:31",
+      "user": "芹江",
+      "action": "SERIEサイト GitHub連携完了",
+      "detail": "NetlifyとGitHub(SERIE0304/serierepository, base=hp/deploy)を連携。今後はgit pushで自動デプロイされる体制に移行"
     }
   ]
 }
