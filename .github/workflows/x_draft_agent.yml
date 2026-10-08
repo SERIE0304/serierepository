@@ -1,11 +1,9 @@
-name: Xポスト下書き（1日2回）
+name: Xポスト下書き（1日1回・朝6時）
 
 on:
   schedule:
     # 毎日 6:00 JST (UTC 21:00 前日)
     - cron: '0 21 * * *'
-    # 毎日 18:00 JST (UTC 9:00)
-    - cron: '0 9 * * *'
   workflow_dispatch:  # 手動実行ボタンも有効化
 
 jobs:
