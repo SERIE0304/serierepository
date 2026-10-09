@@ -112,8 +112,19 @@ def handle_group_event(ev: dict) -> None:
     例外は内部で握りつぶし、呼び出し元は継続する。"""
     try:
         msg = ev.get("message", {})
-        if ev.get("type") != "message" or msg.get("type") != "image":
-            return  # テキストや画像以外は今は何もしない
+        if ev.get("type") != "message":
+            return
+        msg_type = msg.get("type")
+
+        if msg_type == "text":
+            # 社員（小筆さん想定）からの日々の進捗報告はここで画像と分岐し、
+            # progress_handler.py に委譲する（次の指示をClaudeに生成させて返信する）。
+            from progress_handler import handle_text_event
+            handle_text_event(ev)
+            return
+
+        if msg_type != "image":
+            return  # テキスト・画像以外は今は何もしない
 
         source = ev.get("source", {})
         group_id = source.get("groupId") or source.get("roomId") or ""
