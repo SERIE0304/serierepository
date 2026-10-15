@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>経営ダッシュボード｜セリエコンチェルト</title>
+  <link rel="icon" href="logo.jpeg" type="image/jpeg">
+  <link rel="apple-touch-icon" href="logo.jpeg">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f3f4f7;
+      --surface: #ffffff;
+      --surface-2: #f7f8fb;
+      --ink: #0e1116;
+      --ink-2: #4a505c;
+      --muted: #8b909b;
+      --grid: #e7e9ee;
+      --axis: #c8ccd4;
+      --border: rgba(14, 17, 22, 0.07);
+      --accent: #2a78d6;
+      --accent-soft: rgba(42, 120, 214, 0.10);
+      --hero-1: #0b1530;
+      --hero-2: #1b2f6b;
+      --hero-3: #3b4fb8;
+      --c1: #2a78d6;
+      --c2: #eb6834;
+      --c3: #1baf7a;
+      --c4: #eda100;
+      --c5: #e87ba4;
+      --c6: #008300;
+      --c7: #4a3aa7;
+      --c8: #e34948;
+      --c-other: #a3a7b0;
+      --good: #0ca30c;
+      --good-ink: #006300;
+      --warning: #fab219;
+      --critical: #d03b3b;
+      --line-green: #06c755;
+      --shadow: 0 1px 2px rgba(14,17,22,0.04), 0 8px 24px rgba(14,17,22,0.05);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --page: #0b0c0f;
+        --surface: #15171b;
+        --surface-2: #1c1f24;
+        --ink: #ffffff;
+        --ink-2: #c3c7cf;
+        --muted: #8b909b;
+        --grid: #262a30;
+        --axis: #383d44;
+        --border: rgba(255, 255, 255, 0.07);
+        --accent: #3987e5;
+        --accent-soft: rgba(57, 135, 229, 0.16);
+        --hero-1: #070a14;
+        --hero-2: #111c40;
+        --hero-3: #24337a;
+        --c1: #3987e5;
+        --c2: #d95926;
+        --c3: #199e70;
+        --c4: #c98500;
+        --c5: #d55181;
+        --c6: #008300;
+        --c7: #9085e9;
+        --c8: #e66767;
+        --c-other: #6b7079;
+        --good-ink: #0ca30c;
+        --shadow: none;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --page: #0b0c0f;
+      --surface: #15171b;
+      --surface-2: #1c1f24;
+      --ink: #ffffff;
+      --ink-2: #c3c7cf;
+      --muted: #8b909b;
+      --grid: #262a30;
+      --axis: #383d44;
+      --border: rgba(255, 255, 255, 0.07);
+      --accent: #3987e5;
+      --accent-soft: rgba(57, 135, 229, 0.16);
+      --hero-1: #070a14;
+      --hero-2: #111c40;
+      --hero-3: #24337a;
+      --c1: #3987e5;
+      --c2: #d95926;
+      --c3: #199e70;
+      --c4: #c98500;
+      --c5: #d55181;
+      --c6: #008300;
+      --c7: #9085e9;
+      --c8: #e66767;
+      --c-other: #6b7079;
+      --good-ink: #0ca30c;
+      --shadow: none;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Noto Sans JP', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--page);
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    button, input { font: inherit; color: inherit; }
+    .num-font { font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif; }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+
+    /* ── ヒーロー ── */
+    .hero {
+      position: relative; overflow: hidden; color: #fff;
+      background:
+        radial-gradient(900px 420px at 85% -20%, rgba(120, 150, 255, 0.35), transparent 60%),
+        radial-gradient(700px 360px at -10% 120%, rgba(27, 175, 122, 0.22), transparent 60%),
+        linear-gradient(135deg, var(--hero-1) 0%, var(--hero-2) 55%, var(--hero-3) 100%);
+      padding-bottom: 88px;
+    }
+    .hero::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.9), transparent 85%);
+      -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0.9), transparent 85%);
+    }
+    .topbar { position: relative; z-index: 2; display: flex; align-items: center; gap: 10px; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand img { width: 32px; height: 32px; border-radius: 9px; object-fit: cover; box-shadow: 0 0 0 1px rgba(255,255,255,0.2); }
+    .brand-title { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brand-sub { font-size: 11px; color: rgba(255,255,255,0.6); white-space: nowrap; letter-spacing: 0.08em; }
+    .spacer { flex: 1; }
+    .live { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: rgba(255,255,255,0.8); white-space: nowrap; padding: 0 10px; height: 30px; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+    .live.on .live-dot { background: #3ee07a; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(62,224,122,0.55); } 70% { box-shadow: 0 0 0 8px rgba(62,224,122,0); } 100% { box-shadow: 0 0 0 0 rgba(62,224,122,0); } }
+    .ghost-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      height: 32px; min-width: 32px; padding: 0 10px; border-radius: 9px;
+      border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.9); cursor: pointer; font-size: 12px; text-decoration: none; white-space: nowrap;
+    }
+    .ghost-btn:hover { background: rgba(255,255,255,0.14); }
+    .ghost-btn svg { width: 15px; height: 15px; }
+
+    .hero-body { position: relative; z-index: 2; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 30px 0 0; }
+    .eyebrow { font-size: 12px; letter-spacing: 0.12em; color: rgba(255,255,255,0.6); }
+    .hero h1 { font-size: 30px; font-weight: 700; letter-spacing: 0.01em; margin-top: 4px; line-height: 1.3; }
+    .hero .sub { color: rgba(255,255,255,0.72); font-size: 13px; margin-top: 6px; }
+    .month-switch { display: inline-flex; align-items: center; border-radius: 12px; padding: 4px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); }
+    .month-switch button { border: 0; background: transparent; height: 30px; min-width: 30px; border-radius: 8px; cursor: pointer; color: #fff; font-size: 16px; }
+    .month-switch button:hover { background: rgba(255,255,255,0.12); }
+    .month-switch .label { padding: 0 12px; font-weight: 600; min-width: 108px; text-align: center; font-size: 13px; }
+
+    /* ── KPI ── */
+    .kpis { position: relative; z-index: 3; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: -64px; }
+    .kpi {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+      padding: 18px 20px; box-shadow: 0 12px 32px rgba(10, 20, 60, 0.12); min-width: 0;
+    }
+    .kpi-label { font-size: 12px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+    .kpi-ico { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; }
+    .kpi-ico svg { width: 15px; height: 15px; }
+    .kpi-value { font-family: 'Inter', 'Noto Sans JP', sans-serif; font-size: 30px; font-weight: 700; margin-top: 10px; line-height: 1.15; letter-spacing: -0.02em; }
+    .kpi-value small { font-family: 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-2); margin-left: 4px; letter-spacing: 0; }
+    .kpi-foot { font-size: 12px; color: var(--muted); margin-top: 6px; min-height: 19px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .delta-up { color: var(--good-ink); font-weight: 500; }
+    .delta-down { color: var(--critical); font-weight: 500; }
+    .warn-text { color: var(--critical); font-weight: 500; }
+
+    /* ── カード ── */
+    .grid { display: grid; gap: 16px; }
+    .row { margin-top: 16px; }
+    .two { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }
+    .half { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); padding: 20px 22px; min-width: 0; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .card-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .card-title .badge { font-size: 11px; font-weight: 500; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; }
+    .card-note { font-size: 12px; color: var(--muted); }
+    .empty { font-size: 12px; color: var(--muted); padding: 8px 0; }
+
+    .seg-ctl { display: inline-flex; gap: 2px; background: var(--surface-2); border-radius: 9px; padding: 3px; border: 1px solid var(--border); }
+    .seg-ctl button { border: 0; background: transparent; padding: 4px 11px; border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--ink-2); white-space: nowrap; }
+    .seg-ctl button.active { background: var(--surface); color: var(--ink); font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    /* ── 凡例・チャート ── */
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--ink-2); margin-bottom: 12px; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+    .chart { position: relative; width: 100%; }
+    .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .chart text { fill: var(--muted); font-size: 11px; font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+    .chart .grid-line { stroke: var(--grid); stroke-width: 1; }
+    .chart .base-line { stroke: var(--axis); stroke-width: 1; }
+    .chart .hit { fill: transparent; }
+    .chart .seg { transition: opacity .12s; }
+    .chart.dim .col:not(.hover) .seg { opacity: 0.4; }
+    .tip {
+      position: absolute; pointer-events: none; z-index: 5; min-width: 160px; max-width: 260px;
+      background: var(--surface); color: var(--ink); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 12px; font-size: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.16);
+      opacity: 0; transform: translateY(4px); transition: opacity .1s, transform .1s;
+    }
+    .tip.show { opacity: 1; transform: none; }
+    .tip .tt { font-weight: 700; margin-bottom: 4px; }
+    .tip .tr { display: flex; align-items: center; gap: 6px; color: var(--ink-2); }
+    .tip .tr i { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+    .tip .tr b { margin-left: auto; color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; padding-left: 12px; }
+
+    .link-btn { border: 0; background: none; color: var(--accent); font-size: 12px; cursor: pointer; padding: 0; }
+    .link-btn:hover { text-decoration: underline; }
+
+    /* 社員別サマリー */
+    .who-list { display: flex; flex-direction: column; gap: 14px; }
+    .who { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 4px 12px; align-items: center; }
+    .who .av { grid-row: span 2; }
+    .who-top { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+    .who-name { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .who-h { margin-left: auto; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .who-h small { font-family: 'Noto Sans JP', sans-serif; font-size: 11px; color: var(--muted); font-weight: 400; margin-left: 2px; }
+    .who-bar { height: 8px; border-radius: 0 4px 4px 0; background: transparent; position: relative; }
+    .who-bar span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; min-width: 2px; }
+    .who-meta { grid-column: 2; font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 10px; }
+
+    .av {
+      width: 36px; height: 36px; border-radius: 50%; flex: none; display: grid; place-items: center;
+      font-weight: 700; font-size: 14px; color: #fff;
+    }
+
+    /* スタッフカード */
+    .staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .staff { border: 1px solid var(--border); border-radius: 16px; padding: 16px; background: var(--surface-2); display: flex; flex-direction: column; gap: 12px; min-width: 0; position: relative; overflow: hidden; }
+    .staff::before { content: ''; position: absolute; left: 0; top: 0; right: 0; height: 3px; background: var(--sc); }
+    .staff-top { display: flex; align-items: center; gap: 10px; }
+    .staff-name { font-weight: 700; font-size: 14px; }
+    .staff-role { font-size: 11px; color: var(--muted); }
+    .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 999px; white-space: nowrap; border: 1px solid var(--border); color: var(--ink-2); background: var(--surface); margin-left: auto; }
+    .pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .pill.ok .dot { background: var(--good); }
+    .pill.idle .dot { background: var(--c-other); }
+    .blk-label { font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.04em; }
+    .line-ico { width: 14px; height: 14px; border-radius: 4px; background: var(--line-green); color: #fff; font-size: 8px; font-weight: 700; display: grid; place-items: center; }
+    .report { font-size: 12.5px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 4px 12px 12px 12px; padding: 8px 11px; overflow-wrap: anywhere; white-space: pre-wrap; }
+    .report + .report { margin-top: 6px; }
+    .report time { display: block; font-size: 10.5px; color: var(--muted); margin-bottom: 2px; font-family: 'Inter', sans-serif; }
+    .mini-task { font-size: 12px; padding: 7px 10px; border-radius: 9px; background: var(--surface); border: 1px solid var(--border); display: flex; gap: 8px; align-items: center; min-width: 0; }
+    .mini-task + .mini-task { margin-top: 6px; }
+    .mini-task .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mini-task .days { font-size: 11px; color: var(--ink-2); flex: none; font-variant-numeric: tabular-nums; background: var(--surface-2); border-radius: 6px; padding: 0 6px; }
+    .mini-task .late { color: var(--critical); font-weight: 500; }
+    .stat-line { display: flex; gap: 14px; font-size: 12px; color: var(--ink-2); flex-wrap: wrap; }
+    .stat-line b { color: var(--ink); font-family: 'Inter', sans-serif; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+    /* 横棒 */
+    .hbars { display: flex; flex-direction: column; gap: 12px; }
+    .hbar-row { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 12px; }
+    .hbar-name { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hbar-name small { color: var(--muted); margin-left: 4px; }
+    .hbar-track { height: 10px; position: relative; }
+    .hbar-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; min-width: 2px; }
+    .hbar-val { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 600; text-align: right; white-space: nowrap; font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+    .hbar-val small { color: var(--muted); font-weight: 400; margin-left: 4px; font-family: 'Noto Sans JP', sans-serif; }
+    .hbar-row.late .hbar-val { color: var(--critical); }
+
+    /* テーブル */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th { text-align: left; font-weight: 500; color: var(--muted); font-size: 11px; padding: 6px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+    td { padding: 8px; border-bottom: 1px solid var(--grid); }
+    tr:last-child td { border-bottom: 0; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    /* タイムライン */
+    .timeline { display: flex; flex-direction: column; max-height: 620px; overflow-y: auto; margin-right: -8px; padding-right: 8px; }
+    .tl-item { display: grid; grid-template-columns: 52px 1fr; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--grid); }
+    .tl-item:last-child { border-bottom: 0; }
+    .tl-date { font-size: 11px; color: var(--muted); line-height: 1.3; }
+    .tl-date b { display: block; color: var(--ink); font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif; }
+    .tl-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 13px; }
+    .tl-head .who-n { font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+    .tl-head .who-n i { width: 8px; height: 8px; border-radius: 50%; }
+    .tag { font-size: 11px; padding: 0 7px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--border); color: var(--ink-2); white-space: nowrap; }
+    .tag.line { background: rgba(6,199,85,0.1); border-color: rgba(6,199,85,0.3); color: var(--good-ink); }
+    .tl-memo { font-size: 12.5px; color: var(--ink-2); margin-top: 3px; overflow-wrap: anywhere; white-space: pre-wrap; }
+    .lock-ok { color: var(--good-ink); font-size: 11px; white-space: nowrap; }
+    .lock-ng { color: var(--critical); font-size: 11px; font-weight: 500; white-space: nowrap; }
+
+    /* タスク */
+    .task-list { display: flex; flex-direction: column; gap: 8px; }
+    .task-item { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); }
+    .task-item .title { font-weight: 500; font-size: 13px; overflow-wrap: anywhere; }
+    .task-item .meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: var(--muted); align-items: center; }
+    .task-item .due { font-size: 11px; color: var(--ink-2); white-space: nowrap; }
+    .task-item .due.late { color: var(--critical); font-weight: 500; }
+
+    /* ログイン */
+    .login {
+      min-height: 100vh; display: grid; place-items: center; padding: 24px 16px;
+      background:
+        radial-gradient(900px 500px at 85% -10%, rgba(120,150,255,0.35), transparent 60%),
+        radial-gradient(700px 400px at -10% 110%, rgba(27,175,122,0.22), transparent 60%),
+        linear-gradient(135deg, #0b1530 0%, #1b2f6b 55%, #3b4fb8 100%);
+    }
+    .login-card { width: 100%; max-width: 380px; background: var(--surface); border-radius: 22px; padding: 34px 28px; box-shadow: 0 30px 80px rgba(0,0,0,0.35); }
+    .login-card img { width: 52px; height: 52px; border-radius: 14px; object-fit: cover; }
+    .login-card h2 { font-size: 20px; margin: 16px 0 4px; }
+    .login-card p { font-size: 13px; color: var(--ink-2); margin-bottom: 20px; }
+    .login-card label { display: block; font-size: 12px; color: var(--ink-2); margin-bottom: 6px; }
+    .login-card input { width: 100%; height: 46px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--axis); background: var(--surface); font-size: 15px; outline: none; }
+    .login-card input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .btn-primary { width: 100%; height: 46px; margin-top: 14px; border: 0; border-radius: 12px; cursor: pointer; background: linear-gradient(135deg, #2a78d6, #4a3aa7); color: #fff; font-weight: 700; font-size: 14px; }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-primary:disabled { opacity: 0.6; cursor: default; }
+    .login-error { color: var(--critical); font-size: 12px; min-height: 18px; margin-top: 8px; }
+
+    .loading { min-height: 100vh; display: grid; place-items: center; color: var(--muted); font-size: 13px; background: var(--page); }
+    .spinner { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--grid); border-top-color: var(--accent); animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .notice { font-size: 12px; color: var(--ink-2); background: var(--surface-2); border: 1px dashed var(--axis); border-radius: 10px; padding: 8px 12px; }
+
+    .footer { color: var(--muted); font-size: 11px; text-align: center; padding: 28px 0 36px; }
+
+    @media (max-width: 1024px) {
+      .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .two, .half { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .brand-sub, .live-text, .hide-sm { display: none; }
+      .live { padding: 0 9px; }
+      .hero h1 { font-size: 22px; }
+      .kpis { gap: 10px; }
+      .kpi { padding: 14px; border-radius: 14px; }
+      .kpi-value { font-size: 24px; }
+      .card { padding: 16px; border-radius: 16px; }
+      .hbar-row { grid-template-columns: minmax(0, 96px) minmax(0, 1fr) auto; }
+      .hbar-val small { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loadingView" class="loading"><div><div class="spinner"></div>読み込み中…</div></div>
+
+  <div id="loginView" class="login" style="display:none">
+    <div class="login-card">
+      <img src="logo.jpeg" alt="">
+      <h2>経営ダッシュボード</h2>
+      <p>管理者のパスワードでログインしてください。</p>
+      <label for="loginPassword">パスワード</label>
+      <input type="password" id="loginPassword" autocomplete="current-password">
+      <div id="loginError" class="login-error"></div>
+      <button class="btn-primary" id="loginBtn">ログイン</button>
+    </div>
+  </div>
+
+  <div id="appView" style="display:none">
+    <section class="hero">
+      <div class="wrap">
+        <div class="topbar">
+          <div class="brand">
+            <img src="logo.jpeg" alt="">
+            <div>
+              <div class="brand-title">セリエコンチェルト</div>
+              <div class="brand-sub">MANAGEMENT DASHBOARD</div>
+            </div>
+          </div>
+          <div class="spacer"></div>
+          <span class="live" id="liveBadge"><span class="live-dot"></span><span class="live-text" id="liveText">接続中…</span></span>
+          <a class="ghost-btn" href="./" title="タスクアプリを開く">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 10h8M8 14h5"/></svg>
+            <span class="hide-sm">アプリ</span>
+          </a>
+          <button class="ghost-btn" id="themeBtn" title="表示モード切替" aria-label="表示モード切替">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          </button>
+          <button class="ghost-btn" id="logoutBtn" title="ログアウト" aria-label="ログアウト">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          </button>
+        </div>
+        <div class="hero-body">
+          <div>
+            <div class="eyebrow" id="todayLabel"></div>
+            <h1 id="greeting">ダッシュボード</h1>
+            <div class="sub" id="heroSub"></div>
+          </div>
+          <div class="month-switch">
+            <button id="prevMonth" aria-label="前の月">‹</button>
+            <span class="label num-font" id="monthLabel"></span>
+            <button id="nextMonth" aria-label="次の月">›</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main class="wrap">
+      <section class="kpis">
+        <div class="kpi">
+          <div class="kpi-label"><span class="kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>本日の報告</div>
+          <div class="kpi-value" id="kpiToday">–</div>
+          <div class="kpi-foot" id="kpiTodayFoot"></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label"><span class="kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span id="kpiHoursLabel">今月の勤務時間</span></div>
+          <div class="kpi-value" id="kpiHours">–</div>
+          <div class="kpi-foot" id="kpiHoursFoot"></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label"><span class="kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/></svg></span><span id="kpiPayLabel">今月の人件費（概算）</span></div>
+          <div class="kpi-value" id="kpiPay">–</div>
+          <div class="kpi-foot" id="kpiPayFoot"></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label"><span class="kpi-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>進行中のタスク</div>
+          <div class="kpi-value" id="kpiTasks">–</div>
+          <div class="kpi-foot" id="kpiTasksFoot"></div>
+        </div>
+      </section>
+
+      <section class="grid two row">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title" id="dailyTitle">社員の仕事量</div>
+            <button class="link-btn" id="dailyToggle">表で見る</button>
+          </div>
+          <div class="legend" id="dailyLegend"></div>
+          <div class="chart" id="dailyChart"><div class="tip" id="dailyTip"></div></div>
+          <div class="table-wrap" id="dailyTable" style="display:none"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">社員別の合計</div>
+            <div class="card-note" id="whoNote"></div>
+          </div>
+          <div class="who-list" id="whoList"></div>
+        </div>
+      </section>
+
+      <section class="card row">
+        <div class="card-head">
+          <div class="card-title">スタッフの今日</div>
+          <div class="card-note">ひつじさんへの報告・進行中タスク・勤務記録</div>
+        </div>
+        <div id="fsNotice"></div>
+        <div class="staff-grid" id="staffGrid"></div>
+      </section>
+
+      <section class="grid half row">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">進行中タスクの経過日数</div>
+            <div class="card-note">登録日から今日まで</div>
+          </div>
+          <div class="hbars" id="taskDays"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">事業所別の稼働</div>
+            <div class="card-note" id="bizNote"></div>
+          </div>
+          <div class="hbars" id="bizBars"></div>
+        </div>
+      </section>
+
+      <section class="grid half row">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">報告タイムライン</div>
+            <div class="seg-ctl" id="tlTabs">
+              <button data-k="all" class="active">すべて</button>
+              <button data-k="line">ひつじさん</button>
+              <button data-k="time">タイムカード</button>
+            </div>
+          </div>
+          <div class="timeline" id="timeline"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">タスク</div>
+            <div class="seg-ctl" id="taskTabs">
+              <button data-k="progress" class="active">進行中</button>
+              <button data-k="late">期限切れ</button>
+              <button data-k="todo">未着手</button>
+            </div>
+          </div>
+          <div class="task-list" id="taskList"></div>
+        </div>
+      </section>
+
+      <div class="footer">タスクアプリ（Firebase）とひつじさん（LINE）の記録をリアルタイムで表示しています</div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    const HOURLY_RATE = 1100;
+    const WEEKDAY = ['日','月','火','水','木','金','土'];
+    const BUSINESSES = ['フィットネスジム', 'なんだパンダ', '旅館', 'レストランUra no kado'];
+    const STAFF_SLOTS = ['--c1','--c2','--c3','--c4','--c5','--c6','--c7','--c8'];
+    const DAY = 86400000;
+
+    const state = {
+      profile: null,
+      staff: [],
+      timecards: [],
+      tasks: [],
+      reports: [],
+      reportsError: null,
+      month: (() => { const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); return d; })(),
+      taskTab: 'progress',
+      tlTab: 'all',
+      showTable: false,
+      lastSync: null,
+      listeners: [],
+    };
+
+    const $ = id => document.getElementById(id);
+    function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function ymd(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+    function parseYmd(s) { const [y,m,d] = String(s).split('-').map(Number); return new Date(y, (m||1)-1, d||1); }
+    function todayStr() { return ymd(new Date()); }
+    function md(s) { const d = parseYmd(s); return `${d.getMonth()+1}/${d.getDate()}`; }
+    function hm(d) { return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+    function fmtH(h) { return (Math.round(h * 10) / 10).toLocaleString('ja-JP'); }
+    function yen(n) { return '¥' + Math.round(n).toLocaleString('ja-JP'); }
+    function norm(s) { return String(s || '').replace(/[\s　]/g, ''); }
+    function show(view) { ['loadingView','loginView','appView'].forEach(v => $(v).style.display = v === view ? '' : 'none'); }
+
+    function staffColor(uid) {
+      const i = state.staff.findIndex(s => s.uid === uid);
+      return i < 0 ? 'var(--c-other)' : `var(${STAFF_SLOTS[i % STAFF_SLOTS.length]})`;
+    }
+    function staffName(uid) { return state.staff.find(s => s.uid === uid)?.name || '（削除済み）'; }
+    function staffByLineName(name) {
+      const n = norm(name);
+      if (!n) return null;
+      return state.staff.find(s => norm(s.name) === n)
+        || state.staff.find(s => norm(s.name) && (n.includes(norm(s.name)) || norm(s.name).includes(n)))
+        || null;
+    }
+    function staffByAssignee(name) { return state.staff.find(s => norm(s.name) === norm(name)) || null; }
+
+    // ── テーマ ──
+    (function initTheme() {
+      let saved = null;
+      try { saved = localStorage.getItem('dash-theme'); } catch (e) {}
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+      $('themeBtn').addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme')
+          || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const next = cur === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('dash-theme', next); } catch (e) {}
+      });
+    })();
+
+    // ── 認証 ──
+    function loginError(msg) { $('loginError').textContent = msg; }
+    $('loginBtn').addEventListener('click', doLogin);
+    $('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+    function doLogin() {
+      const pw = $('loginPassword').value;
+      loginError('');
+      if (!pw) { loginError('パスワードを入力してください'); return; }
+      $('loginBtn').disabled = true;
+      db.ref('passwords/' + pw).once('value')
+        .then(snap => {
+          const email = snap.val();
+          if (!email) throw { code: 'auth/wrong-password' };
+          return auth.signInWithEmailAndPassword(email, pw);
+        })
+        .catch(err => {
+          const bad = ['auth/wrong-password','auth/invalid-credential','auth/user-not-found'].includes(err.code);
+          loginError(bad ? 'パスワードが間違っています' : 'エラーが発生しました：' + (err.message || err.code));
+        })
+        .finally(() => { $('loginBtn').disabled = false; });
+    }
+
+    $('logoutBtn').addEventListener('click', () => auth.signOut());
+
+    auth.onAuthStateChanged(user => {
+      detachAll();
+      if (!user) { state.profile = null; show('loginView'); return; }
+      db.ref('staff/' + user.uid).once('value').then(snap => {
+        const p = snap.val();
+        if (!p || !p.isAdmin) {
+          auth.signOut();
+          show('loginView');
+          loginError('ダッシュボードは管理者のみ利用できます');
+          return;
+        }
+        state.profile = { uid: user.uid, name: p.name, role: p.role };
+        $('loginPassword').value = '';
+        show('appView');
+        attachAll();
+        renderAll();
+      }).catch(() => { show('loginView'); loginError('スタッフ情報を読み込めませんでした'); });
+    });
+
+    // ── リアルタイム同期 ──
+    function listen(path, fn) {
+      const ref = db.ref(path);
+      const cb = ref.on('value', snap => { fn(snap.val() || {}); state.lastSync = new Date(); renderAll(); },
+        err => { setLive(false, '読み込みエラー'); console.error(path, err); });
+      state.listeners.push(() => ref.off('value', cb));
+    }
+
+    function attachAll() {
+      listen('staffPublic', val => {
+        state.staff = Object.keys(val).sort().map(uid => ({ uid, ...val[uid] }));
+      });
+      listen('timecards', val => {
+        const recs = [];
+        Object.keys(val).forEach(uid => {
+          Object.keys(val[uid] || {}).forEach(id => {
+            const r = val[uid][id] || {};
+            recs.push({ id, staffUid: uid, date: r.date || '', business: r.business || '', hours: Number(r.hours) || 0, lock: r.lock || '', memo: r.memo || '' });
+          });
+        });
+        state.timecards = recs;
+      });
+      listen('tasks', val => {
+        state.tasks = Object.keys(val).map(id => ({ id, ...val[id] }));
+      });
+      const conn = db.ref('.info/connected');
+      const cc = conn.on('value', s => setLive(!!s.val()));
+      state.listeners.push(() => conn.off('value', cc));
+
+      try {
+        const unsub = firebase.firestore().collection('progress_reports')
+          .orderBy('timestamp', 'desc').limit(200)
+          .onSnapshot(snap => {
+            state.reportsError = null;
+            state.reports = snap.docs.map(d => {
+              const x = d.data();
+              const ts = x.timestamp?.toDate ? x.timestamp.toDate() : null;
+              return { id: d.id, at: ts, date: ts ? ymd(ts) : '', name: x.display_name || '', text: x.report || '' };
+            }).filter(r => r.at);
+            renderAll();
+          }, err => {
+            state.reportsError = err.code || 'error';
+            console.warn('progress_reports', err);
+            renderAll();
+          });
+        state.listeners.push(unsub);
+      } catch (e) {
+        state.reportsError = 'unavailable';
+      }
+    }
+
+    function detachAll() { state.listeners.forEach(off => off()); state.listeners = []; }
+
+    function setLive(on, text) {
+      $('liveBadge').classList.toggle('on', on);
+      const t = state.lastSync ? `${hm(state.lastSync)} 更新` : '';
+      $('liveText').textContent = text || (on ? `同期中${t ? '・' + t : ''}` : 'オフライン');
+    }
+
+    // ── 操作 ──
+    $('prevMonth').addEventListener('click', () => { state.month.setMonth(state.month.getMonth() - 1); renderAll(); });
+    $('nextMonth').addEventListener('click', () => { state.month.setMonth(state.month.getMonth() + 1); renderAll(); });
+    $('dailyToggle').addEventListener('click', () => {
+      state.showTable = !state.showTable;
+      $('dailyToggle').textContent = state.showTable ? 'グラフで見る' : '表で見る';
+      $('dailyChart').style.display = state.showTable ? 'none' : '';
+      $('dailyLegend').style.display = state.showTable ? 'none' : '';
+      $('dailyTable').style.display = state.showTable ? '' : 'none';
+    });
+    function bindSeg(id, key, fn) {
+      $(id).addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        state[key] = b.dataset.k;
+        [...$(id).children].forEach(x => x.classList.toggle('active', x === b));
+        fn();
+      });
+    }
+    bindSeg('taskTabs', 'taskTab', () => renderTasks());
+    bindSeg('tlTabs', 'tlTab', () => renderTimeline());
+
+    // ── 集計 ──
+    function monthRecords(base, uptoDay) {
+      const y = base.getFullYear(), m = base.getMonth();
+      return state.timecards.filter(r => {
+        const d = parseYmd(r.date);
+        return d.getFullYear() === y && d.getMonth() === m && (!uptoDay || d.getDate() <= uptoDay);
+      });
+    }
+    function sumH(recs) { return recs.reduce((s, r) => s + r.hours, 0); }
+    function isLate(t) { return t.dueDate && t.status !== '完了' && t.dueDate < todayStr(); }
+    function taskDays(t) {
+      if (!t.createdAt) return null;
+      const c = new Date(t.createdAt); if (isNaN(c)) return null;
+      const a = new Date(c.getFullYear(), c.getMonth(), c.getDate());
+      const n = new Date(); const b = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+      return Math.round((b - a) / DAY) + 1;
+    }
+    function todayReports() { const t = todayStr(); return state.reports.filter(r => r.date === t); }
+
+    // ── 描画 ──
+    function renderAll() {
+      if (!state.profile) return;
+      setLive($('liveBadge').classList.contains('on'));
+      const now = new Date();
+      const hour = now.getHours();
+      const hello = hour < 11 ? 'おはようございます' : hour < 18 ? 'こんにちは' : 'お疲れさまです';
+      $('greeting').textContent = `${hello}、${state.profile.name}さん`;
+      $('todayLabel').textContent = `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}  ${WEEKDAY[now.getDay()]}曜日`;
+      $('monthLabel').textContent = `${state.month.getFullYear()}年${state.month.getMonth()+1}月`;
+      const tr = todayReports().length;
+      const prog = state.tasks.filter(t => t.status === '進行中').length;
+      $('heroSub').textContent = `今日のひつじさんへの報告 ${tr}件・進行中のタスク ${prog}件`;
+      renderKpis();
+      renderDaily();
+      renderWho();
+      renderStaff();
+      renderTaskDays();
+      renderBiz();
+      renderTimeline();
+      renderTasks();
+    }
+
+    function renderKpis() {
+      const today = todayStr();
+      const reporters = new Set();
+      state.timecards.filter(r => r.date === today).forEach(r => reporters.add(r.staffUid));
+      todayReports().forEach(r => { const s = staffByLineName(r.name); reporters.add(s ? s.uid : 'line:' + r.name); });
+      const names = [...reporters].map(k => k.startsWith('line:') ? k.slice(5) : staffName(k));
+      $('kpiToday').innerHTML = `${reporters.size}<small>/ ${state.staff.length}人</small>`;
+      $('kpiTodayFoot').textContent = names.length ? names.join('・') : 'まだ報告はありません';
+
+      const now = new Date();
+      const isCurrent = state.month.getFullYear() === now.getFullYear() && state.month.getMonth() === now.getMonth();
+      const label = isCurrent ? '今月' : `${state.month.getMonth()+1}月`;
+      $('kpiHoursLabel').textContent = `${label}の勤務時間`;
+      $('kpiPayLabel').textContent = `${label}の人件費（概算）`;
+
+      const cur = monthRecords(state.month);
+      const prevBase = new Date(state.month.getFullYear(), state.month.getMonth() - 1, 1);
+      const prev = monthRecords(prevBase, isCurrent ? now.getDate() : 0);
+      const h = sumH(cur), ph = sumH(prev);
+      $('kpiHours').innerHTML = `${fmtH(h)}<small>時間</small>`;
+      $('kpiPay').textContent = yen(h * HOURLY_RATE);
+      const cmp = isCurrent ? '前月同日比' : '前月比';
+      let foot = '前月の記録なし';
+      if (ph > 0) {
+        const pct = Math.round((h - ph) / ph * 100);
+        foot = `${cmp} <span class="${pct >= 0 ? 'delta-up' : 'delta-down'}">${pct >= 0 ? '▲' : '▼'} ${Math.abs(pct)}%</span>（${fmtH(ph)}h）`;
+      }
+      $('kpiHoursFoot').innerHTML = foot;
+      $('kpiPayFoot').textContent = `時給 ${yen(HOURLY_RATE)} 換算・${cur.length}件`;
+
+      const prog = state.tasks.filter(t => t.status === '進行中');
+      const late = state.tasks.filter(isLate);
+      const todo = state.tasks.filter(t => t.status === '未着手');
+      $('kpiTasks').innerHTML = `${prog.length}<small>件</small>`;
+      $('kpiTasksFoot').innerHTML = late.length
+        ? `<span class="warn-text">⚠ 期限切れ ${late.length}件</span>・未着手 ${todo.length}件`
+        : `期限切れなし・未着手 ${todo.length}件`;
+    }
+
+    function renderDaily() {
+      const y = state.month.getFullYear(), m = state.month.getMonth();
+      const days = new Date(y, m + 1, 0).getDate();
+      const recs = monthRecords(state.month);
+      $('dailyTitle').innerHTML = `社員の仕事量 <span class="badge">${m+1}月・日別の勤務時間</span>`;
+
+      const uids = state.staff.map(s => s.uid);
+      if (recs.some(r => !uids.includes(r.staffUid))) uids.push('__other');
+      const colorOf = u => u === '__other' ? 'var(--c-other)' : staffColor(u);
+      const nameOf = u => u === '__other' ? '削除済み' : staffName(u);
+      $('dailyLegend').innerHTML = uids.map(u => `<span><i style="background:${colorOf(u)}"></i>${esc(nameOf(u))}</span>`).join('');
+
+      const data = [];
+      for (let d = 1; d <= days; d++) {
+        const ds = `${y}-${pad(m+1)}-${pad(d)}`;
+        const by = {};
+        uids.forEach(u => by[u] = 0);
+        recs.filter(r => r.date === ds).forEach(r => { by[uids.includes(r.staffUid) ? r.staffUid : '__other'] += r.hours; });
+        data.push({ d, ds, by, total: Object.values(by).reduce((a, b) => a + b, 0) });
+      }
+
+      const W = 720, H = 270, padL = 34, padR = 6, padT = 10, padB = 26;
+      const iw = W - padL - padR, ih = H - padT - padB;
+      const maxV = Math.max(4, ...data.map(x => x.total));
+      const step = maxV <= 8 ? 2 : maxV <= 20 ? 4 : maxV <= 40 ? 10 : 20;
+      const top = Math.ceil(maxV / step) * step;
+      const slot = iw / days;
+      const bw = Math.max(4, Math.min(16, slot - 5));
+      const ys = v => padT + ih - (v / top) * ih;
+      const today = todayStr();
+
+      let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="社員別・日別の勤務時間">`;
+      for (let v = 0; v <= top; v += step) {
+        const yy = ys(v);
+        svg += `<line class="${v === 0 ? 'base-line' : 'grid-line'}" x1="${padL}" x2="${W - padR}" y1="${yy}" y2="${yy}"/>`;
+        svg += `<text x="${padL - 6}" y="${yy + 4}" text-anchor="end">${v}h</text>`;
+      }
+      data.forEach((x, i) => {
+        const cx = padL + slot * i + slot / 2;
+        const bx = cx - bw / 2;
+        let acc = 0, segs = '';
+        const order = uids.filter(u => x.by[u] > 0);
+        order.forEach((u, j) => {
+          const v = x.by[u];
+          const y0 = ys(acc), y1 = ys(acc + v);
+          const h = Math.max(0, y0 - y1 - (j > 0 ? 2 : 0));
+          const r = j === order.length - 1 ? Math.min(4, bw / 2, h) : 0;
+          segs += `<path class="seg" fill="${colorOf(u)}" d="${roundTop(bx, y1, bw, h, r)}"/>`;
+          acc += v;
+        });
+        const isT = x.ds === today;
+        const lbl = (x.d === 1 || x.d % 5 === 0 || isT)
+          ? `<text x="${cx}" y="${H - 8}" text-anchor="middle" style="${isT ? 'fill:var(--ink);font-weight:700' : ''}">${x.d}</text>` : '';
+        svg += `<g class="col" data-i="${i}">${segs}<rect class="hit" x="${padL + slot * i}" y="${padT}" width="${slot}" height="${ih}"/>${lbl}</g>`;
+      });
+      svg += `</svg>`;
+
+      const chart = $('dailyChart'), tip = $('dailyTip');
+      chart.innerHTML = svg;
+      chart.appendChild(tip);
+      chart.querySelectorAll('.col').forEach(g => {
+        g.addEventListener('mouseenter', () => { chart.classList.add('dim'); g.classList.add('hover'); });
+        g.addEventListener('mouseleave', () => { chart.classList.remove('dim'); g.classList.remove('hover'); tip.classList.remove('show'); });
+        g.addEventListener('mousemove', e => {
+          const x = data[+g.dataset.i];
+          const dt = parseYmd(x.ds);
+          const rows = uids.filter(u => x.by[u] > 0).map(u => `<div class="tr"><i style="background:${colorOf(u)}"></i>${esc(nameOf(u))}<b>${fmtH(x.by[u])}h</b></div>`).join('');
+          tip.innerHTML = `<div class="tt">${dt.getMonth()+1}/${dt.getDate()}（${WEEKDAY[dt.getDay()]}）・計 ${fmtH(x.total)}h</div>${rows || '<div class="tr">記録なし</div>'}`;
+          const rect = chart.getBoundingClientRect();
+          let lx = e.clientX - rect.left + 14;
+          const tw = tip.offsetWidth || 170;
+          if (lx + tw > rect.width) lx = e.clientX - rect.left - tw - 14;
+          tip.style.left = Math.max(0, lx) + 'px';
+          tip.style.top = Math.max(0, e.clientY - rect.top - 24) + 'px';
+          tip.classList.add('show');
+        });
+      });
+
+      const withData = data.filter(x => x.total > 0);
+      $('dailyTable').innerHTML = withData.length ? `<table>
+        <thead><tr><th>日付</th>${uids.map(u => `<th class="num">${esc(nameOf(u))}</th>`).join('')}<th class="num">合計</th></tr></thead>
+        <tbody>${withData.map(x => {
+          const dt = parseYmd(x.ds);
+          return `<tr><td>${dt.getMonth()+1}/${dt.getDate()}（${WEEKDAY[dt.getDay()]}）</td>${uids.map(u => `<td class="num">${x.by[u] ? fmtH(x.by[u]) : '–'}</td>`).join('')}<td class="num"><b>${fmtH(x.total)}</b></td></tr>`;
+        }).join('')}</tbody></table>` : '<div class="empty">この月の記録はありません</div>';
+    }
+
+    function roundTop(x, y, w, h, r) {
+      if (h <= 0) return '';
+      if (r <= 0) return `M${x},${y}h${w}v${h}h${-w}z`;
+      return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}z`;
+    }
+
+    function renderWho() {
+      const recs = monthRecords(state.month);
+      const total = sumH(recs);
+      $('whoNote').textContent = `${state.month.getMonth()+1}月・計 ${fmtH(total)}h`;
+      const rows = state.staff.map(s => {
+        const mine = recs.filter(r => r.staffUid === s.uid);
+        const h = sumH(mine);
+        const days = new Set(mine.map(r => r.date)).size;
+        const biz = {};
+        mine.forEach(r => { const k = r.business || '未設定'; biz[k] = (biz[k] || 0) + r.hours; });
+        const bizTxt = Object.entries(biz).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${fmtH(v)}h`).join('・');
+        const prog = state.tasks.filter(t => t.status === '進行中' && staffByAssignee(t.assignee)?.uid === s.uid).length;
+        return { s, h, days, bizTxt, prog };
+      }).sort((a, b) => b.h - a.h);
+      const max = Math.max(1, ...rows.map(r => r.h));
+      $('whoList').innerHTML = rows.length ? rows.map(({ s, h, days, bizTxt, prog }) => `
+        <div class="who">
+          <div class="av" style="background:${staffColor(s.uid)}">${esc((s.name || '?').slice(0, 1))}</div>
+          <div>
+            <div class="who-top"><span class="who-name">${esc(s.name)}</span><span class="who-h">${fmtH(h)}<small>h</small></span></div>
+            <div class="who-bar"><span style="width:${(h / max * 100).toFixed(1)}%;background:${staffColor(s.uid)}"></span></div>
+          </div>
+          <div class="who-meta">
+            <span>勤務 ${days}日</span><span>${yen(h * HOURLY_RATE)}</span><span>進行中 ${prog}件</span>
+            ${bizTxt ? `<span>${esc(bizTxt)}</span>` : ''}
+          </div>
+        </div>`).join('') : '<div class="empty">スタッフが登録されていません</div>';
+    }
+
+    function renderStaff() {
+      const today = todayStr();
+      const recs = todayReports();
+      const err = state.reportsError;
+      $('fsNotice').innerHTML = err
+        ? `<div class="notice" style="margin-bottom:14px">ひつじさんの報告を読み込めませんでした（${esc(err === 'permission-denied' ? 'アクセス権限が未設定です' : err)}）。タイムカードとタスクは表示しています。</div>`
+        : '';
+
+      const cards = state.staff.map(s => {
+        const mine = state.timecards.filter(r => r.staffUid === s.uid).sort((a, b) => b.date.localeCompare(a.date));
+        const todayRecs = mine.filter(r => r.date === today);
+        const reports = recs.filter(r => staffByLineName(r.name)?.uid === s.uid).sort((a, b) => a.at - b.at);
+        const tasks = state.tasks.filter(t => t.status === '進行中' && staffByAssignee(t.assignee)?.uid === s.uid)
+          .sort((a, b) => (taskDays(b) || 0) - (taskDays(a) || 0));
+        return { s, mine, todayRecs, reports, tasks };
+      }).sort((a, b) => (b.reports.length + b.todayRecs.length > 0) - (a.reports.length + a.todayRecs.length > 0) || b.tasks.length - a.tasks.length);
+
+      const unmatched = recs.filter(r => !staffByLineName(r.name));
+
+      $('staffGrid').innerHTML = cards.map(({ s, mine, todayRecs, reports, tasks }) => {
+        const active = todayRecs.length > 0 || reports.length > 0;
+        const todayH = sumH(todayRecs);
+        const pill = todayRecs.length
+          ? `<span class="pill ok"><span class="dot"></span>本日 ${fmtH(todayH)}h</span>`
+          : reports.length ? `<span class="pill ok"><span class="dot"></span>報告あり</span>`
+          : `<span class="pill idle"><span class="dot"></span>本日 未報告</span>`;
+        const last = mine[0];
+        const reportHtml = reports.length
+          ? reports.map(r => `<div class="report"><time>${hm(r.at)}</time>${esc(r.text)}</div>`).join('')
+          : '<div class="empty" style="padding:0">今日の報告はまだありません</div>';
+        const taskHtml = tasks.length
+          ? tasks.slice(0, 4).map(t => {
+              const d = taskDays(t);
+              const late = isLate(t);
+              return `<div class="mini-task"><span class="t" title="${esc(t.title)}">${esc(t.title)}</span>${late ? `<span class="late">⚠ 期限切れ</span>` : ''}${d ? `<span class="days">${d}日目</span>` : ''}</div>`;
+            }).join('') + (tasks.length > 4 ? `<div class="empty" style="padding:4px 0 0">ほか ${tasks.length - 4}件</div>` : '')
+          : '<div class="empty" style="padding:0">進行中のタスクはありません</div>';
+        const todayBiz = [...new Set(todayRecs.map(r => r.business).filter(Boolean))].join('・');
+        return `
+          <div class="staff" style="--sc:${staffColor(s.uid)}">
+            <div class="staff-top">
+              <div class="av" style="background:${staffColor(s.uid)}">${esc((s.name || '?').slice(0, 1))}</div>
+              <div style="min-width:0">
+                <div class="staff-name">${esc(s.name)}</div>
+                <div class="staff-role">${esc(s.role || '')}</div>
+              </div>
+              ${pill}
+            </div>
+            <div>
+              <div class="blk-label"><span class="line-ico">L</span>ひつじさんへの本日の報告</div>
+              ${reportHtml}
+            </div>
+            <div>
+              <div class="blk-label">進行中のタスク</div>
+              ${taskHtml}
+            </div>
+            <div class="stat-line">
+              ${todayBiz ? `<span>本日 <b>${esc(todayBiz)}</b></span>` : ''}
+              <span>最終勤務 <b>${last ? md(last.date) : '–'}</b></span>
+              ${last && last.memo ? `<span title="${esc(last.memo)}">メモ：${esc(last.memo.length > 24 ? last.memo.slice(0, 24) + '…' : last.memo)}</span>` : ''}
+            </div>
+          </div>`;
+      }).join('') + (unmatched.length ? `
+          <div class="staff" style="--sc:var(--c-other)">
+            <div class="staff-top"><div class="av" style="background:var(--c-other)">?</div><div><div class="staff-name">その他のLINE報告</div><div class="staff-role">アプリの登録名と一致しない送信者</div></div></div>
+            <div>${unmatched.map(r => `<div class="report"><time>${hm(r.at)}・${esc(r.name || '名前不明')}</time>${esc(r.text)}</div>`).join('')}</div>
+          </div>` : '');
+    }
+
+    function renderTaskDays() {
+      const list = state.tasks.filter(t => t.status === '進行中').map(t => ({ t, d: taskDays(t) })).filter(x => x.d)
+        .sort((a, b) => b.d - a.d);
+      const max = Math.max(1, ...list.map(x => x.d));
+      $('taskDays').innerHTML = list.length ? list.map(({ t, d }) => {
+        const s = staffByAssignee(t.assignee);
+        const late = isLate(t);
+        return `<div class="hbar-row${late ? ' late' : ''}">
+          <div class="hbar-name" title="${esc(t.title)}">${esc(t.title)}<small>${esc(t.assignee || '担当未定')}</small></div>
+          <div class="hbar-track"><div class="hbar-fill" style="width:${(d / max * 100).toFixed(1)}%;background:${s ? staffColor(s.uid) : 'var(--c-other)'}"></div></div>
+          <div class="hbar-val">${late ? '⚠ ' : ''}${d}日<small>${t.createdAt ? md(ymd(new Date(t.createdAt))) + '〜' : ''}</small></div>
+        </div>`;
+      }).join('') : '<div class="empty">進行中のタスクはありません</div>';
+    }
+
+    function renderBiz() {
+      const recs = monthRecords(state.month);
+      $('bizNote').textContent = `${state.month.getMonth()+1}月・勤務時間と稼働日数`;
+      const keys = [...BUSINESSES];
+      recs.forEach(r => { const k = r.business || '未設定'; if (!keys.includes(k)) keys.push(k); });
+      const rows = keys.map(k => {
+        const mine = recs.filter(r => (r.business || '未設定') === k);
+        return { k, h: sumH(mine), days: new Set(mine.map(r => r.date)).size };
+      });
+      const max = Math.max(1, ...rows.map(r => r.h));
+      $('bizBars').innerHTML = recs.length ? rows.map(r => `<div class="hbar-row">
+          <div class="hbar-name" title="${esc(r.k)}">${esc(r.k)}</div>
+          <div class="hbar-track"><div class="hbar-fill" style="width:${(r.h / max * 100).toFixed(1)}%;background:var(--accent)"></div></div>
+          <div class="hbar-val">${fmtH(r.h)}h<small>${r.days}日稼働</small></div>
+        </div>`).join('') : '<div class="empty">この月の記録はありません</div>';
+    }
+
+    function renderTimeline() {
+      const items = [];
+      if (state.tlTab !== 'line') {
+        state.timecards.forEach(r => items.push({ kind: 'time', date: r.date, sort: r.date + 'T23:59', r }));
+      }
+      if (state.tlTab !== 'time') {
+        state.reports.forEach(r => items.push({ kind: 'line', date: r.date, sort: r.date + 'T' + hm(r.at), r }));
+      }
+      items.sort((a, b) => b.sort.localeCompare(a.sort));
+      const top = items.slice(0, 20);
+      $('timeline').innerHTML = top.length ? top.map(it => {
+        const dt = parseYmd(it.date);
+        const dateHtml = `<div class="tl-date"><b>${dt.getMonth()+1}/${dt.getDate()}</b>${WEEKDAY[dt.getDay()]}曜</div>`;
+        if (it.kind === 'line') {
+          const s = staffByLineName(it.r.name);
+          return `<div class="tl-item">${dateHtml}<div>
+            <div class="tl-head">
+              <span class="who-n"><i style="background:${s ? staffColor(s.uid) : 'var(--c-other)'}"></i>${esc(s ? s.name : it.r.name || '不明')}</span>
+              <span class="tag line">ひつじさん ${hm(it.r.at)}</span>
+            </div>
+            <div class="tl-memo">${esc(it.r.text)}</div>
+          </div></div>`;
+        }
+        const r = it.r;
+        const lock = r.lock === 'yes' ? '<span class="lock-ok">✓ 施錠済み</span>' : r.lock === 'no' ? '<span class="lock-ng">⚠ 施錠未確認</span>' : '';
+        return `<div class="tl-item">${dateHtml}<div>
+          <div class="tl-head">
+            <span class="who-n"><i style="background:${staffColor(r.staffUid)}"></i>${esc(staffName(r.staffUid))}</span>
+            <span class="tag">タイムカード ${fmtH(r.hours)}h</span>
+            ${r.business ? `<span class="tag">${esc(r.business)}</span>` : ''}
+            ${lock}
+          </div>
+          ${r.memo ? `<div class="tl-memo">${esc(r.memo)}</div>` : ''}
+        </div></div>`;
+      }).join('') : '<div class="empty">まだ記録はありません</div>';
+    }
+
+    function renderTasks() {
+      const prioRank = { '高': 0, '中': 1, '低': 2 };
+      let list;
+      if (state.taskTab === 'late') list = state.tasks.filter(isLate);
+      else if (state.taskTab === 'todo') list = state.tasks.filter(t => t.status === '未着手');
+      else list = state.tasks.filter(t => t.status === '進行中');
+      list.sort((a, b) => (a.dueDate || '9999').localeCompare(b.dueDate || '9999') || (prioRank[a.priority] ?? 1) - (prioRank[b.priority] ?? 1));
+      $('taskList').innerHTML = list.length ? list.map(t => {
+        const late = isLate(t);
+        const d = taskDays(t);
+        const due = t.dueDate ? `${late ? '⚠ ' : ''}期限 ${md(t.dueDate)}` : '期限なし';
+        const s = staffByAssignee(t.assignee);
+        return `<div class="task-item">
+          <div class="title">${esc(t.title)}</div>
+          <div class="due${late ? ' late' : ''}">${due}</div>
+          <div class="meta">
+            <span class="who-n" style="display:inline-flex;align-items:center;gap:5px"><i style="width:7px;height:7px;border-radius:50%;background:${s ? staffColor(s.uid) : 'var(--c-other)'}"></i>${esc(t.assignee || '担当未定')}</span>
+            ${t.business ? `<span class="tag">${esc(t.business)}</span>` : ''}
+            ${t.priority ? `<span>優先度 ${esc(t.priority)}</span>` : ''}
+            ${d && t.status !== '完了' ? `<span>${d}日目</span>` : ''}
+            ${t.memo ? `<span>${esc(t.memo)}</span>` : ''}
+          </div>
+        </div>`;
+      }).join('') : '<div class="empty">該当するタスクはありません</div>';
+    }
+
+    let resizeT;
+    addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => state.profile && renderDaily(), 150); });
+    setInterval(() => state.profile && renderAll(), 60000);
+  </script>
+</body>
+</html>
