@@ -505,7 +505,31 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script>
-    const HOURLY_RATE = 1100;
+    const HOURLY_RATE = 1200;
+    const MONTHLY_SALARY = { '小筆琉世': null };
+    function payType(s) {
+      const role = s?.role || '';
+      if (role.includes('取締役')) return 'officer';
+      if (role === '社員') return 'salary';
+      return 'hourly';
+    }
+    function salaryOf(s) { const v = MONTHLY_SALARY[norm(s?.name)]; return typeof v === 'number' ? v : null; }
+    function staffCost(s, hours) {
+      const t = payType(s);
+      if (t === 'officer') return { type: t, amount: 0, label: '役員（対象外）' };
+      if (t === 'salary') { const v = salaryOf(s); return { type: t, amount: v || 0, label: v == null ? '月給（未設定）' : `月給 ${yen(v)}` }; }
+      return { type: t, amount: hours * HOURLY_RATE, label: yen(hours * HOURLY_RATE) };
+    }
+    function laborCost(recs) {
+      let hourly = 0, hourlyH = 0, salary = 0, unset = 0;
+      state.staff.forEach(s => {
+        const h = sumH(recs.filter(r => r.staffUid === s.uid));
+        const t = payType(s);
+        if (t === 'hourly') { hourly += h * HOURLY_RATE; hourlyH += h; }
+        else if (t === 'salary') { const v = salaryOf(s); if (v == null) unset++; else salary += v; }
+      });
+      return { total: hourly + salary, hourly, hourlyH, salary, unset };
+    }
     const WEEKDAY = ['日','月','火','水','木','金','土'];
     const BUSINESSES = ['フィットネスジム', 'なんだパンダ', '旅館', 'レストランUra no kado'];
     const STAFF_SLOTS = ['--c1','--c2','--c3','--c4','--c5','--c6','--c7','--c8'];
@@ -753,7 +777,8 @@
       const prev = monthRecords(prevBase, isCurrent ? now.getDate() : 0);
       const h = sumH(cur), ph = sumH(prev);
       $('kpiHours').innerHTML = `${fmtH(h)}<small>時間</small>`;
-      $('kpiPay').textContent = yen(h * HOURLY_RATE);
+      const lc = laborCost(cur);
+      $('kpiPay').textContent = yen(lc.total);
       const cmp = isCurrent ? '前月同日比' : '前月比';
       let foot = '前月の記録なし';
       if (ph > 0) {
@@ -761,7 +786,7 @@
         foot = `${cmp} <span class="${pct >= 0 ? 'delta-up' : 'delta-down'}">${pct >= 0 ? '▲' : '▼'} ${Math.abs(pct)}%</span>（${fmtH(ph)}h）`;
       }
       $('kpiHoursFoot').innerHTML = foot;
-      $('kpiPayFoot').textContent = `時給 ${yen(HOURLY_RATE)} 換算・${cur.length}件`;
+      $('kpiPayFoot').textContent = `アルバイト ${yen(lc.hourly)}（${fmtH(lc.hourlyH)}h）＋社員 ${lc.unset ? '月給未設定' : yen(lc.salary)}`;
 
       const prog = state.tasks.filter(t => t.status === '進行中');
       const late = state.tasks.filter(isLate);
@@ -888,7 +913,7 @@
             <div class="who-bar"><span style="width:${(h / max * 100).toFixed(1)}%;background:${staffColor(s.uid)}"></span></div>
           </div>
           <div class="who-meta">
-            <span>勤務 ${days}日</span><span>${yen(h * HOURLY_RATE)}</span><span>進行中 ${prog}件</span>
+            <span>勤務 ${days}日</span><span>${esc(staffCost(s, h).label)}</span><span>進行中 ${prog}件</span>
             ${bizTxt ? `<span>${esc(bizTxt)}</span>` : ''}
           </div>
         </div>`).join('') : '<div class="empty">スタッフが登録されていません</div>';
