@@ -1,5 +1,5 @@
 const STATUSES = ['未着手', '進行中', '完了'];
-const HOURLY_RATE = 1100;
+const HOURLY_RATE = 1200;
 const WEEKDAY = ['日','月','火','水','木','金','土'];
 
 let currentMonth = new Date();
