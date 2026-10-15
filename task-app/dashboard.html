@@ -506,14 +506,13 @@
   <script src="firebase-config.js"></script>
   <script>
     const HOURLY_RATE = 1200;
-    const MONTHLY_SALARY = { '小筆琉世': null };
     function payType(s) {
       const role = s?.role || '';
       if (role.includes('取締役')) return 'officer';
       if (role === '社員') return 'salary';
       return 'hourly';
     }
-    function salaryOf(s) { const v = MONTHLY_SALARY[norm(s?.name)]; return typeof v === 'number' ? v : null; }
+    function salaryOf(s) { const v = state.salaries[s?.uid]; return typeof v === 'number' ? v : null; }
     function staffCost(s, hours) {
       const t = payType(s);
       if (t === 'officer') return { type: t, amount: 0, label: '役員（対象外）' };
@@ -542,6 +541,8 @@
       tasks: [],
       reports: [],
       reportsError: null,
+      salaries: {},
+      salaryRefs: {},
       month: (() => { const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); return d; })(),
       taskTab: 'progress',
       tlTab: 'all',
@@ -646,6 +647,12 @@
     function attachAll() {
       listen('staffPublic', val => {
         state.staff = Object.keys(val).sort().map(uid => ({ uid, ...val[uid] }));
+        state.staff.filter(s => payType(s) === 'salary' && !state.salaryRefs[s.uid]).forEach(s => {
+          state.salaryRefs[s.uid] = true;
+          const ref = db.ref('staff/' + s.uid + '/monthlySalary');
+          const cb = ref.on('value', snap => { state.salaries[s.uid] = Number(snap.val()) || null; renderAll(); });
+          state.listeners.push(() => { ref.off('value', cb); delete state.salaryRefs[s.uid]; });
+        });
       });
       listen('timecards', val => {
         const recs = [];
