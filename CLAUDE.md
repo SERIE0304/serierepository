@@ -53,6 +53,10 @@ log_activity('【名前】', 'セッション開始', 'Claude Codeセッショ�
 📅 booking_checker.py　→　SERIE 予約確認
 　　GoogleカレンダーからSERIEの今後7日間の予約を取得して表示。
 
+🛏️ guest_sync.py　→　SERIE 宿泊記録の自動登録
+　　毎朝7時（GitHub Actions）、予約サイトのiCalからチェックイン済みの予約を
+　　経営ダッシュボードの宿泊記録に追加。人数・国は「要確認」としてダッシュボードで手入力。
+
 ---
 
 実行方法：`cd /home/user/serierepository/agents && python 【agent名】`

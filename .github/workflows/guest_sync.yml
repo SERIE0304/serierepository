@@ -1,0 +1,41 @@
+name: 旅館ゲスト自動登録
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+    # 毎朝 7:00 JST (UTC 22:00)
+    - cron: '0 22 * * *'
+  workflow_dispatch:  # 手動実行ボタンも有効化
+
+jobs:
+  sync:
+    name: 予約カレンダー → 経営ダッシュボードの宿泊記録
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 依存パッケージインストール
+        run: pip install requests google-auth
+      - name: カレンダーから宿泊記録を登録
+        env:
+          ICAL_FEEDS: ${{ secrets.ICAL_FEEDS }}
+          FIREBASE_SA: ${{ secrets.FIREBASE_GUEST_SYNC_SA }}
+        run: |
+          if [ -z "$ICAL_FEEDS" ]; then
+            echo "ICAL_FEEDS が未設定のためスキップします"
+            exit 0
+          fi
+          cd agents && python guest_sync.py
+      - name: 失敗時にLINEへアラート
+        if: failure()
+        env:
+          LINE_CHANNEL_TOKEN: ${{ secrets.LINE_CHANNEL_TOKEN }}
+        run: |
+          curl -s -X POST https://api.line.me/v2/bot/message/push \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $LINE_CHANNEL_TOKEN" \
+            -d "{\"to\":\"U206a030c1759f1ed8f4c684d03d11915\",\"messages\":[{\"type\":\"text\",\"text\":\"⚠️旅館ゲスト自動登録でエラーが発生しました。\n詳細: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}]}"
