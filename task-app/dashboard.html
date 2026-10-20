@@ -112,7 +112,7 @@
       line-height: 1.6;
       min-height: 100vh;
     }
-    button, input { font: inherit; color: inherit; }
+    button, input, select { font: inherit; color: inherit; }
     .num-font { font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif; }
     .wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
 
@@ -327,11 +327,38 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .notice { font-size: 12px; color: var(--ink-2); background: var(--surface-2); border: 1px dashed var(--axis); border-radius: 10px; padding: 8px 12px; }
 
+    /* 旅館ゲスト */
+    .chart .col.off .seg { opacity: 0.4; }
+    .chart .col.pick { cursor: pointer; }
+    .chart .bar-total { fill: var(--ink); font-weight: 600; }
+    .chart .col.sel .m-label { fill: var(--ink); font-weight: 700; }
+    .g-form { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px 12px; padding: 14px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); margin-bottom: 16px; }
+    .g-form label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--ink-2); min-width: 0; }
+    .g-form .wide { grid-column: span 4; }
+    .g-form input, .g-form select { width: 100%; min-width: 0; height: 36px; padding: 0 10px; border-radius: 9px; border: 1px solid var(--axis); background: var(--surface); font-size: 13px; outline: none; }
+    .g-form input:focus, .g-form select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .g-actions { grid-column: span 2; display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+    .btn-sm { height: 36px; padding: 0 14px; border-radius: 9px; border: 1px solid var(--axis); background: var(--surface); cursor: pointer; font-size: 13px; white-space: nowrap; }
+    .btn-sm.primary { border: 0; background: var(--accent); color: #fff; font-weight: 700; }
+    .btn-sm:disabled { opacity: 0.6; cursor: default; }
+    .g-msg { font-size: 12px; color: var(--good-ink); align-self: center; }
+    .g-msg.err { color: var(--critical); }
+    .g-ops { white-space: nowrap; text-align: right; }
+    .g-ops .link-btn + .link-btn { margin-left: 10px; }
+    .g-ops .del { color: var(--critical); }
+    tr.editing td { background: var(--accent-soft); }
+
     .footer { color: var(--muted); font-size: 11px; text-align: center; padding: 28px 0 36px; }
 
     @media (max-width: 1024px) {
       .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .two, .half { grid-template-columns: minmax(0, 1fr); }
+      .g-form { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .g-form .wide, .g-actions { grid-column: span 3; }
+    }
+    @media (max-width: 560px) {
+      .g-form { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px; }
+      .g-form .wide, .g-actions { grid-column: span 2; }
     }
     @media (max-width: 560px) {
       .brand-sub, .live-text, .hide-sm { display: none; }
@@ -428,6 +455,68 @@
       <section class="grid two row">
         <div class="card">
           <div class="card-head">
+            <div class="card-title" id="guestChartTitle">旅館の宿泊人数</div>
+            <div class="card-note" id="guestChartNote"></div>
+          </div>
+          <div class="legend"><span><i style="background:var(--c1)"></i>日本</span><span><i style="background:var(--c2)"></i>海外</span></div>
+          <div class="chart" id="guestChart"><div class="tip" id="guestTip"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">国・地域別のゲスト</div>
+            <div class="seg-ctl" id="countryTabs">
+              <button data-k="month" class="active">この月</button>
+              <button data-k="range">12か月</button>
+            </div>
+          </div>
+          <div class="card-note" id="countryNote" style="margin:-6px 0 14px"></div>
+          <div class="hbars" id="countryBars"></div>
+        </div>
+      </section>
+
+      <section class="card row">
+        <div class="card-head">
+          <div class="card-title" id="guestListTitle">宿泊記録</div>
+          <div class="card-note">チェックイン日の月で集計します</div>
+        </div>
+        <div id="guestNotice"></div>
+        <form class="g-form" id="guestForm" autocomplete="off">
+          <label>チェックイン<input type="date" id="gDate" required></label>
+          <label>泊数<input type="number" id="gNights" min="1" step="1" inputmode="numeric" required></label>
+          <label>大人<input type="number" id="gAdults" min="0" step="1" inputmode="numeric" required></label>
+          <label>子ども<input type="number" id="gChildren" min="0" step="1" inputmode="numeric"></label>
+          <label>国・地域<input type="text" id="gCountry" list="countryList" placeholder="例：日本、台湾" required></label>
+          <label>予約経路<select id="gChannel">
+            <option value="">–</option>
+            <option>直接予約</option>
+            <option>Airbnb</option>
+            <option>Booking.com</option>
+            <option>楽天トラベル</option>
+            <option>じゃらん</option>
+            <option>Expedia</option>
+            <option>その他</option>
+          </select></label>
+          <label class="wide">メモ<input type="text" id="gMemo" placeholder="任意（例：家族旅行、リピーター）"></label>
+          <div class="g-actions">
+            <button type="submit" class="btn-sm primary" id="gSubmit">記録する</button>
+            <button type="button" class="btn-sm" id="gCancel" style="display:none">キャンセル</button>
+            <span class="g-msg" id="gMsg"></span>
+          </div>
+        </form>
+        <datalist id="countryList">
+          <option value="日本"></option><option value="台湾"></option><option value="香港"></option><option value="中国"></option>
+          <option value="韓国"></option><option value="タイ"></option><option value="シンガポール"></option><option value="マレーシア"></option>
+          <option value="フィリピン"></option><option value="ベトナム"></option><option value="インドネシア"></option><option value="インド"></option>
+          <option value="アメリカ"></option><option value="カナダ"></option><option value="オーストラリア"></option><option value="ニュージーランド"></option>
+          <option value="イギリス"></option><option value="フランス"></option><option value="ドイツ"></option><option value="イタリア"></option>
+          <option value="スペイン"></option><option value="オランダ"></option><option value="スイス"></option><option value="ブラジル"></option>
+        </datalist>
+        <div class="table-wrap" id="guestTable"></div>
+      </section>
+
+      <section class="grid two row">
+        <div class="card">
+          <div class="card-head">
             <div class="card-title" id="dailyTitle">社員の仕事量</div>
             <button class="link-btn" id="dailyToggle">表で見る</button>
           </div>
@@ -495,7 +584,7 @@
         </div>
       </section>
 
-      <div class="footer">タスクアプリ（Firebase）とひつじさん（LINE）の記録をリアルタイムで表示しています</div>
+      <div class="footer">タスクアプリ（Firebase）・ひつじさん（LINE）・旅館の宿泊記録をリアルタイムで表示しています</div>
     </main>
   </div>
 
@@ -543,6 +632,10 @@
       reportsError: null,
       salaries: {},
       salaryRefs: {},
+      guests: [],
+      guestsError: null,
+      guestEdit: null,
+      countryTab: 'month',
       month: (() => { const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); return d; })(),
       taskTab: 'progress',
       tlTab: 'all',
@@ -667,6 +760,18 @@
       listen('tasks', val => {
         state.tasks = Object.keys(val).map(id => ({ id, ...val[id] }));
       });
+      const gref = db.ref('guests');
+      const gcb = gref.on('value', snap => {
+        const v = snap.val() || {};
+        state.guestsError = null;
+        state.guests = Object.keys(v).map(id => guestOf(id, v[id] || {}));
+        renderAll();
+      }, err => {
+        state.guestsError = err.code || 'error';
+        console.warn('guests', err);
+        renderAll();
+      });
+      state.listeners.push(() => gref.off('value', gcb));
       const conn = db.ref('.info/connected');
       const cc = conn.on('value', s => setLive(!!s.val()));
       state.listeners.push(() => conn.off('value', cc));
@@ -762,6 +867,7 @@
       renderBiz();
       renderTimeline();
       renderTasks();
+      renderGuests();
     }
 
     function renderKpis() {
@@ -1089,6 +1195,234 @@
         </div>`;
       }).join('') : '<div class="empty">該当するタスクはありません</div>';
     }
+
+    // ── 旅館ゲスト ──
+    function normCountry(s) {
+      const t = String(s || '').replace(/[\s　]+/g, ' ').trim();
+      return /^(japan|jp|日本国?)$/i.test(t) ? '日本' : t;
+    }
+    function guestOf(id, r) {
+      const adults = Math.max(0, Number(r.adults) || 0), children = Math.max(0, Number(r.children) || 0);
+      return {
+        id, checkIn: r.checkIn || '', nights: Math.max(1, Number(r.nights) || 1), adults, children,
+        people: adults + children, country: normCountry(r.country) || '未入力', channel: r.channel || '', memo: r.memo || '',
+      };
+    }
+    function isDomestic(g) { return g.country === '日本'; }
+    function sumP(list) { return list.reduce((s, g) => s + g.people, 0); }
+    function guestsInMonth(base) {
+      const y = base.getFullYear(), m = base.getMonth();
+      return state.guests.filter(g => { const d = parseYmd(g.checkIn); return g.checkIn && d.getFullYear() === y && d.getMonth() === m; });
+    }
+    function guestRange() {
+      const now = new Date();
+      let end = new Date(now.getFullYear(), now.getMonth(), 1);
+      const sel = new Date(state.month.getFullYear(), state.month.getMonth(), 1);
+      const start = new Date(end.getFullYear(), end.getMonth() - 11, 1);
+      if (sel > end || sel < start) end = sel;
+      const months = [];
+      for (let i = 11; i >= 0; i--) months.push(new Date(end.getFullYear(), end.getMonth() - i, 1));
+      return months;
+    }
+    function sameMonth(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth(); }
+
+    function renderGuests() {
+      const err = state.guestsError;
+      $('guestNotice').innerHTML = err
+        ? `<div class="notice" style="margin-bottom:14px">宿泊記録を読み込めませんでした（${esc(/permission/i.test(err) ? 'データベースのアクセス権限が未設定です' : err)}）。</div>`
+        : '';
+      const months = guestRange();
+      renderGuestChart(months);
+      renderCountries(months);
+      renderGuestList();
+    }
+
+    function renderGuestChart(months) {
+      const data = months.map(b => {
+        const l = guestsInMonth(b);
+        const all = sumP(l), jp = sumP(l.filter(isDomestic));
+        return { b, all, jp, ov: all - jp, groups: l.length, nightsP: l.reduce((s, g) => s + g.people * g.nights, 0) };
+      });
+      const first = months[0], last = months[months.length - 1];
+      $('guestChartTitle').innerHTML = `旅館の宿泊人数 <span class="badge">${first.getFullYear()}/${first.getMonth()+1}〜${last.getFullYear()}/${last.getMonth()+1}</span>`;
+      const cur = data.find(x => sameMonth(x.b, state.month));
+      $('guestChartNote').textContent = cur
+        ? `${state.month.getMonth()+1}月 ${cur.all}人・${cur.groups}組${cur.all ? `・海外 ${Math.round(cur.ov / cur.all * 100)}%` : ''}`
+        : '';
+
+      const W = 720, H = 250, padL = 34, padR = 6, padT = 22, padB = 26;
+      const iw = W - padL - padR, ih = H - padT - padB;
+      const maxV = Math.max(4, ...data.map(x => x.all));
+      const step = maxV <= 8 ? 2 : maxV <= 20 ? 5 : maxV <= 50 ? 10 : maxV <= 100 ? 20 : 50;
+      const top = Math.ceil(maxV / step) * step;
+      const slot = iw / data.length;
+      const bw = Math.min(36, slot * 0.6);
+      const ys = v => padT + ih - (v / top) * ih;
+
+      let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="月別の宿泊人数（日本・海外）">`;
+      for (let v = 0; v <= top; v += step) {
+        const yy = ys(v);
+        svg += `<line class="${v === 0 ? 'base-line' : 'grid-line'}" x1="${padL}" x2="${W - padR}" y1="${yy}" y2="${yy}"/>`;
+        svg += `<text x="${padL - 6}" y="${yy + 4}" text-anchor="end">${v}</text>`;
+      }
+      data.forEach((x, i) => {
+        const cx = padL + slot * i + slot / 2, bx = cx - bw / 2;
+        const parts = [['--c1', x.jp], ['--c2', x.ov]].filter(p => p[1] > 0);
+        let acc = 0, segs = '';
+        parts.forEach(([c, v], j) => {
+          const y0 = ys(acc), y1 = ys(acc + v);
+          const h = Math.max(0, y0 - y1 - (j > 0 ? 2 : 0));
+          const r = j === parts.length - 1 ? Math.min(4, bw / 2, h) : 0;
+          segs += `<path class="seg" fill="var(${c})" d="${roundTop(bx, y1, bw, h, r)}"/>`;
+          acc += v;
+        });
+        const sel = sameMonth(x.b, state.month);
+        const total = x.all ? `<text class="bar-total" x="${cx}" y="${ys(x.all) - 6}" text-anchor="middle">${x.all}</text>` : '';
+        svg += `<g class="col pick${sel ? ' sel' : ' off'}" data-i="${i}">${segs}${total}<rect class="hit" x="${padL + slot * i}" y="${padT}" width="${slot}" height="${ih}"/><text class="m-label" x="${cx}" y="${H - 8}" text-anchor="middle">${x.b.getMonth()+1}月</text></g>`;
+      });
+      svg += `</svg>`;
+
+      const chart = $('guestChart'), tip = $('guestTip');
+      chart.innerHTML = svg;
+      chart.appendChild(tip);
+      chart.querySelectorAll('.col').forEach(g => {
+        const x = data[+g.dataset.i];
+        g.addEventListener('click', () => { state.month = new Date(x.b); renderAll(); });
+        g.addEventListener('mouseenter', () => { chart.classList.add('dim'); g.classList.add('hover'); });
+        g.addEventListener('mouseleave', () => { chart.classList.remove('dim'); g.classList.remove('hover'); tip.classList.remove('show'); });
+        g.addEventListener('mousemove', e => {
+          tip.innerHTML = `<div class="tt">${x.b.getFullYear()}年${x.b.getMonth()+1}月・計 ${x.all}人</div>
+            <div class="tr"><i style="background:var(--c1)"></i>日本<b>${x.jp}人</b></div>
+            <div class="tr"><i style="background:var(--c2)"></i>海外<b>${x.ov}人</b></div>
+            <div class="tr">組数<b>${x.groups}組</b></div>
+            <div class="tr">延べ宿泊者数<b>${x.nightsP}人泊</b></div>`;
+          const rect = chart.getBoundingClientRect();
+          let lx = e.clientX - rect.left + 14;
+          const tw = tip.offsetWidth || 170;
+          if (lx + tw > rect.width) lx = e.clientX - rect.left - tw - 14;
+          tip.style.left = Math.max(0, lx) + 'px';
+          tip.style.top = Math.max(0, e.clientY - rect.top - 24) + 'px';
+          tip.classList.add('show');
+        });
+      });
+    }
+
+    function renderCountries(months) {
+      const list = state.countryTab === 'range' ? months.flatMap(guestsInMonth) : guestsInMonth(state.month);
+      const by = {};
+      list.forEach(g => { const k = g.country; by[k] = by[k] || { k, people: 0, groups: 0 }; by[k].people += g.people; by[k].groups++; });
+      const rows = Object.values(by).sort((a, b) => b.people - a.people || b.groups - a.groups);
+      const all = sumP(list), ov = sumP(list.filter(g => !isDomestic(g)));
+      const label = state.countryTab === 'range' ? '12か月' : `${state.month.getMonth()+1}月`;
+      $('countryNote').textContent = all
+        ? `${label}・${all}人／${rows.length}の国・地域・海外ゲスト ${Math.round(ov / all * 100)}%`
+        : `${label}・記録なし`;
+      const max = Math.max(1, ...rows.map(r => r.people));
+      $('countryBars').innerHTML = rows.length ? rows.map(r => `<div class="hbar-row">
+          <div class="hbar-name" title="${esc(r.k)}">${esc(r.k)}</div>
+          <div class="hbar-track"><div class="hbar-fill" style="width:${(r.people / max * 100).toFixed(1)}%;background:var(${r.k === '日本' ? '--c1' : '--c2'})"></div></div>
+          <div class="hbar-val">${r.people}人<small>${r.groups}組・${Math.round(r.people / all * 100)}%</small></div>
+        </div>`).join('') : '<div class="empty">この期間の宿泊記録はありません</div>';
+    }
+
+    function renderGuestList() {
+      const list = guestsInMonth(state.month).sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+      const m = state.month.getMonth() + 1;
+      $('guestListTitle').innerHTML = `宿泊記録 <span class="badge">${m}月・${list.length}組</span>`;
+      if (!list.length) { $('guestTable').innerHTML = `<div class="empty">${m}月の宿泊記録はまだありません</div>`; return; }
+      const rows = list.map(g => {
+        const ci = parseYmd(g.checkIn), co = new Date(ci.getFullYear(), ci.getMonth(), ci.getDate() + g.nights);
+        return `<tr${state.guestEdit === g.id ? ' class="editing"' : ''}>
+          <td style="white-space:nowrap">${ci.getMonth()+1}/${ci.getDate()}（${WEEKDAY[ci.getDay()]}）〜${co.getMonth()+1}/${co.getDate()}</td>
+          <td>${esc(g.country)}</td>
+          <td class="num">${g.adults}</td>
+          <td class="num">${g.children}</td>
+          <td class="num"><b>${g.people}</b></td>
+          <td class="num">${g.nights}泊</td>
+          <td style="white-space:nowrap">${esc(g.channel || '–')}</td>
+          <td style="color:var(--ink-2)">${esc(g.memo)}</td>
+          <td class="g-ops"><button class="link-btn" data-edit="${esc(g.id)}">編集</button><button class="link-btn del" data-del="${esc(g.id)}">削除</button></td>
+        </tr>`;
+      }).join('');
+      const sa = list.reduce((s, g) => s + g.adults, 0), sc = list.reduce((s, g) => s + g.children, 0);
+      $('guestTable').innerHTML = `<table>
+        <thead><tr><th>宿泊日</th><th>国・地域</th><th class="num">大人</th><th class="num">子ども</th><th class="num">計</th><th class="num">泊数</th><th>予約経路</th><th>メモ</th><th></th></tr></thead>
+        <tbody>${rows}<tr><td><b>合計</b></td><td></td><td class="num">${sa}</td><td class="num">${sc}</td><td class="num"><b>${sa + sc}人</b></td><td class="num">${list.reduce((s, g) => s + g.nights, 0)}泊</td><td colspan="3"></td></tr></tbody>
+      </table>`;
+    }
+
+    function gMsg(text, isErr) { const el = $('gMsg'); el.textContent = text; el.classList.toggle('err', !!isErr); }
+    function resetGuestForm() {
+      state.guestEdit = null;
+      $('guestForm').reset();
+      $('gDate').value = todayStr();
+      $('gNights').value = 1;
+      $('gAdults').value = 2;
+      $('gChildren').value = 0;
+      $('gSubmit').textContent = '記録する';
+      $('gCancel').style.display = 'none';
+    }
+    resetGuestForm();
+
+    $('guestForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const data = {
+        checkIn: $('gDate').value,
+        nights: Math.max(1, parseInt($('gNights').value, 10) || 1),
+        adults: Math.max(0, parseInt($('gAdults').value, 10) || 0),
+        children: Math.max(0, parseInt($('gChildren').value, 10) || 0),
+        country: normCountry($('gCountry').value),
+        channel: $('gChannel').value,
+        memo: $('gMemo').value.trim(),
+        updatedAt: Date.now(),
+        updatedBy: state.profile.uid,
+      };
+      if (!data.checkIn || !data.country) { gMsg('チェックイン日と国・地域を入力してください', true); return; }
+      if (data.adults + data.children === 0) { gMsg('人数を入力してください', true); return; }
+      const id = state.guestEdit;
+      let op;
+      if (id) op = db.ref('guests/' + id).update(data);
+      else op = db.ref('guests').push().set({ ...data, createdAt: Date.now(), createdBy: state.profile.uid });
+      $('gSubmit').disabled = true;
+      op.then(() => {
+        const d = parseYmd(data.checkIn);
+        state.month = new Date(d.getFullYear(), d.getMonth(), 1);
+        resetGuestForm();
+        gMsg(id ? '更新しました' : '記録しました');
+        renderAll();
+      }).catch(err => {
+        gMsg(/permission/i.test(err.code || err.message || '') ? '保存できませんでした（データベースの書き込み権限がありません）' : '保存できませんでした：' + (err.message || err.code), true);
+      }).finally(() => { $('gSubmit').disabled = false; });
+    });
+    $('gCancel').addEventListener('click', () => { resetGuestForm(); gMsg(''); renderGuestList(); });
+
+    $('guestTable').addEventListener('click', e => {
+      const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+      if (ed) {
+        const g = state.guests.find(x => x.id === ed.dataset.edit); if (!g) return;
+        state.guestEdit = g.id;
+        $('gDate').value = g.checkIn;
+        $('gNights').value = g.nights;
+        $('gAdults').value = g.adults;
+        $('gChildren').value = g.children;
+        $('gCountry').value = g.country === '未入力' ? '' : g.country;
+        $('gChannel').value = g.channel;
+        $('gMemo').value = g.memo;
+        $('gSubmit').textContent = '更新する';
+        $('gCancel').style.display = '';
+        gMsg('');
+        renderGuestList();
+        $('guestForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      if (del) {
+        const g = state.guests.find(x => x.id === del.dataset.del); if (!g) return;
+        if (!confirm(`${md(g.checkIn)}・${g.country} ${g.people}人の記録を削除しますか？`)) return;
+        db.ref('guests/' + g.id).remove()
+          .then(() => { if (state.guestEdit === g.id) resetGuestForm(); gMsg('削除しました'); })
+          .catch(err => gMsg('削除できませんでした：' + (err.message || err.code), true));
+      }
+    });
+    bindSeg('countryTabs', 'countryTab', () => renderGuests());
 
     let resizeT;
     addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => state.profile && renderDaily(), 150); });
