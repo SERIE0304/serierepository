@@ -1,6 +1,6 @@
 """旅館の予約カレンダー（iCal）から、経営ダッシュボードの宿泊記録（Firebase /guests）を自動登録する。
 
-- チェックイン日を迎えた予約だけを登録する（直前キャンセルを拾わないため）
+- チェックイン前日以降の予約だけを登録する（先の予約のキャンセルを拾わないため）
 - 人数・国は iCal に入っていないので空のまま登録し、needsReview=True で「要確認」にする
 - 同期の履歴は /guestSync に残す。手で直した項目は上書きせず、手で削除した記録は再登録しない
 
@@ -32,6 +32,10 @@ BLOCK_PATTERNS = {
     "Airbnb": [r"not available", r"blocked"],
     "Vrbo": [r"^blocked"],
 }
+# Booking.com は予約も売り止めも「CLOSED - Not available」なので、長期の売り止めは泊数で除外する
+MAX_NIGHTS = 14
+# Booking.com は当日分を書き出さないため、前日のうちに拾う
+LOOKAHEAD_DAYS = 1
 
 
 # ── iCal ──
@@ -64,7 +68,7 @@ def ical_date(v: str) -> date | None:
 def load_feeds() -> list[tuple[str, str]]:
     feeds = []
     for line in os.environ.get("ICAL_FEEDS", "").splitlines():
-        line = line.strip()
+        line = line.strip().lstrip("﻿")
         if not line or line.startswith("#"):
             continue
         name, _, url = line.rpartition(" ")
@@ -84,7 +88,7 @@ def fetch_stays(feeds, since: date, today: date) -> list[dict]:
         for ev in parse_ical(r.text):
             ci, co = ical_date(ev.get("DTSTART")), ical_date(ev.get("DTEND"))
             summary = ev.get("SUMMARY", "")
-            if not ci or not co or co <= ci:
+            if not ci or not co or co <= ci or (co - ci).days > MAX_NIGHTS:
                 continue
             if any(re.search(p, summary, re.IGNORECASE) for p in blocks):
                 continue
@@ -104,7 +108,12 @@ def fetch_stays(feeds, since: date, today: date) -> list[dict]:
 # ── Firebase ──
 class DB:
     def __init__(self, sa: str, dry: bool):
-        info = json.loads(sa) if sa.lstrip().startswith("{") else json.load(open(sa, encoding="utf-8"))
+        # 秘密鍵がエラー表示に出ないよう、中身は例外メッセージに含めない
+        sa = sa.strip().lstrip("﻿")
+        try:
+            info = json.loads(sa) if sa.startswith("{") else json.load(open(sa, encoding="utf-8-sig"))
+        except Exception:
+            sys.exit("FIREBASE_SA を読み込めません（JSON またはファイルパスを指定してください）")
         self.creds = service_account.Credentials.from_service_account_info(info, scopes=SCOPES)
         self.dry = dry
 
@@ -139,8 +148,9 @@ def main():
             y, m = y - 1, m + 12
         since = date(y, m, 1)
 
-    stays = fetch_stays(load_feeds(), since, today)
-    print(f"{since}〜{today} のチェックイン: {len(stays)}件")
+    until = today + timedelta(days=LOOKAHEAD_DAYS)
+    stays = fetch_stays(load_feeds(), since, until)
+    print(f"{since}〜{until} のチェックイン: {len(stays)}件")
 
     db = DB(os.environ["FIREBASE_SA"], dry)
     synced, guests = db.get("guestSync"), db.get("guests")
@@ -156,7 +166,7 @@ def main():
             })
             db.write("PUT", f"guestSync/{s['key']}", {
                 "guestId": res["name"], "checkIn": s["checkIn"], "nights": s["nights"],
-                "channel": s["channel"], "summary": s["summary"],
+                "channel": s["channel"],
             })
             added += 1
             print(f"  追加: {s['checkIn']} {s['nights']}泊 {s['channel']}")
