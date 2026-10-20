@@ -347,6 +347,9 @@
     .g-ops .link-btn + .link-btn { margin-left: 10px; }
     .g-ops .del { color: var(--critical); }
     tr.editing td { background: var(--accent-soft); }
+    tr.review td { background: rgba(250, 178, 25, 0.08); }
+    .tag-review { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--warning); background: rgba(250, 178, 25, 0.16); color: var(--ink); white-space: nowrap; }
+    .tag-auto { font-size: 10px; color: var(--muted); margin-left: 5px; }
 
     .footer { color: var(--muted); font-size: 11px; text-align: center; padding: 28px 0 36px; }
 
@@ -491,6 +494,8 @@
             <option>直接予約</option>
             <option>Airbnb</option>
             <option>Booking.com</option>
+            <option>Vrbo</option>
+            <option>Trip.com</option>
             <option>楽天トラベル</option>
             <option>じゃらん</option>
             <option>Expedia</option>
@@ -1206,6 +1211,7 @@
       return {
         id, checkIn: r.checkIn || '', nights: Math.max(1, Number(r.nights) || 1), adults, children,
         people: adults + children, country: normCountry(r.country) || '未入力', channel: r.channel || '', memo: r.memo || '',
+        auto: r.source === 'calendar', review: !!r.needsReview,
       };
     }
     function isDomestic(g) { return g.country === '日本'; }
@@ -1228,8 +1234,13 @@
 
     function renderGuests() {
       const err = state.guestsError;
+      const pending = state.guests.filter(g => g.review && g.checkIn).sort((a, b) => b.checkIn.localeCompare(a.checkIn));
+      const byMonth = {};
+      pending.forEach(g => { const k = g.checkIn.slice(0, 7); byMonth[k] = (byMonth[k] || 0) + 1; });
       $('guestNotice').innerHTML = err
         ? `<div class="notice" style="margin-bottom:14px">宿泊記録を読み込めませんでした（${esc(/permission/i.test(err) ? 'データベースのアクセス権限が未設定です' : err)}）。</div>`
+        : pending.length
+        ? `<div class="notice" style="margin-bottom:14px">予約カレンダーから自動登録した <b>${pending.length}組</b> が、人数・国の入力待ちです（${Object.keys(byMonth).map(k => `<button type="button" class="link-btn" data-gm="${k}">${+k.slice(5)}月 ${byMonth[k]}組</button>`).join('、')}）。各行の「編集」から入力してください。</div>`
         : '';
       const months = guestRange();
       renderGuestChart(months);
@@ -1241,13 +1252,13 @@
       const data = months.map(b => {
         const l = guestsInMonth(b);
         const all = sumP(l), jp = sumP(l.filter(isDomestic));
-        return { b, all, jp, ov: all - jp, groups: l.length, nightsP: l.reduce((s, g) => s + g.people * g.nights, 0) };
+        return { b, all, jp, ov: all - jp, groups: l.length, review: l.filter(g => g.review).length, nightsP: l.reduce((s, g) => s + g.people * g.nights, 0) };
       });
       const first = months[0], last = months[months.length - 1];
       $('guestChartTitle').innerHTML = `旅館の宿泊人数 <span class="badge">${first.getFullYear()}/${first.getMonth()+1}〜${last.getFullYear()}/${last.getMonth()+1}</span>`;
       const cur = data.find(x => sameMonth(x.b, state.month));
       $('guestChartNote').textContent = cur
-        ? `${state.month.getMonth()+1}月 ${cur.all}人・${cur.groups}組${cur.all ? `・海外 ${Math.round(cur.ov / cur.all * 100)}%` : ''}`
+        ? `${state.month.getMonth()+1}月 ${cur.all}人・${cur.groups}組${cur.all ? `・海外 ${Math.round(cur.ov / cur.all * 100)}%` : ''}${cur.review ? `・要確認 ${cur.review}組` : ''}`
         : '';
 
       const W = 720, H = 250, padL = 34, padR = 6, padT = 22, padB = 26;
@@ -1332,14 +1343,15 @@
       if (!list.length) { $('guestTable').innerHTML = `<div class="empty">${m}月の宿泊記録はまだありません</div>`; return; }
       const rows = list.map(g => {
         const ci = parseYmd(g.checkIn), co = new Date(ci.getFullYear(), ci.getMonth(), ci.getDate() + g.nights);
-        return `<tr${state.guestEdit === g.id ? ' class="editing"' : ''}>
+        const cls = state.guestEdit === g.id ? 'editing' : g.review ? 'review' : '';
+        return `<tr${cls ? ` class="${cls}"` : ''}>
           <td style="white-space:nowrap">${ci.getMonth()+1}/${ci.getDate()}（${WEEKDAY[ci.getDay()]}）〜${co.getMonth()+1}/${co.getDate()}</td>
-          <td>${esc(g.country)}</td>
-          <td class="num">${g.adults}</td>
-          <td class="num">${g.children}</td>
-          <td class="num"><b>${g.people}</b></td>
+          <td>${g.review ? '<span class="tag-review">要確認</span>' : esc(g.country)}</td>
+          <td class="num">${g.review ? '–' : g.adults}</td>
+          <td class="num">${g.review ? '–' : g.children}</td>
+          <td class="num"><b>${g.review ? '–' : g.people}</b></td>
           <td class="num">${g.nights}泊</td>
-          <td style="white-space:nowrap">${esc(g.channel || '–')}</td>
+          <td style="white-space:nowrap">${esc(g.channel || '–')}${g.auto ? '<span class="tag-auto" title="予約カレンダーから自動登録">自動</span>' : ''}</td>
           <td style="color:var(--ink-2)">${esc(g.memo)}</td>
           <td class="g-ops"><button class="link-btn" data-edit="${esc(g.id)}">編集</button><button class="link-btn del" data-del="${esc(g.id)}">削除</button></td>
         </tr>`;
@@ -1381,7 +1393,7 @@
       if (data.adults + data.children === 0) { gMsg('人数を入力してください', true); return; }
       const id = state.guestEdit;
       let op;
-      if (id) op = db.ref('guests/' + id).update(data);
+      if (id) op = db.ref('guests/' + id).update({ ...data, needsReview: false });
       else op = db.ref('guests').push().set({ ...data, createdAt: Date.now(), createdBy: state.profile.uid });
       $('gSubmit').disabled = true;
       op.then(() => {
@@ -1403,8 +1415,8 @@
         state.guestEdit = g.id;
         $('gDate').value = g.checkIn;
         $('gNights').value = g.nights;
-        $('gAdults').value = g.adults;
-        $('gChildren').value = g.children;
+        $('gAdults').value = g.review ? '' : g.adults;
+        $('gChildren').value = g.review ? 0 : g.children;
         $('gCountry').value = g.country === '未入力' ? '' : g.country;
         $('gChannel').value = g.channel;
         $('gMemo').value = g.memo;
@@ -1416,11 +1428,19 @@
       }
       if (del) {
         const g = state.guests.find(x => x.id === del.dataset.del); if (!g) return;
-        if (!confirm(`${md(g.checkIn)}・${g.country} ${g.people}人の記録を削除しますか？`)) return;
+        const what = g.review ? `${md(g.checkIn)}・${g.channel || '予約'}（人数未入力）` : `${md(g.checkIn)}・${g.country} ${g.people}人`;
+        if (!confirm(`${what}の記録を削除しますか？${g.auto ? '\n自動登録の記録は、削除すると再登録されません。' : ''}`)) return;
         db.ref('guests/' + g.id).remove()
           .then(() => { if (state.guestEdit === g.id) resetGuestForm(); gMsg('削除しました'); })
           .catch(err => gMsg('削除できませんでした：' + (err.message || err.code), true));
       }
+    });
+    $('guestNotice').addEventListener('click', e => {
+      const b = e.target.closest('[data-gm]'); if (!b) return;
+      const [y, m] = b.dataset.gm.split('-').map(Number);
+      state.month = new Date(y, m - 1, 1);
+      renderAll();
+      $('guestTable').scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
     bindSeg('countryTabs', 'countryTab', () => renderGuests());
 
