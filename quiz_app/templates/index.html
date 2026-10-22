@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>業務クイズに挑戦</h1>
+<form method="post" action="{{ url_for('quiz_categories') }}" class="card">
+  <label>お名前
+    <input type="text" name="staff_name" required placeholder="例: 山田太郎">
+  </label>
+  <label>編を選択
+    <select name="track" required id="track-select" onchange="togglePassword(this.value)">
+      <option value="" disabled selected>選択してください</option>
+      {% for t in tracks %}
+        <option value="{{ t }}">{{ t }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <div id="password-field" style="display:none;">
+    <label>パスワード
+      <input type="password" name="track_password" id="track-password" placeholder="パスワードを入力">
+    </label>
+  </div>
+  <button type="submit">クイズを始める</button>
+</form>
+<script>
+var TRACK_PASSWORDS = {{ track_passwords | tojson }};
+function togglePassword(track) {
+  var field = document.getElementById('password-field');
+  var input = document.getElementById('track-password');
+  if (TRACK_PASSWORDS[track]) {
+    field.style.display = '';
+    input.required = true;
+  } else {
+    field.style.display = 'none';
+    input.required = false;
+    input.value = '';
+  }
+}
+</script>
+
+<div class="card" style="margin-top:1.5rem; background:#eaf4fb; border-left:4px solid #2980b9; text-align:center; gap:0.8rem;">
+  <a href="{{ url_for('simulator') }}">
+    <button style="background:#27ae60; width:100%; font-size:1rem;">ハニーラルヴァフランチャイズ仮想収益・年収計算</button>
+  </a>
+  <a href="{{ url_for('comparison') }}">
+    <button style="background:#8e44ad; width:100%;">📈 他社FCと比較してみる</button>
+  </a>
+  <a href="{{ url_for('inquiry') }}">
+    <button style="background:#2980b9; width:100%;">📩 フランチャイズ加盟のお問い合わせ</button>
+  </a>
+</div>
+{% endblock %}

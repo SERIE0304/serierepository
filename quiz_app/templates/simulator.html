@@ -1,0 +1,438 @@
+{% extends "base.html" %}
+{% block title %}FCシミュレーター — 株式会社セリエコンチェルト{% endblock %}
+{% block content %}
+<h1 style="margin-bottom:0.3rem;">📊 フランチャイズ経営シミュレーター</h1>
+<p style="color:#555; margin-top:0;">会員数が増えるほど収益が伸び、<strong>ランニングコストは変わらない</strong>のがこのフランチャイズの強みです。</p>
+
+<!-- 初期投資パネル -->
+<div class="card" style="gap:1rem; margin-bottom:1.2rem; border-left:4px solid #8e44ad;">
+  <h3 style="margin:0; color:#8e44ad;">💼 初期投資（開業時のみ）</h3>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:1rem;">
+    <label>加盟金（円）<input type="number" id="init_franchise" value="0" min="0" step="50000" oninput="calc()"></label>
+    <label>保証金（円）<input type="number" id="init_deposit" value="1000000" min="0" step="50000" oninput="calc()"></label>
+    <label>内装・設備費（円）<input type="number" id="init_equipment" value="100000" min="0" step="50000" oninput="calc()"></label>
+    <label>その他初期費用（円）<input type="number" id="init_other" value="0" min="0" step="10000" oninput="calc()"></label>
+  </div>
+  <!-- 保証金分割払いオプション -->
+  <div style="background:#fff8e1; border-left:4px solid #f5c842; border-radius:6px; padding:0.8rem 1rem; display:flex; align-items:flex-start; gap:0.8rem;">
+    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; margin:0; font-weight:bold; flex-shrink:0;">
+      <input type="checkbox" id="deposit_installment" onchange="calc()" style="width:18px; height:18px; margin:0;">
+      保証金を分割払いにする
+    </label>
+    <div style="font-size:0.85rem; color:#7d6608; line-height:1.5;">
+      初期の100万円は不要。代わりにロイヤリティに<strong>+2万円/月</strong>を上乗せして返済。<br>
+      <span id="installment_info" style="color:#555;"></span>
+    </div>
+  </div>
+  <div style="display:flex; justify-content:space-between; align-items:center; background:#f5eefa; border-radius:6px; padding:0.7rem 1rem;">
+    <span style="font-weight:bold; color:#8e44ad;">初期投資合計</span>
+    <span style="font-size:1.4rem; font-weight:bold; color:#8e44ad;" id="r_init_total">—</span>
+  </div>
+  <p style="margin:0; font-size:0.82rem; color:#888;">※ 保証金は契約終了時に返還されます。回収期間の計算には含めます。</p>
+</div>
+
+<!-- ランニングコスト入力 -->
+<div class="card" style="gap:1.2rem; margin-bottom:1.2rem;">
+  <h3 style="margin:0; border-bottom:2px solid #2980b9; padding-bottom:0.4rem;">📥 月次条件を入力</h3>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:1rem;">
+    <label>
+      月会費（1人あたり）
+      <div style="display:flex; align-items:center; gap:0.8rem;">
+        <input type="range" id="membership_fee" min="6000" max="10000" step="500" value="8000"
+          oninput="document.getElementById('membership_fee_val').textContent=Number(this.value).toLocaleString()+'円'; calc();"
+          style="flex:1; padding:0;">
+        <span id="membership_fee_val" style="min-width:5rem; font-weight:bold; color:#2980b9;">8,000円</span>
+      </div>
+    </label>
+    <label>
+      会員数（人）
+      <div style="display:flex; align-items:center; gap:0.8rem;">
+        <input type="range" id="members" min="1" max="100" step="1" value="20"
+          oninput="document.getElementById('members_val').textContent=this.value+'人'; calc();"
+          style="flex:1; padding:0;">
+        <span id="members_val" style="min-width:4rem; font-weight:bold; color:#2980b9;">20人</span>
+      </div>
+    </label>
+    <label>家賃（円/月）<input type="number" id="rent" value="30000" min="0" step="1000" oninput="calc()"></label>
+    <label>水道光熱費（円/月）<input type="number" id="utilities" value="10000" min="0" step="500" oninput="calc()"></label>
+    <label>
+      グローブ買い替え（円/年）
+      <input type="number" id="gloves_annual" value="30000" min="0" step="5000" oninput="calc()">
+      <span style="font-size:0.8rem; color:#888;">→ 月割: <span id="gloves_monthly_disp">2,500円</span></span>
+    </label>
+    <label>その他消耗品（円/月）<input type="number" id="consumables" value="2500" min="0" step="500" oninput="calc()"></label>
+    <label>追加人件費（円/月）<span style="color:#999; font-size:0.82rem;">（100人以下はワンオペ可・超えると20人ごとにアルバイト1人が自動加算）</span><input type="number" id="labor" value="0" min="0" step="10000" oninput="calc()"></label>
+  </div>
+  <div id="labor_alert" style="display:none; background:#fdf0f0; border-left:4px solid #e74c3c; border-radius:6px; padding:0.6rem 0.9rem; font-size:0.88rem; color:#c0392b;"></div>
+  <div style="background:#fff8e1; border-radius:6px; padding:0.7rem; font-size:0.88rem; color:#7d6608; border-left:4px solid #f5c842;">
+    💡 <strong>ポイント：</strong>ロイヤリティ・光熱費・家賃などのランニングコストは<strong>会員数が何人増えても変わりません。</strong>
+  </div>
+  <div style="background:#eaf4fb; border-radius:6px; padding:0.7rem; font-size:0.88rem; color:#1a5276; border-left:4px solid #2980b9;">
+    🕐 <strong>営業時間はオーナーが自由に決められます。</strong><br>
+    <span style="color:#555;">例）大田原店：1日3時間30分〜5時間30分　／　黒磯店：1日3時間30分〜4時間</span><br>
+    <span style="color:#2c3e50;">1日数時間の営業で収益を確保しながら、残りの時間はご自身の生活や家族との時間、もう一つの夢に充てることができます。<br>「働き方を自分でデザインする」——それがハニーラルヴァフランチャイズの大きな魅力のひとつです。</span>
+  </div>
+  <div style="background:#eafaf1; border-radius:6px; padding:0.7rem; font-size:0.88rem; color:#1e8449; border-left:4px solid #27ae60;">
+    👤 <strong>年齢・経験を問わず、誰でも挑戦できます。</strong><br>
+    <span style="color:#2c3e50;">ハニーラルヴァのフランチャイズに「若すぎる」「歳をとりすぎている」はありません。20代で新しいキャリアをスタートする方も、40代・50代でセカンドキャリアとして開業する方も、体力や経験に合わせた営業スタイルで無理なく続けられます。資格がなくても本部の研修で学べる仕組みが整っているため、健康・フィットネスへの情熱さえあれば、年齢は関係ありません。</span>
+  </div>
+</div>
+
+<!-- グラフ -->
+<div class="card" style="gap:0.8rem; margin-bottom:1.2rem;">
+  <h3 style="margin:0; color:#2c3e50;">📈 会員数と収益の関係</h3>
+  <p style="margin:0; color:#555; font-size:0.88rem;">横軸：会員数 ／ 縦軸：金額（円）　● = 現在の設定</p>
+  <canvas id="chart" style="width:100%; height:200px; max-height:260px;"></canvas>
+  <div style="display:flex; gap:1.5rem; font-size:0.85rem; flex-wrap:wrap;">
+    <span><span style="display:inline-block;width:20px;height:3px;background:#27ae60;vertical-align:middle;margin-right:4px;"></span>収益（売上）</span>
+    <span><span style="display:inline-block;width:20px;height:3px;border-top:2.5px dashed #e74c3c;vertical-align:middle;margin-right:4px;"></span>ランニングコスト（固定）</span>
+    <span><span style="display:inline-block;width:12px;height:12px;background:#2980b9;border-radius:50%;vertical-align:middle;margin-right:4px;"></span>現在の設定</span>
+  </div>
+</div>
+
+<!-- 結果 -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.2rem; margin-bottom:1.2rem;">
+  <div class="card" style="background:#eaf4fb; gap:0.5rem;">
+    <h3 style="margin:0; color:#2980b9;">💰 月間収支</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:0.93rem;">
+      <tr><td style="padding:0.25rem 0; color:#555;">月売上</td><td style="text-align:right; font-weight:bold;" id="r_revenue">—</td></tr>
+      <tr style="border-top:1px solid #d0e8f5;"><td colspan="2" style="padding:0.2rem 0; color:#888; font-size:0.82rem;">── ランニングコスト（固定）──</td></tr>
+      <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">家賃</td><td style="text-align:right;" id="r_rent">—</td></tr>
+      <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">ロイヤリティ<span id="r_royalty_note" style="font-size:0.78rem; color:#e67e22;"></span></td><td style="text-align:right;" id="r_royalty">50,000円</td></tr>
+      <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">水道光熱費</td><td style="text-align:right;" id="r_utilities">—</td></tr>
+      <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">グローブ（月割）</td><td style="text-align:right;" id="r_gloves">—</td></tr>
+      <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">その他消耗品</td><td style="text-align:right;" id="r_consumables">—</td></tr>
+      <tr><td style="padding:0.2rem 0 0.2rem 0.5rem; color:#555;">人件費</td><td style="text-align:right;" id="r_labor">—</td></tr>
+      <tr style="border-top:2px solid #2980b9;">
+        <td style="padding:0.35rem 0; font-weight:bold;">コスト合計</td>
+        <td style="text-align:right; font-weight:bold;" id="r_cost">—</td>
+      </tr>
+    </table>
+    <div style="background:#fff8e1; border-radius:4px; padding:0.5rem; font-size:0.82rem; color:#7d6608; margin-top:0.3rem;">
+      損益分岐点: <strong id="r_breakeven">—</strong> 人
+    </div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:0.8rem;">
+    <div class="card" id="result-card" style="gap:0.4rem; text-align:center;">
+      <h3 style="margin:0;">現在の利益</h3>
+      <p style="font-size:1.8rem; font-weight:bold; margin:0;" id="r_monthly_profit">—</p>
+      <p style="color:#555; margin:0; font-size:0.82rem;">月間利益</p>
+      <hr style="border:none; border-top:1px solid #eee; margin:0.3rem 0;">
+      <p style="font-size:2.2rem; font-weight:bold; margin:0;" id="r_annual_income">—</p>
+      <p style="color:#555; margin:0; font-size:0.82rem;">年収（年間利益）</p>
+      <div id="r_comment" style="margin-top:0.3rem; font-size:0.85rem; padding:0.4rem; border-radius:6px; background:#f0f3f5;"></div>
+      <div style="font-size:0.8rem; color:#888;" id="r_per_member"></div>
+    </div>
+
+    <!-- 投資回収 -->
+    <div class="card" style="background:#f5eefa; gap:0.5rem; text-align:center; border-left:4px solid #8e44ad;">
+      <h3 style="margin:0; color:#8e44ad;">📅 初期投資の回収</h3>
+      <p style="font-size:1.9rem; font-weight:bold; margin:0; color:#8e44ad;" id="r_payback">—</p>
+      <p style="color:#555; margin:0; font-size:0.82rem;">回収期間</p>
+      <hr style="border:none; border-top:1px solid #e0d0f0; margin:0.3rem 0;">
+      <p style="font-size:1.9rem; font-weight:bold; margin:0; color:#8e44ad;" id="r_roi">—</p>
+      <p style="color:#555; margin:0; font-size:0.82rem;">投資利回り（年率）</p>
+      <div id="r_roi_comment" style="margin-top:0.3rem; font-size:0.82rem; padding:0.4rem; border-radius:6px; background:#ede7f6; color:#6a1b9a;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 月会費シナリオ比較 -->
+<div class="card" style="gap:0.8rem; margin-bottom:1.2rem;">
+  <h3 style="margin:0; color:#2c3e50;">💴 月会費シナリオ別 年収比較（現在の会員数）</h3>
+  <p style="margin:0; color:#555; font-size:0.85rem;">会員数はそのままで、月会費を変えた場合の年収シミュレーションです。</p>
+  <table style="width:100%; border-collapse:collapse; font-size:0.93rem;">
+    <thead>
+      <tr style="background:#ecf0f1;">
+        <th style="padding:0.4rem 0.6rem; text-align:left;">月会費</th>
+        <th style="padding:0.4rem 0.6rem; text-align:right;">月売上</th>
+        <th style="padding:0.4rem 0.6rem; text-align:right;">月利益</th>
+        <th style="padding:0.4rem 0.6rem; text-align:right; color:#27ae60; font-weight:bold;">年収</th>
+      </tr>
+    </thead>
+    <tbody id="fee_scenario_body"></tbody>
+  </table>
+  <div style="background:#fff8e1; border-left:4px solid #f5c842; border-radius:6px; padding:0.6rem 0.9rem; font-size:0.85rem; color:#7d6608;">
+    💡 会員数が同じでも月会費が<strong>6,000円→10,000円</strong>になると年収の差が大きく開きます。サービスの質で単価を上げることが収益向上の近道です。
+  </div>
+</div>
+
+<!-- 多年度シミュレーション表 -->
+<div class="card" style="gap:0.8rem; margin-bottom:1.2rem; overflow-x:auto;">
+  <h3 style="margin:0; color:#2c3e50;">📅 10年間の収益予測（退会率10%/年）</h3>
+  <p style="margin:0; color:#555; font-size:0.85rem;">毎年、在籍会員の10%が退会すると仮定した場合の推移です。</p>
+  <table style="width:100%; border-collapse:collapse; font-size:0.9rem; min-width:420px;">
+    <thead>
+      <tr style="background:#ecf0f1;">
+        <th style="padding:0.4rem 0.5rem; text-align:center;">年度</th>
+        <th style="padding:0.4rem 0.5rem; text-align:right;">会員数</th>
+        <th style="padding:0.4rem 0.5rem; text-align:right;">年間売上</th>
+        <th style="padding:0.4rem 0.5rem; text-align:right;">年間利益</th>
+        <th style="padding:0.4rem 0.5rem; text-align:right;">累積利益</th>
+      </tr>
+    </thead>
+    <tbody id="projection_body"></tbody>
+  </table>
+  <p style="margin:0; font-size:0.8rem; color:#888;">※ 累積利益が初期投資額を超えた年が実質的な回収完了年です。新規入会が続けばさらに早く回収できます。</p>
+</div>
+
+<a href="{{ url_for('inquiry') }}">
+  <button style="width:100%; background:#e74c3c; font-size:1.05rem; padding:0.8rem;">📩 フランチャイズ加盟のお問い合わせはこちら</button>
+</a>
+<div style="display:flex; gap:1rem; margin-top:1.5rem; flex-wrap:wrap;">
+  <a href="{{ url_for('comparison') }}">
+    <button style="background:#8e44ad;">📊 他社FCと比較する</button>
+  </a>
+  <a href="{{ url_for('inquiry') }}">
+    <button style="background:#2980b9;">📩 加盟お問い合わせ</button>
+  </a>
+</div>
+<p style="margin-top:1rem;"><a href="{{ url_for('index') }}">← トップに戻る</a></p>
+
+<script>
+function fmt(n) {
+  return (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString() + '円';
+}
+function calc() {
+  var fee         = parseInt(document.getElementById('membership_fee').value) || 0;
+  var members     = parseInt(document.getElementById('members').value) || 0;
+  var rent        = parseInt(document.getElementById('rent').value) || 0;
+  var utilities   = parseInt(document.getElementById('utilities').value) || 0;
+  var glovesAnnual= parseInt(document.getElementById('gloves_annual').value) || 0;
+  var glovesM     = Math.round(glovesAnnual / 12);
+  var consumables = parseInt(document.getElementById('consumables').value) || 0;
+  var laborManual = parseInt(document.getElementById('labor').value) || 0;
+  var installment = document.getElementById('deposit_installment').checked;
+  var royalty     = installment ? 70000 : 50000;  // +2万円/月で分割返済
+  var depositVal  = parseInt(document.getElementById('init_deposit').value) || 0;
+  var installmentMonths = installment && royalty > 0 ? Math.ceil(depositVal / 20000) : 0;
+  var infoEl = document.getElementById('installment_info');
+  if (installment) {
+    infoEl.textContent = '月々2万円 × ' + installmentMonths + 'ヶ月（約' + Math.ceil(installmentMonths/12) + '年）で完済。初日から開業できます。';
+  } else {
+    infoEl.textContent = '';
+  }
+
+  // 100人超でアルバイト（20人ごとに1名・8万円/月）が自動加算
+  var autoStaff  = members > 100 ? Math.ceil((members - 100) / 20) : 0;
+  var laborAuto  = autoStaff * 80000;
+  var labor      = laborManual + laborAuto;
+  var alertEl    = document.getElementById('labor_alert');
+  if (members > 100) {
+    alertEl.style.display = 'block';
+    alertEl.textContent   = '⚠️ 会員数が100人を超えたため、アルバイト' + autoStaff + '名（' + (laborAuto/10000).toFixed(0) + '万円/月）が自動加算されています。（20人ごとに1名）';
+  } else {
+    alertEl.style.display = 'none';
+  }
+
+  var initFranchise = parseInt(document.getElementById('init_franchise').value) || 0;
+  var initDeposit   = parseInt(document.getElementById('init_deposit').value) || 0;
+  var initEquipment = parseInt(document.getElementById('init_equipment').value) || 0;
+  var initOther     = parseInt(document.getElementById('init_other').value) || 0;
+  // 分割払い選択時は保証金を初期投資から除く（月々返済に変わるため）
+  var initTotal     = initFranchise + (installment ? 0 : initDeposit) + initEquipment + initOther;
+
+  document.getElementById('gloves_monthly_disp').textContent = glovesM.toLocaleString() + '円';
+
+  var revenue  = fee * members;
+  var cost     = rent + royalty + utilities + glovesM + consumables + labor;
+  var profit   = revenue - cost;
+  var annual   = profit * 12;
+  var breakeven = cost > 0 ? Math.ceil(cost / fee) : 0;
+
+  document.getElementById('r_init_total').textContent    = initTotal.toLocaleString() + '円' + (installment ? '（保証金は月払い）' : '');
+  document.getElementById('r_royalty').textContent       = royalty.toLocaleString() + '円';
+  document.getElementById('r_royalty_note').textContent  = installment ? '（+2万円返済込み）' : '';
+  document.getElementById('r_revenue').textContent       = fmt(revenue);
+  document.getElementById('r_rent').textContent          = fmt(rent);
+  document.getElementById('r_utilities').textContent     = fmt(utilities);
+  document.getElementById('r_gloves').textContent        = fmt(glovesM);
+  document.getElementById('r_consumables').textContent   = fmt(consumables);
+  document.getElementById('r_labor').textContent         = fmt(labor);
+  document.getElementById('r_cost').textContent          = fmt(cost);
+  document.getElementById('r_breakeven').textContent     = breakeven;
+  document.getElementById('r_per_member').textContent    = members > breakeven
+    ? '会員1人増えるごとに月+' + fee.toLocaleString() + '円・年+' + (fee*12).toLocaleString() + '円'
+    : '';
+
+  var profitEl = document.getElementById('r_monthly_profit');
+  var annualEl = document.getElementById('r_annual_income');
+  var card     = document.getElementById('result-card');
+  var comment  = document.getElementById('r_comment');
+
+  profitEl.textContent = fmt(profit);
+  annualEl.textContent = fmt(annual);
+
+  if (profit > 0) {
+    profitEl.style.color = '#27ae60'; annualEl.style.color = '#27ae60';
+    card.style.background = '#eafaf1';
+    if (annual >= 5000000)      comment.textContent = '🎉 年収500万円超え！本格的な展開が見えてきました。';
+    else if (annual >= 3000000) comment.textContent = '✅ 安定した年収ラインです。会員を増やすほど利益が積み上がります！';
+    else                        comment.textContent = '📈 黒字です。会員が増えてもコストは変わらないので利益がどんどん伸びます。';
+  } else if (profit === 0) {
+    profitEl.style.color = '#888'; annualEl.style.color = '#888';
+    card.style.background = '#f7f7f7';
+    comment.textContent = '⚠️ 損益分岐点ちょうどです。あと1人で黒字！';
+  } else {
+    profitEl.style.color = '#e74c3c'; annualEl.style.color = '#e74c3c';
+    card.style.background = '#fdf0f0';
+    comment.textContent = '🔴 赤字。損益分岐まであと ' + (breakeven - members) + ' 人です。';
+  }
+
+  // 回収期間・利回り（退会率10%/年を考慮した累積利益で計算）
+  var paybackEl  = document.getElementById('r_payback');
+  var roiEl      = document.getElementById('r_roi');
+  var roiComment = document.getElementById('r_roi_comment');
+
+  // 多年度シミュレーション（退会率10%/年）
+  var tbody = document.getElementById('projection_body');
+  tbody.innerHTML = '';
+  var cumProfit = 0, paybackFound = false, paybackText = '10年以上';
+  var curMembers = members;
+  for (var yr = 1; yr <= 10; yr++) {
+    var churn      = Math.round(members * 0.1 * yr);
+    curMembers     = Math.max(0, members - churn);
+    var yrStaff    = curMembers > 100 ? Math.ceil((curMembers - 100) / 20) : 0;
+  var yrLaborAuto= yrStaff * 80000;
+    var yrCost     = rent + royalty + utilities + glovesM + consumables + laborManual + yrLaborAuto;
+    var yrRevenue  = fee * curMembers;
+    var yrProfit   = yrRevenue - yrCost;
+    var yrAnnual   = yrProfit * 12;
+    cumProfit    += yrAnnual;
+
+    if (!paybackFound && initTotal > 0 && cumProfit >= initTotal) {
+      paybackFound = true;
+      paybackText  = yr + '年以内';
+    }
+
+    var tr = document.createElement('tr');
+    var profitColor = yrAnnual >= 0 ? '#27ae60' : '#e74c3c';
+    tr.innerHTML =
+      '<td style="padding:0.3rem 0.5rem; text-align:center;">' + yr + '年目</td>' +
+      '<td style="padding:0.3rem 0.5rem; text-align:right;">' + curMembers + '人</td>' +
+      '<td style="padding:0.3rem 0.5rem; text-align:right;">' + fmt(yrRevenue) + '</td>' +
+      '<td style="padding:0.3rem 0.5rem; text-align:right; color:' + profitColor + '; font-weight:bold;">' + fmt(yrAnnual) + '</td>' +
+      '<td style="padding:0.3rem 0.5rem; text-align:right; color:' + (cumProfit >= 0 ? '#2980b9' : '#e74c3c') + ';">' + fmt(cumProfit) + '</td>';
+    tbody.appendChild(tr);
+  }
+
+  if (initTotal <= 0) {
+    paybackEl.textContent = '—'; roiEl.textContent = '—';
+    roiComment.textContent = '初期投資額を入力してください。';
+  } else if (annual <= 0) {
+    paybackEl.textContent = '回収不可'; roiEl.textContent = '—';
+    roiComment.textContent = '🔴 まず黒字化を目指しましょう。';
+  } else {
+    paybackEl.textContent = paybackText;
+    var roi = (annual / initTotal) * 100;
+    roiEl.textContent = roi.toFixed(1) + '%';
+    if (roi >= 50)       roiComment.textContent = '🚀 非常に高い利回りです！投資効率は抜群です。';
+    else if (roi >= 30)  roiComment.textContent = '✅ 優秀な利回りです。一般的な投資を大きく上回ります。';
+    else if (roi >= 15)  roiComment.textContent = '📈 良好な利回りです。会員数を増やすとさらに改善します。';
+    else if (roi >= 5)   roiComment.textContent = '⚠️ 利回りはやや低めです。コスト削減か会員増加を検討しましょう。';
+    else                 roiComment.textContent = '🔴 利回りが低い状態です。家賃や初期費用の見直しを。';
+  }
+
+  // 月会費シナリオ比較テーブル
+  var feeScenarios = [6000, 7000, 8000, 9000, 10000];
+  var scenarioBody = document.getElementById('fee_scenario_body');
+  scenarioBody.innerHTML = '';
+  feeScenarios.forEach(function(sf) {
+    var sRevenue = sf * members;
+    var sStaff   = members > 100 ? Math.ceil((members - 100) / 20) : 0;
+    var sCost    = rent + royalty + utilities + glovesM + consumables + laborManual + sStaff * 80000;
+    var sProfit  = sRevenue - sCost;
+    var sAnnual  = sProfit * 12;
+    var isActive = sf === fee;
+    var color    = sAnnual >= 0 ? '#27ae60' : '#e74c3c';
+    var tr = document.createElement('tr');
+    tr.style.background = isActive ? '#eafaf1' : '';
+    tr.style.fontWeight = isActive ? 'bold' : '';
+    tr.innerHTML =
+      '<td style="padding:0.35rem 0.6rem;">' + sf.toLocaleString() + '円' + (isActive ? ' ◀ 現在' : '') + '</td>' +
+      '<td style="padding:0.35rem 0.6rem; text-align:right;">' + fmt(sRevenue) + '</td>' +
+      '<td style="padding:0.35rem 0.6rem; text-align:right; color:' + color + ';">' + fmt(sProfit) + '</td>' +
+      '<td style="padding:0.35rem 0.6rem; text-align:right; color:' + color + '; font-weight:bold;">' + fmt(sAnnual) + '</td>';
+    scenarioBody.appendChild(tr);
+  });
+
+  drawChart(fee, cost, members);
+}
+
+function drawChart(fee, cost, members) {
+  var canvas = document.getElementById('chart');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.offsetWidth, H = 220;
+  canvas.width = W; canvas.height = H;
+
+  var maxM = Math.max(100, members + 20);
+  var maxY = Math.max(fee * maxM, cost * 1.5);
+  var padL = 68, padR = 16, padT = 16, padB = 32;
+  var gW = W - padL - padR, gH = H - padT - padB;
+
+  function xp(m) { return padL + (m / maxM) * gW; }
+  function yp(v) { return padT + gH - (v / maxY) * gH; }
+
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.strokeStyle = '#e8e8e8'; ctx.lineWidth = 1;
+  for (var i = 0; i <= 4; i++) {
+    var yv = (maxY / 4) * i, y = yp(yv);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+    ctx.fillStyle = '#aaa'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText((yv / 10000).toFixed(0) + '万', padL - 4, y + 4);
+  }
+  for (var j = 0; j <= 4; j++) {
+    var xv = (maxM / 4) * j, x = xp(xv);
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + gH); ctx.stroke();
+    ctx.fillStyle = '#aaa'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(Math.round(xv) + '人', x, padT + gH + 18);
+  }
+
+  // cost line
+  ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2.5; ctx.setLineDash([6, 4]);
+  ctx.beginPath(); ctx.moveTo(padL, yp(cost)); ctx.lineTo(W - padR, yp(cost)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // revenue line
+  ctx.strokeStyle = '#27ae60'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(xp(0), yp(0)); ctx.lineTo(xp(maxM), yp(fee * maxM)); ctx.stroke();
+
+  // breakeven
+  if (fee > 0) {
+    var bm = cost / fee;
+    ctx.strokeStyle = '#f39c12'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(xp(bm), yp(0)); ctx.lineTo(xp(bm), yp(cost)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#f39c12'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('損益分岐 ' + Math.ceil(bm) + '人', xp(bm), yp(cost) - 6);
+
+    // profit fill
+    if (bm < maxM) {
+      ctx.beginPath();
+      ctx.moveTo(xp(bm), yp(cost));
+      ctx.lineTo(xp(maxM), yp(fee * maxM));
+      ctx.lineTo(xp(maxM), yp(cost));
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(39,174,96,0.12)';
+      ctx.fill();
+    }
+  }
+
+  // current dot
+  ctx.beginPath();
+  ctx.arc(xp(members), yp(fee * members), 7, 0, Math.PI * 2);
+  ctx.fillStyle = '#2980b9'; ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#2980b9'; ctx.font = 'bold 11px sans-serif';
+  var lx = xp(members) + 10, ly = yp(fee * members) - 4;
+  if (lx + 60 > W) lx = xp(members) - 70;
+  ctx.textAlign = 'left';
+  ctx.fillText('現在 ' + members + '人', lx, ly);
+}
+
+window.addEventListener('resize', calc);
+calc();
+</script>
+{% endblock %}
