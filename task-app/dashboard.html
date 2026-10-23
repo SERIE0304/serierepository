@@ -278,6 +278,12 @@
     td { padding: 8px; border-bottom: 1px solid var(--grid); }
     tr:last-child td { border-bottom: 0; }
     td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .occ-grid th.num, .occ-grid td.num { text-align: center; }
+    .occ-grid td.cell { cursor: pointer; border-radius: 6px; border-bottom: 2px solid var(--surface); font-weight: 600; }
+    .occ-grid td.cell.fut { font-weight: 400; font-style: italic; }
+    .occ-grid td.cell.part { color: var(--muted); }
+    .occ-grid td.cell.sel { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .occ-grid td.cell.none { color: var(--muted); font-weight: 400; cursor: default; }
 
     /* タイムライン */
     .timeline { display: flex; flex-direction: column; max-height: 620px; overflow-y: auto; margin-right: -8px; padding-right: 8px; }
@@ -472,6 +478,14 @@
           <div id="occNotice"></div>
           <div class="hbars" id="occYears"></div>
         </div>
+      </section>
+
+      <section class="card row">
+        <div class="card-head">
+          <div class="card-title">毎月の稼働率</div>
+          <div class="card-note">色が濃いほど埋まっています・<i>斜体</i>はこれからの予約済み分・灰色の文字は Airbnb の記録のみ</div>
+        </div>
+        <div class="table-wrap" id="occGrid"></div>
       </section>
 
       <section class="grid two row">
@@ -1272,7 +1286,38 @@
         : '';
       renderOccChart();
       renderOccYears();
+      renderOccGrid();
     }
+
+    function renderOccGrid() {
+      if (!Object.keys(state.occ).length) { $('occGrid').innerHTML = '<div class="empty">稼働の記録はまだありません</div>'; return; }
+      const first = Object.keys(state.occ).sort()[0];
+      const sy =state.month.getFullYear(), sm = state.month.getMonth();
+      const rows = occYears().reverse().map(y => {
+        const cells = [];
+        for (let m = 0; m < 12; m++) {
+          const from = new Date(y, m, 1), to = new Date(y, m + 1, 1);
+          const before = ymd(new Date(to.getTime() - DAY)) < first.slice(0, 8) + '01';
+          const c = occCount(from, to);
+          if (before) { cells.push(`<td class="num cell none">–</td>`); continue; }
+          const v = c.booked / c.days, fut = c.pastDays < c.days, part = occPartial(from, to);
+          const bg = `color-mix(in srgb, ${part === 'all' ? 'var(--c-other)' : 'var(--c1)'} ${Math.round(8 + v * 62)}%, transparent)`;
+          const title = `${y}年${m + 1}月：${c.booked}泊／${c.days}日${fut && c.pastDays ? `（うち実績 ${c.pastBooked}泊）` : ''}${part ? '・Airbnbの記録のみ' : ''}`;
+          cells.push(`<td class="num cell${fut ? ' fut' : ''}${part ? ' part' : ''}${y === sy && m === sm ? ' sel' : ''}" data-ym="${y}-${m}" style="background:${bg}" title="${title}">${pct(v)}</td>`);
+        }
+        const yc = occCount(new Date(y, 0, 1), new Date(y + 1, 0, 1));
+        return `<tr><td><b>${y}年</b></td>${cells.join('')}<td class="num"><b>${pct(occRate(yc))}</b></td></tr>`;
+      }).join('');
+      $('occGrid').innerHTML = `<table class="occ-grid">
+        <thead><tr><th></th>${Array.from({ length: 12 }, (_, i) => `<th class="num">${i + 1}月</th>`).join('')}<th class="num">年間</th></tr></thead>
+        <tbody>${rows}</tbody></table>`;
+    }
+    $('occGrid').addEventListener('click', e => {
+      const c = e.target.closest('[data-ym]'); if (!c) return;
+      const [y, m] = c.dataset.ym.split('-').map(Number);
+      state.month = new Date(y, m, 1);
+      renderAll();
+    });
 
     function renderOccYears() {
       const t = todayStr(), ys = occYears().reverse();
