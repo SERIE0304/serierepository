@@ -458,6 +458,25 @@
       <section class="grid two row">
         <div class="card">
           <div class="card-head">
+            <div class="card-title" id="occChartTitle">客室稼働率</div>
+            <div class="card-note" id="occChartNote"></div>
+          </div>
+          <div class="legend"><span><i style="background:var(--c1)"></i>実績</span><span><i style="background:var(--c1);opacity:.35"></i>予約済み（これから）</span><span><i style="background:var(--c-other)"></i>Airbnbのみの記録</span><span><i style="background:var(--ink-2);height:2px;border-radius:0"></i>前年同月</span></div>
+          <div class="chart" id="occChart"><div class="tip" id="occTip"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">年別の稼働率</div>
+            <div class="card-note">1棟貸し・埋まった夜 ÷ 日数</div>
+          </div>
+          <div id="occNotice"></div>
+          <div class="hbars" id="occYears"></div>
+        </div>
+      </section>
+
+      <section class="grid two row">
+        <div class="card">
+          <div class="card-head">
             <div class="card-title" id="guestChartTitle">旅館の宿泊人数</div>
             <div class="card-note" id="guestChartNote"></div>
           </div>
@@ -640,6 +659,9 @@
       guests: [],
       guestsError: null,
       guestEdit: null,
+      occ: {},
+      occMeta: {},
+      occError: null,
       countryTab: 'month',
       month: (() => { const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); return d; })(),
       taskTab: 'progress',
@@ -777,6 +799,19 @@
         renderAll();
       });
       state.listeners.push(() => gref.off('value', gcb));
+      const oref = db.ref('occupancy');
+      const ocb = oref.on('value', snap => {
+        const v = snap.val() || {};
+        state.occError = null;
+        state.occ = v.nights || {};
+        state.occMeta = v.meta || {};
+        renderAll();
+      }, err => {
+        state.occError = err.code || 'error';
+        console.warn('occupancy', err);
+        renderAll();
+      });
+      state.listeners.push(() => oref.off('value', ocb));
       const conn = db.ref('.info/connected');
       const cc = conn.on('value', s => setLive(!!s.val()));
       state.listeners.push(() => conn.off('value', cc));
@@ -872,6 +907,7 @@
       renderBiz();
       renderTimeline();
       renderTasks();
+      renderOccupancy();
       renderGuests();
     }
 
@@ -1200,6 +1236,143 @@
         </div>`;
       }).join('') : '<div class="empty">該当するタスクはありません</div>';
     }
+
+    // ── 客室稼働率（1棟貸し：occupancy/nights/{日付} があれば埋まった夜） ──
+    // from〜to（to は含まない）の夜を、今日より前（実績）とそれ以降（予約済み）に分けて数える
+    function occCount(from, to) {
+      const t = todayStr(), r = { days: 0, booked: 0, pastDays: 0, pastBooked: 0 };
+      for (let d = new Date(from); d < to; d.setDate(d.getDate() + 1)) {
+        const k = ymd(d), on = !!state.occ[k];
+        r.days++; r.booked += on;
+        if (k < t) { r.pastDays++; r.pastBooked += on; }
+      }
+      return r;
+    }
+    // 実績のある期間は実績の率、これからの期間は予約済みの率
+    function occRate(c) { return c.pastDays ? c.pastBooked / c.pastDays : c.days ? c.booked / c.days : 0; }
+    function pct(v) { return Math.round(v * 100) + '%'; }
+    // completeFrom より前は Airbnb の記録しかない
+    function occPartial(from, to) {
+      const cf = state.occMeta.completeFrom; if (!cf) return '';
+      if (ymd(new Date(to.getTime() - DAY)) < cf) return 'all';
+      return ymd(from) < cf ? 'some' : '';
+    }
+    function occYears() {
+      const keys = Object.keys(state.occ).sort();
+      const now = new Date().getFullYear();
+      const y0 = keys.length ? +keys[0].slice(0, 4) : now, y1 = keys.length ? Math.max(now, +keys[keys.length - 1].slice(0, 4)) : now;
+      const ys = []; for (let y = y0; y <= y1; y++) ys.push(y);
+      return ys;
+    }
+
+    function renderOccupancy() {
+      const err = state.occError;
+      $('occNotice').innerHTML = err
+        ? `<div class="notice" style="margin-bottom:14px">稼働率を読み込めませんでした（${esc(/permission/i.test(err) ? 'データベースのアクセス権限が未設定です' : err)}）。</div>`
+        : '';
+      renderOccChart();
+      renderOccYears();
+    }
+
+    function renderOccYears() {
+      const t = todayStr(), ys = occYears().reverse();
+      if (!Object.keys(state.occ).length) { $('occYears').innerHTML = '<div class="empty">稼働の記録はまだありません</div>'; return; }
+      $('occYears').innerHTML = ys.map(y => {
+        const from = new Date(y, 0, 1), to = new Date(y + 1, 0, 1), c = occCount(from, to), part = occPartial(from, to);
+        const cur = c.pastDays && c.pastDays < c.days, future = !c.pastDays;
+        const rate = occRate(c);
+        const label = future ? '予約済み' : cur ? `実績（${new Date().getMonth() + 1}月まで）` : '実績';
+        const sub = cur ? `予約込みの年間 ${pct(c.booked / c.days)}` : future ? `${c.booked}泊` : `${c.booked}泊／${c.days}日`;
+        const color = part === 'all' ? 'var(--c-other)' : 'var(--c1)';
+        return `<div class="hbar-row pick-year" data-y="${y}" style="cursor:pointer${y === state.month.getFullYear() ? ';font-weight:700' : ''}" title="${y}年の月別を表示">
+          <div class="hbar-name">${y}年<small>${label}${part === 'all' ? '・Airbnbのみ' : part === 'some' ? '・一部Airbnbのみ' : ''}</small></div>
+          <div class="hbar-track"><div class="hbar-fill" style="width:${(rate * 100).toFixed(1)}%;background:${color}${future ? ';opacity:.35' : ''}"></div></div>
+          <div class="hbar-val">${pct(rate)}<small>${sub}</small></div>
+        </div>`;
+      }).join('') + (state.occMeta.completeFrom
+        ? `<div class="card-note" style="margin-top:4px">${md(state.occMeta.completeFrom)}（${state.occMeta.completeFrom.slice(0, 4)}年）より前は Airbnb の記録だけなので、実際より低く出ます。</div>` : '');
+    }
+
+    function renderOccChart() {
+      const y = state.month.getFullYear(), t = todayStr();
+      const first = Object.keys(state.occ).sort()[0] || '9999';
+      const data = [];
+      for (let m = 0; m < 12; m++) {
+        const from = new Date(y, m, 1), to = new Date(y, m + 1, 1);
+        const pf = new Date(y - 1, m, 1), pt = new Date(y - 1, m + 1, 1);
+        const c = occCount(from, to), p = occCount(pf, pt);
+        data.push({ m, c, prev: p.days ? p.booked / p.days : 0, prevAny: ymd(new Date(pt.getTime() - DAY)) >= first,
+          part: occPartial(from, to), prevPart: occPartial(pf, pt) });
+      }
+      const yc = occCount(new Date(y, 0, 1), new Date(y + 1, 0, 1));
+      $('occChartTitle').innerHTML = `客室稼働率 <span class="badge">${y}年・月別</span>`;
+      $('occChartNote').textContent = !yc.booked ? '' : yc.pastDays && yc.pastDays < yc.days
+        ? `実績 ${pct(yc.pastBooked / yc.pastDays)}・予約込み ${pct(yc.booked / yc.days)}`
+        : yc.pastDays ? `年間 ${pct(yc.booked / yc.days)}（${yc.booked}泊）` : `予約済み ${pct(yc.booked / yc.days)}（${yc.booked}泊）`;
+
+      const W = 720, H = 250, padL = 40, padR = 6, padT = 22, padB = 26;
+      const iw = W - padL - padR, ih = H - padT - padB;
+      const slot = iw / 12, bw = Math.min(36, slot * 0.6);
+      const ys = v => padT + ih - v * ih;
+      let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${y}年の月別客室稼働率">`;
+      for (let v = 0; v <= 1.0001; v += 0.25) {
+        const yy = ys(v);
+        svg += `<line class="${v === 0 ? 'base-line' : 'grid-line'}" x1="${padL}" x2="${W - padR}" y1="${yy}" y2="${yy}"/>`;
+        svg += `<text x="${padL - 6}" y="${yy + 4}" text-anchor="end">${Math.round(v * 100)}%</text>`;
+      }
+      data.forEach((x, i) => {
+        const cx = padL + slot * i + slot / 2, bx = cx - bw / 2, c = x.c;
+        const fill = x.part === 'all' ? 'var(--c-other)' : 'var(--c1)';
+        // 実績分（濃い）と予約済み分（薄い）を積む。どちらも月の日数に対する割合
+        const pastV = c.days ? c.pastBooked / c.days : 0, futV = c.days ? (c.booked - c.pastBooked) / c.days : 0;
+        const parts = [[pastV, 1], [futV, 0.35]].filter(p => p[0] > 0);
+        let acc = 0, segs = '';
+        parts.forEach(([v, op], j) => {
+          const y0 = ys(acc), y1 = ys(acc + v), h = Math.max(0, y0 - y1);
+          const r = j === parts.length - 1 ? Math.min(4, bw / 2, h) : 0;
+          segs += `<path class="seg" fill="${fill}" fill-opacity="${op}" d="${roundTop(bx, y1, bw, h, r)}"/>`;
+          acc += v;
+        });
+        const total = c.booked ? `<text class="bar-total" x="${cx}" y="${ys(c.booked / c.days) - 6}" text-anchor="middle">${pct(c.booked / c.days)}</text>` : '';
+        const prev = x.prev > 0 ? `<line x1="${bx - 3}" x2="${bx + bw + 3}" y1="${ys(x.prev)}" y2="${ys(x.prev)}" stroke="var(--ink-2)" stroke-width="2" stroke-dasharray="${x.prevPart === 'all' ? '3 2' : '0'}"/>` : '';
+        const sel = x.m === state.month.getMonth();
+        svg += `<g class="col pick${sel ? ' sel' : ''}" data-i="${i}">${segs}${total}${prev}<rect class="hit" x="${padL + slot * i}" y="${padT}" width="${slot}" height="${ih}"/><text class="m-label" x="${cx}" y="${H - 8}" text-anchor="middle">${x.m + 1}月</text></g>`;
+      });
+      svg += `</svg>`;
+
+      const chart = $('occChart'), tip = $('occTip');
+      chart.innerHTML = svg;
+      chart.appendChild(tip);
+      chart.querySelectorAll('.col').forEach(g => {
+        const x = data[+g.dataset.i], c = x.c;
+        g.addEventListener('click', () => { state.month = new Date(y, x.m, 1); renderAll(); });
+        g.addEventListener('mouseenter', () => { chart.classList.add('dim'); g.classList.add('hover'); });
+        g.addEventListener('mouseleave', () => { chart.classList.remove('dim'); g.classList.remove('hover'); tip.classList.remove('show'); });
+        g.addEventListener('mousemove', e => {
+          const chs = {};
+          for (let d = new Date(y, x.m, 1); d.getMonth() === x.m; d.setDate(d.getDate() + 1)) { const o = state.occ[ymd(d)]; if (o) chs[o.ch || '不明'] = (chs[o.ch || '不明'] || 0) + 1; }
+          tip.innerHTML = `<div class="tt">${y}年${x.m + 1}月・${pct(c.days ? c.booked / c.days : 0)}</div>
+            <div class="tr">埋まった夜<b>${c.booked}泊／${c.days}日</b></div>
+            ${c.pastDays && c.pastDays < c.days ? `<div class="tr">うち実績<b>${c.pastBooked}泊／${c.pastDays}日</b></div>` : ''}
+            ${Object.keys(chs).sort((a, b) => chs[b] - chs[a]).map(k => `<div class="tr">${esc(k)}<b>${chs[k]}泊</b></div>`).join('')}
+            <div class="tr">前年同月<b>${x.prev > 0 || x.prevAny ? pct(x.prev) : '–'}</b></div>
+            ${x.part ? `<div class="tr" style="color:var(--muted)">${x.part === 'all' ? 'Airbnb の記録のみ' : '一部 Airbnb の記録のみ'}</div>` : ''}`;
+          const rect = chart.getBoundingClientRect();
+          let lx = e.clientX - rect.left + 14;
+          const tw = tip.offsetWidth || 170;
+          if (lx + tw > rect.width) lx = e.clientX - rect.left - tw - 14;
+          tip.style.left = Math.max(0, lx) + 'px';
+          tip.style.top = Math.max(0, e.clientY - rect.top - 24) + 'px';
+          tip.classList.add('show');
+        });
+      });
+    }
+
+    $('occYears').addEventListener('click', e => {
+      const r = e.target.closest('[data-y]'); if (!r) return;
+      state.month = new Date(+r.dataset.y, state.month.getMonth(), 1);
+      renderAll();
+    });
 
     // ── 旅館ゲスト ──
     function normCountry(s) {
