@@ -4,6 +4,7 @@
 - 人数・国は iCal に入っていないので空のまま登録し、needsReview=True で「要確認」にする
 - 同期の履歴は /guestSync に残す。手で直した項目は上書きせず、手で削除した記録は再登録しない
 - 客室稼働率用に、埋まっている夜を /occupancy/nights に記録する（先の予約も含む）
+- 別々の予約サイトの予約が同じ夜に重なったら /alerts/doubleBooking に載せる（ダッシュボードに警告）
 
 環境変数
   ICAL_FEEDS      1行に「予約経路 URL」。優先する経路から順に書く（同じ日程の重複は先の行を残す）
@@ -175,6 +176,41 @@ def sync_occupancy(db, res, today: date):
     print(f"稼働: 追加・変更 {sum(v is not None for v in upd.values())}泊・削除 {sum(v is None for v in upd.values())}泊")
 
 
+def sync_double_bookings(db, res, today: date):
+    """別々の予約サイトの予約が同じ夜に重なっていたら /alerts/doubleBooking/{日付} に載せる
+
+    1棟貸しなので、今日以降の夜に2つ以上の経路の予約があればダブルブッキングの疑い。
+    同じサイト内の重なり（Booking.com の2件など）は iCal に出ないため、予約一覧の取り込み時に登録する（src=booking-export）。
+    「対応済み」にされた警告は、重なりの中身が変わらない限りそのままにする。
+    """
+    t = today.isoformat()
+    by_night = {}
+    for x in res:
+        for i in range((x["co"] - x["ci"]).days):
+            d = (x["ci"] + timedelta(days=i)).isoformat()
+            if d >= t:
+                by_night.setdefault(d, {}).setdefault(x["channel"], 0)
+                by_night[d][x["channel"]] += 1
+    found = {}
+    for d, chs in by_night.items():
+        if len(chs) >= 2:
+            sig = "・".join(f"{c} {n}件" for c, n in sorted(chs.items()))
+            found[d] = sig
+    cur = db.get("alerts/doubleBooking")
+    upd = {}
+    for d, sig in found.items():
+        c = cur.get(d)
+        if c is None or (c.get("src") == "ical" and c.get("detail") != sig):
+            upd[d] = {"date": d, "detail": sig, "src": "ical", "resolved": False, "detectedAt": {".sv": "timestamp"}}
+            print(f"  ダブルブッキングの疑い: {d} {sig}")
+    for d, c in cur.items():
+        if c.get("src") == "ical" and d >= t and d not in found and not c.get("resolved"):
+            upd[d] = None  # 重なりが解消した
+    if upd:
+        db.write("PATCH", "alerts/doubleBooking", upd)
+    print(f"ダブルブッキング: 今日以降の重なり {len(found)}泊")
+
+
 def main():
     dry = "--dry-run" in sys.argv
     today = datetime.now(JST).date()
@@ -194,6 +230,7 @@ def main():
 
     db = DB(os.environ["FIREBASE_SA"], dry)
     sync_occupancy(db, res, today)
+    sync_double_bookings(db, res, today)
     synced, guests = db.get("guestSync"), db.get("guests")
     added = updated = 0
     for s in stays:
