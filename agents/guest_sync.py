@@ -3,6 +3,7 @@
 - チェックイン前日以降の予約だけを登録する（先の予約のキャンセルを拾わないため）
 - 人数・国は iCal に入っていないので空のまま登録し、needsReview=True で「要確認」にする
 - 同期の履歴は /guestSync に残す。手で直した項目は上書きせず、手で削除した記録は再登録しない
+- 客室稼働率用に、埋まっている夜を /occupancy/nights に記録する（先の予約も含む）
 
 環境変数
   ICAL_FEEDS      1行に「予約経路 URL」。優先する経路から順に書く（同じ日程の重複は先の行を残す）
@@ -79,8 +80,9 @@ def load_feeds() -> list[tuple[str, str]]:
     return feeds
 
 
-def fetch_stays(feeds, since: date, today: date) -> list[dict]:
-    stays, seen = [], set()
+def fetch_reservations(feeds) -> list[dict]:
+    """全フィードの予約（売り止めを除く）を、ICAL_FEEDS の順に返す"""
+    res = []
     for channel, url in feeds:
         r = requests.get(url, timeout=30, headers={"User-Agent": "serie-guest-sync"})
         r.raise_for_status()
@@ -92,16 +94,24 @@ def fetch_stays(feeds, since: date, today: date) -> list[dict]:
                 continue
             if any(re.search(p, summary, re.IGNORECASE) for p in blocks):
                 continue
-            if ci < since or ci > today:
-                continue
-            if (ci, co) in seen:  # 別の経路から取り込まれた同じ予約
-                print(f"  重複のため除外: {channel} {ci}〜{co} {summary}")
-                continue
-            seen.add((ci, co))
             uid = ev.get("UID") or f"{ci}-{co}"
             key = hashlib.sha1(f"{channel}|{uid}".encode()).hexdigest()[:20]
-            stays.append({"key": key, "channel": channel, "checkIn": ci.isoformat(),
-                          "nights": (co - ci).days, "summary": summary})
+            res.append({"key": key, "channel": channel, "ci": ci, "co": co, "summary": summary})
+    return res
+
+
+def select_stays(res, since: date, until: date) -> list[dict]:
+    stays, seen = [], set()
+    for x in res:
+        ci, co = x["ci"], x["co"]
+        if ci < since or ci > until:
+            continue
+        if (ci, co) in seen:  # 別の経路から取り込まれた同じ予約
+            print(f"  重複のため除外: {x['channel']} {ci}〜{co} {x['summary']}")
+            continue
+        seen.add((ci, co))
+        stays.append({"key": x["key"], "channel": x["channel"], "checkIn": ci.isoformat(),
+                      "nights": (co - ci).days, "summary": x["summary"]})
     return stays
 
 
@@ -136,6 +146,35 @@ class DB:
         return r.json()
 
 
+def sync_occupancy(db, res, today: date):
+    """/occupancy/nights/{日付} = {ch, src, ci} を予約カレンダーに合わせる（1棟貸しなので1日1件）
+
+    - 始まっていない滞在の夜は、カレンダーから消えたら削除する（キャンセル・日程変更）
+    - 始まった滞在の夜は消さない（Booking.com は始まった予約を書き出さないため）
+    - 取り込み（src=import）や手入力（src=manual）の夜は上書きしない
+    """
+    horizon = today + timedelta(days=550)
+    feed = {}
+    for x in res:
+        for i in range((x["co"] - x["ci"]).days):
+            d = x["ci"] + timedelta(days=i)
+            if today - timedelta(days=30) <= d < horizon:
+                feed.setdefault(d.isoformat(), {"ch": x["channel"], "src": "ical", "ci": x["ci"].isoformat()})
+    cur = db.get("occupancy/nights")
+    t = today.isoformat()
+    upd = {}
+    for k, v in feed.items():
+        c = cur.get(k)
+        if c is None or (c.get("src") == "ical" and c != v and c.get("ci", "") > t):
+            upd[k] = v
+    for k, c in cur.items():
+        if k not in feed and c.get("src") == "ical" and c.get("ci", "") > t:
+            upd[k] = None
+    if upd:
+        db.write("PATCH", "occupancy/nights", upd)
+    print(f"稼働: 追加・変更 {sum(v is not None for v in upd.values())}泊・削除 {sum(v is None for v in upd.values())}泊")
+
+
 def main():
     dry = "--dry-run" in sys.argv
     today = datetime.now(JST).date()
@@ -149,10 +188,12 @@ def main():
         since = date(y, m, 1)
 
     until = today + timedelta(days=LOOKAHEAD_DAYS)
-    stays = fetch_stays(load_feeds(), since, until)
+    res = fetch_reservations(load_feeds())
+    stays = select_stays(res, since, until)
     print(f"{since}〜{until} のチェックイン: {len(stays)}件")
 
     db = DB(os.environ["FIREBASE_SA"], dry)
+    sync_occupancy(db, res, today)
     synced, guests = db.get("guestSync"), db.get("guests")
     added = updated = 0
     for s in stays:
