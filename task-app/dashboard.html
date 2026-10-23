@@ -331,6 +331,13 @@
     .loading { min-height: 100vh; display: grid; place-items: center; color: var(--muted); font-size: 13px; background: var(--page); }
     .spinner { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--grid); border-top-color: var(--accent); animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .db-alert { border: 1px solid var(--critical); background: color-mix(in srgb, var(--critical) 7%, var(--surface)); border-radius: 16px; padding: 14px 18px; }
+    .db-alert h3 { margin: 0 0 8px; font-size: 14px; color: var(--critical); display: flex; align-items: center; gap: 6px; }
+    .db-alert .db-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 7px 0; border-top: 1px solid color-mix(in srgb, var(--critical) 20%, transparent); font-size: 13px; }
+    .db-alert .db-row:first-of-type { border-top: 0; }
+    .db-alert .db-date { font-weight: 700; white-space: nowrap; }
+    .db-alert .db-detail { color: var(--ink-2); flex: 1; min-width: 180px; }
+    .db-alert .db-note { font-size: 11px; color: var(--muted); margin-top: 6px; }
     .notice { font-size: 12px; color: var(--ink-2); background: var(--surface-2); border: 1px dashed var(--axis); border-radius: 10px; padding: 8px 12px; }
 
     /* 旅館ゲスト */
@@ -460,6 +467,8 @@
           <div class="kpi-foot" id="kpiTasksFoot"></div>
         </div>
       </section>
+
+      <section class="row db-alert" id="dbAlerts" style="display:none"></section>
 
       <section class="grid two row">
         <div class="card">
@@ -676,6 +685,7 @@
       occ: {},
       occMeta: {},
       occError: null,
+      dbAlerts: {},
       countryTab: 'month',
       month: (() => { const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); return d; })(),
       taskTab: 'progress',
@@ -826,6 +836,10 @@
         renderAll();
       });
       state.listeners.push(() => oref.off('value', ocb));
+      const aref = db.ref('alerts/doubleBooking');
+      const acb = aref.on('value', snap => { state.dbAlerts = snap.val() || {}; renderAll(); },
+        err => { state.dbAlerts = {}; console.warn('alerts', err); });
+      state.listeners.push(() => aref.off('value', acb));
       const conn = db.ref('.info/connected');
       const cc = conn.on('value', s => setLive(!!s.val()));
       state.listeners.push(() => conn.off('value', cc));
@@ -921,9 +935,49 @@
       renderBiz();
       renderTimeline();
       renderTasks();
+      renderDoubleBookings();
       renderOccupancy();
       renderGuests();
     }
+
+    // ── ダブルブッキングの警告（alerts/doubleBooking/{日付}） ──
+    function renderDoubleBookings() {
+      const t = todayStr();
+      const open = Object.keys(state.dbAlerts).sort()
+        .map(d => ({ d, ...state.dbAlerts[d] }))
+        .filter(a => !a.resolved && a.d >= t);
+      const box = $('dbAlerts');
+      if (!open.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+      // 連続した夜で内容が同じものは1行にまとめる
+      const groups = [];
+      open.forEach(a => {
+        const g = groups[groups.length - 1];
+        const next = g && ymd(new Date(parseYmd(g.dates[g.dates.length - 1]).getTime() + DAY));
+        if (g && next === a.d && g.detail === a.detail && g.src === a.src) g.dates.push(a.d);
+        else groups.push({ dates: [a.d], detail: a.detail || '', src: a.src || '' });
+      });
+      const nightLabel = d => { const x = parseYmd(d); return `${x.getMonth() + 1}/${x.getDate()}（${WEEKDAY[x.getDay()]}）`; };
+      box.style.display = '';
+      box.innerHTML = `<h3>⚠ ダブルブッキングがあります（${open.length}泊）</h3>
+        ${groups.map(g => `<div class="db-row">
+          <span class="db-date">${nightLabel(g.dates[0])}${g.dates.length > 1 ? `〜${nightLabel(g.dates[g.dates.length - 1])}` : ''}の夜</span>
+          <span class="db-detail">${esc(g.detail)}${g.src === 'ical' ? '（別々の予約サイトで同じ夜に予約）' : g.src === 'booking-export' ? '（Booking.com の予約一覧で検出）' : ''}</span>
+          <button class="btn-sm" data-dbres="${g.dates.join(',')}">対応済みにする</button>
+        </div>`).join('')}
+        <div class="db-note">どちらかのゲストに連絡して調整してください。予約サイト同士の重なりは毎朝7時に自動で確認しています。同じサイト内の重なりは、予約一覧の取り込み時に確認します。</div>`;
+    }
+    $('dbAlerts').addEventListener('click', e => {
+      const b = e.target.closest('[data-dbres]'); if (!b) return;
+      if (!confirm('この警告を「対応済み」にしますか？')) return;
+      const upd = {};
+      b.dataset.dbres.split(',').forEach(d => {
+        upd[`${d}/resolved`] = true;
+        upd[`${d}/resolvedAt`] = Date.now();
+        upd[`${d}/resolvedBy`] = state.profile.uid;
+      });
+      b.disabled = true;
+      db.ref('alerts/doubleBooking').update(upd).catch(err => { b.disabled = false; alert('更新できませんでした：' + (err.message || err.code)); });
+    });
 
     function renderKpis() {
       const today = todayStr();
